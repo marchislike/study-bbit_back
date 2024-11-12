@@ -96,18 +96,15 @@ public class SecurityConfig {
 
 
         //// 로그인 필터를 등록해준다.
+        LoginFilter loginFilter = new LoginFilter(authenticationManager(authenticationConfiguration), jwtUtil);
+        loginFilter.setFilterProcessesUrl("/member/login");
+
         http
-                .addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration), jwtUtil), UsernamePasswordAuthenticationFilter.class);
+                .addFilterAt(loginFilter, UsernamePasswordAuthenticationFilter.class);
 
         // 세션설정 : stateless하게
         http.sessionManagement((session) -> session
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS));
-
-        // 로그인 경로를 바꿔준다.
-//        http
-//                .formLogin(form -> form
-//                        .loginProcessingUrl("/user/login")
-//                );
 
         return http.build();
     }

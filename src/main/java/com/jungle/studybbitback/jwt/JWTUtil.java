@@ -20,9 +20,14 @@ public class JWTUtil {
         this.secretKey = new SecretKeySpec(secret.getBytes(StandardCharsets.UTF_8), Jwts.SIG.HS256.key().build().getAlgorithm());
     }
 
-    public String getUsername(String token) {
+    public Long getMemberId(String token) {
 
-        return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload().get("username", String.class);
+        return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload().get("member_id", Long.class);
+    }
+
+    public String getEmail(String token) {
+
+        return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload().get("email", String.class);
     }
 
     public String getRole(String token) {
@@ -35,7 +40,7 @@ public class JWTUtil {
         return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload().getExpiration().before(new Date());
     }
 
-    public String createJwt(String username, String role, Long expiredMs) {
+    public String createJwt(Long memberId, String email, String role, Long expiredMs) {
 
         Date now = new Date(System.currentTimeMillis());
         Date expiration = new Date(System.currentTimeMillis() + expiredMs);
@@ -43,7 +48,8 @@ public class JWTUtil {
         log.info("JWT 생성: {} 만료 시간: {}", now,  expiration);
 
         return Jwts.builder()
-                .claim("username", username)
+                .claim("member_id", memberId)
+                .claim("email", email)
                 .claim("role", role)
                 .issuedAt(new Date(System.currentTimeMillis()))
                 .expiration(new Date(System.currentTimeMillis() + expiredMs))

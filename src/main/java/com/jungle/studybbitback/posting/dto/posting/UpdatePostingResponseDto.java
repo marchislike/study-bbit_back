@@ -11,11 +11,13 @@ public class UpdatePostingResponseDto {
     private String author;
     private String content;
     private LocalDateTime createdAt;
+    private LocalDateTime modifiedAt;
 
     public UpdatePostingResponseDto(Posting posting) {
         this.title = posting.getTitle();
-        this.author = posting.getUsername();
+        this.author = posting.getAuthor();
         this.content = posting.getContent();
         this.createdAt = posting.getCreatedAt();
+        this.modifiedAt = posting.getModifiedAt();
     }
 }

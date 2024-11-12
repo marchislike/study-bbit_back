@@ -7,6 +7,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -24,6 +25,7 @@ import java.util.Map;
 // POST "/login" 요청이 올 경우, 이를 처리한다.
 
 @Slf4j
+@RequiredArgsConstructor
 public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
     private final AuthenticationManager authenticationManager;
@@ -31,34 +33,26 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    public LoginFilter(AuthenticationManager authenticationManager, JWTUtil jwtUtil) {
-        this.authenticationManager = authenticationManager;
-        this.jwtUtil = jwtUtil;
-
-        // 로그인 경로 설정 (예: /user/login)
-        setFilterProcessesUrl("/user/login");
-    }
-
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
         // 클라이언트 요청에서 username, password 추출
-        String username = obtainUsername(request);
+        String email = obtainUsername(request);
         String password = obtainPassword(request);
 
         if ("application/json".equals(request.getContentType())) {
             try {
                 Map<String, String> loginData = objectMapper.readValue(request.getInputStream(), Map.class);
-                username = loginData.get("username");
+                email = loginData.get("email");
                 password = loginData.get("password");
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
         }
 
-        log.info("username : {}", username);
+        log.info("username : {}", email);
 
-        // 스프링 시큐리티에서 username과 password를 검증하기 위해서는 token에 담아야 함
-        UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(username, password, null);
+        // 스프링 시큐리티에서 email과 password를 검증하기 위해서는 token에 담아야 함
+        UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(email, password, null);
         
         //token에 담은 검증을 위한 AuthenticationManager로 전달
         // AuthenticationManager가 일련의 과정을 통해 DB에 해당 id, password가 있는지 확인한다.
@@ -72,7 +66,8 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         // JWT를 발급한다.
         CustomUserDetails customUserDetails = (CustomUserDetails) authentication.getPrincipal();
 
-        String username = customUserDetails.getUsername();
+        Long memberId = customUserDetails.getMemberId();
+        String email = customUserDetails.getEmail();
 
         Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
         Iterator<? extends GrantedAuthority> iterator = authorities.iterator();
@@ -80,7 +75,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
         String role = auth.getAuthority();
 
-        String token = jwtUtil.createJwt(username, role, 60* 1000 *100L);
+        String token = jwtUtil.createJwt(memberId, email, role, 60* 1000 *100L);
 
         // HTTP 인증방식은 RFC 7235 정의에 따라 아래 인증헤더 형태를 가져야 한다.
         response.addHeader("Authorization", "Bearer " + token);

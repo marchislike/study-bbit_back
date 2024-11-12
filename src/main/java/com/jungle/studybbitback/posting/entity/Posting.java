@@ -1,5 +1,6 @@
 package com.jungle.studybbitback.posting.entity;
 
+import com.jungle.studybbitback.common.entity.ModifiedEntity;
 import com.jungle.studybbitback.posting.dto.posting.AddPostingRequestDto;
 import com.jungle.studybbitback.posting.dto.posting.UpdatePostingRequestDto;
 import com.jungle.studybbitback.common.entity.ModifiedTimeEntity;
@@ -14,7 +15,7 @@ import java.util.List;
 @Entity
 @Getter
 @NoArgsConstructor
-public class Posting extends ModifiedTimeEntity {
+public class Posting extends ModifiedEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -24,21 +25,15 @@ public class Posting extends ModifiedTimeEntity {
     private String title;
     private String content;
     private String author;
-    private String password;
-
-    private String username;
 
     @OneToMany(mappedBy = "posting")
     @OrderBy("createdAt DESC")
     private List<Comment> comments = new ArrayList<>();
 
-    public Posting(AddPostingRequestDto requestDto, String loginName, String bcryptedPassword) {
+    public Posting(AddPostingRequestDto requestDto) {
         this.title = requestDto.getTitle();
         this.content = requestDto.getContent();
         this.author = requestDto.getAuthor();
-
-        this.username = loginName;
-        this.password = bcryptedPassword;
     }
 
     public void updatePosting(UpdatePostingRequestDto requestDto) {

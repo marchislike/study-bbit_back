@@ -24,16 +24,17 @@ public class MemberService {
 
     @Transactional
     public void signup(SignupRequestDto signupRequestDto) {
-        String username = signupRequestDto.getUsername();
+        String email = signupRequestDto.getEmail();
         String password = signupRequestDto.getPassword();
+        String nickname = signupRequestDto.getNickname();
 
-        log.info("username : {}, password : {}", username, password);
+        log.info("email : {}", email);
 
-        if(memberRepository.existsByUsername(username)) {
+        if(memberRepository.existsByEmail(email)) {
             throw new IllegalArgumentException("중복된 사용자가 존재합니다.");
         }
 
-        Member member = new Member(username, bCryptPasswordEncoder.encode(password), MemberRoleEnum.ROLE_USER);
+        Member member = new Member(email, bCryptPasswordEncoder.encode(password), nickname, MemberRoleEnum.ROLE_USER);
 
         memberRepository.save(member);
     }

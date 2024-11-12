@@ -8,5 +8,4 @@ public class UpdatePostingRequestDto {
     private String content;
     private String author;
 
-    private String password;
 }
