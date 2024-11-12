@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Chat Room</title>
+    <style>
+        /* 화면 전체에 채팅창이 표시되도록 설정 */
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        #chat-container {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            width: 100%;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        #chat-box {
+            width: 100%;
+            height: 80%; /* 전체 화면의 80%를 차지 */
+            overflow-y: auto;
+            border: 1px solid #ccc;
+            padding: 10px;
+        }
+
+        .message {
+            background-color: #f1f0f0;
+            border-radius: 10px;
+            padding: 10px;
+            margin: 8px 0;
+            max-width: 60%;
+            align-self: flex-start;
+        }
+
+        .message-sender {
+            font-weight: bold;
+            color: #333;
+        }
+
+        .message-content {
+            margin-left: 5px;
+            color: #555;
+        }
+
+        /* 메시지 입력 영역을 가로로 배치 */
+        #message-input {
+            display: none; /* 초기에는 숨김 */
+            width: 100%;
+            padding: 10px;
+            box-sizing: border-box;
+            display: flex;
+        }
+
+        #message {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            margin-right: 10px;
+        }
+
+        button {
+            padding: 10px 15px;
+            border: none;
+            background-color: #4CAF50;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        /* Join Chat 버튼과 입력 필드를 감추기 위한 스타일 */
+        #join-container {
+            display: flex;
+            gap: 10px;
+        }
+
+        #message-input {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+<div id="chat-container">
+    <div id="join-container">
+        <input type="text" id="username" placeholder="Enter your name" />
+        <button onclick="connect()">Join Chat</button>
+    </div>
+    <div id="chat-box"></div>
+
+    <!-- 메시지 입력과 버튼을 가로 배치하기 위한 flex 설정 -->
+    <div id="message-input">
+        <input type="text" id="message" placeholder="Enter message" />
+        <button onclick="sendMessage()">Send</button>
+    </div>
+</div>
+
+<script src="/webjars/sockjs-client/1.5.1/sockjs.min.js"></script>
+<script src="/webjars/stomp-websocket/2.3.3/stomp.min.js"></script>
+<script>
+    let stompClient = null;
+
+    function connect() {
+        const socket = new SockJS('/ws');
+        stompClient = Stomp.over(socket);
+
+        stompClient.connect({}, function () {
+            stompClient.subscribe('/topic/public', function (message) {
+                showMessage(JSON.parse(message.body));
+            });
+
+            stompClient.send("/app/chat.addUser",
+                {},
+                JSON.stringify({sender: document.getElementById("username").value, type: 'JOIN'})
+            );
+
+            // Join Chat 버튼과 입력 필드를 감추고 메시지 입력 필드를 표시
+            document.getElementById("join-container").style.display = 'none';
+            document.getElementById("message-input").style.display = 'flex';
+        });
+    }
+
+    function sendMessage() {
+        const message = document.getElementById("message").value;
+        stompClient.send("/app/chat.sendMessage", {}, JSON.stringify({sender: document.getElementById("username").value, content: message, type: 'CHAT'}));
+        document.getElementById("message").value = "";
+    }
+
+    function showMessage(message) {
+        const chatBox = document.getElementById("chat-box");
+
+        if (message.type === 'JOIN') {
+            chatBox.innerHTML += `<p><strong>${message.sender}</strong> 접속!</p>`;
+        } else if (message.type === 'CHAT') {
+            chatBox.innerHTML += `
+                <div class="message">
+                    <span class="message-sender">${message.sender}:</span>
+                    <span class="message-content">${message.content}</span>
+                </div>`;
+        }
+
+        chatBox.scrollTop = chatBox.scrollHeight;
+    }
+</script>
+</body>
+</html>
