@@ -1,6 +1,6 @@
 package com.jungle.studybbitback.jwt.dto;
 
-import com.jungle.studybbitback.member.entity.Member;
+import com.jungle.studybbitback.domain.member.entity.Member;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;

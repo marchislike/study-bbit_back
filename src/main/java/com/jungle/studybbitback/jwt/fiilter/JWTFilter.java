@@ -2,8 +2,8 @@ package com.jungle.studybbitback.jwt.fiilter;
 
 import com.jungle.studybbitback.jwt.JWTUtil;
 import com.jungle.studybbitback.jwt.dto.CustomUserDetails;
-import com.jungle.studybbitback.member.entity.Member;
-import com.jungle.studybbitback.member.entity.MemberRoleEnum;
+import com.jungle.studybbitback.domain.member.entity.Member;
+import com.jungle.studybbitback.domain.member.entity.MemberRoleEnum;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

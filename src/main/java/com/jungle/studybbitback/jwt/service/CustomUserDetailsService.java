@@ -1,8 +1,8 @@
 package com.jungle.studybbitback.jwt.service;
 
 import com.jungle.studybbitback.jwt.dto.CustomUserDetails;
-import com.jungle.studybbitback.member.entity.Member;
-import com.jungle.studybbitback.member.repository.MemberRepository;
+import com.jungle.studybbitback.domain.member.entity.Member;
+import com.jungle.studybbitback.domain.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.userdetails.UserDetails;
