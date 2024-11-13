@@ -4,5 +4,5 @@ import lombok.Getter;
 
 @Getter
 public class DeleteRoomRequestDto {
-    private Long id;
+//    private Long id;
 }

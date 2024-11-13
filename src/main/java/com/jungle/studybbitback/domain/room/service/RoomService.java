@@ -10,6 +10,8 @@ import com.jungle.studybbitback.domain.room.respository.RoomRepository;
 import com.jungle.studybbitback.jwt.dto.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -24,6 +26,8 @@ import java.util.stream.Collectors;
 @Slf4j
 public class RoomService {
 
+    private static final Logger logger = LoggerFactory.getLogger(RoomService.class);
+
     private final RoomRepository roomRepository;
     private final RoomMemberRepository roomMemberRepository;
     private final MemberRepository memberRepository;
@@ -36,10 +40,14 @@ public class RoomService {
 
         Room room = new Room(requestDto, memberId);
         Room savedRoom = roomRepository.saveAndFlush(room);
-        return new CreateRoomResponseDto(savedRoom);
+
+        // Response DTO 생성
+        CreateRoomResponseDto responseDto = new CreateRoomResponseDto(savedRoom);
+
+        return responseDto;
     }
 
-    public List<GetRoomResponseDto> getroomAll() {
+    public List<GetRoomResponseDto> getRoomAll() {
 
         List<Room> roomList = roomRepository.findAll(Sort.by(Sort.Direction.DESC, "createdAt"));
 
@@ -75,8 +83,8 @@ public class RoomService {
     }
 
     @Transactional
-    public String deleteRoom(Long id, DeleteRoomRequestDto requestDto) {
-        Room room = roomRepository.findById(requestDto.getId()).orElseThrow(
+    public String deleteRoom(Long id) {
+        Room room = roomRepository.findById(id).orElseThrow(
                 () -> new IllegalArgumentException("존재하지 않는 방입니다.")
         );
 

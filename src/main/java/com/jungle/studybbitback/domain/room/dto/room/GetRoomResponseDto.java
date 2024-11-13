@@ -1,9 +1,11 @@
 package com.jungle.studybbitback.domain.room.dto.room;
 
 import com.jungle.studybbitback.domain.room.entity.Room;
+import lombok.Getter;
 
 import java.time.LocalDateTime;
 
+@Getter
 public class GetRoomResponseDto {
     private Long id;
     private String name;

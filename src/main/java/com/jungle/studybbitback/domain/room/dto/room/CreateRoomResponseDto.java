@@ -7,6 +7,7 @@ import java.time.LocalDateTime;
 
 @Getter
 public class CreateRoomResponseDto {
+    private Long id;
     private String name;
     private String roomUrl;
     private String password;
@@ -17,6 +18,7 @@ public class CreateRoomResponseDto {
     private LocalDateTime createdAt;
 
     public CreateRoomResponseDto(Room room) {
+        this.id = room.getId();
         this.name = room.getName();
         this.roomUrl = room.getRoomUrl();
         this.password = room.getPassword();

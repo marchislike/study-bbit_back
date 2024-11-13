@@ -38,13 +38,13 @@ public class Room extends ModifiedTimeEntity {
     private Set<RoomBoard> roomBoard = new HashSet<>();
 
     public Room(CreateRoomRequestDto requestDto, Long leaderId) {
-        this.name = name;
-        this.roomUrl = roomUrl;
-        this.password = password;
-        this.detail = detail;
-        this.participants = participants;
-        this.maxParticipants = maxParticipants;
-        this.profileImageUrl = profileImageUrl;
+        this.name = requestDto.getName();
+        this.roomUrl = requestDto.getRoomUrl();
+        this.password = requestDto.getPassword();
+        this.detail = requestDto.getDetail();
+        this.participants = 0;
+        this.maxParticipants = requestDto.getMaxParticipants();
+        this.profileImageUrl = requestDto.getProfileImageUrl();
         this.leaderId = leaderId;
     }
 
