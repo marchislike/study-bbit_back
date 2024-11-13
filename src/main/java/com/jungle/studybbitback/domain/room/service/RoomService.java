@@ -100,14 +100,13 @@ public class RoomService {
     }
 
     @Transactional
-    public JoinRoomResponseDto joinRoom(JoinRoomRequestDto requestDto) {
-        Long roomId = requestDto.getRoomId();
+    public JoinRoomResponseDto joinRoom(Long roomId, JoinRoomRequestDto requestDto) {
+//        Long roomId = requestDto.getRoomId();
 
         // 로그인한 사용자 정보 가져오기
         CustomUserDetails userDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         Long memberId = userDetails.getMemberId();
 
-        // 방과 사용자 조회
         Room room = roomRepository.findById(roomId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 방입니다."));
         Member member = memberRepository.findById(memberId)
