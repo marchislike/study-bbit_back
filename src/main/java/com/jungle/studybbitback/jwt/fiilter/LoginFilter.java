@@ -3,6 +3,7 @@ package com.jungle.studybbitback.jwt.fiilter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jungle.studybbitback.jwt.JWTUtil;
 import com.jungle.studybbitback.jwt.dto.CustomUserDetails;
+import com.jungle.studybbitback.jwt.dto.LoginResponseDto;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -68,6 +69,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
         Long memberId = customUserDetails.getMemberId();
         String email = customUserDetails.getEmail();
+        String nickname = customUserDetails.getNickName();
 
         Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
         Iterator<? extends GrantedAuthority> iterator = authorities.iterator();
@@ -75,13 +77,19 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
         String role = auth.getAuthority();
 
-        String token = jwtUtil.createJwt(memberId, email, role, 60* 1000 *100L);
+        String token = jwtUtil.createJwt(memberId, email, role, nickname,60* 1000 *100L);
 
         // HTTP 인증방식은 RFC 7235 정의에 따라 아래 인증헤더 형태를 가져야 한다.
         response.addHeader("Authorization", "Bearer " + token);
-        response.setContentType("text/plain; charset=UTF-8");
+        response.setContentType("application/json; charset=UTF-8");
         response.setCharacterEncoding("UTF-8");
-        response.getWriter().write("로그인 성공");
+
+        LoginResponseDto loginResponse = new LoginResponseDto(memberId, email, role, nickname);
+        ObjectMapper objectMapper = new ObjectMapper();
+        String jsonResponse = objectMapper.writeValueAsString(loginResponse);
+
+        // JSON 응답 전송
+        response.getWriter().write(jsonResponse);
     }
 
     // 검증에서 실패한 경우

@@ -35,22 +35,23 @@ public class JWTUtil {
         return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload().get("role", String.class);
     }
 
+    public String getNickname(String token) {
+
+        return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload().get("nick_name", String.class);
+    }
+
     public Boolean isExpired(String token) {
 
         return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload().getExpiration().before(new Date());
     }
 
-    public String createJwt(Long memberId, String email, String role, Long expiredMs) {
-
-        Date now = new Date(System.currentTimeMillis());
-        Date expiration = new Date(System.currentTimeMillis() + expiredMs);
-
-        log.info("JWT 생성: {} 만료 시간: {}", now,  expiration);
+    public String createJwt(Long memberId, String email, String role, String nickname, Long expiredMs) {
 
         return Jwts.builder()
                 .claim("member_id", memberId)
                 .claim("email", email)
                 .claim("role", role)
+                .claim("nick_name", nickname)
                 .issuedAt(new Date(System.currentTimeMillis()))
                 .expiration(new Date(System.currentTimeMillis() + expiredMs))
                 .signWith(secretKey)

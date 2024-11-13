@@ -60,13 +60,14 @@ public class JWTFilter extends OncePerRequestFilter {
         Long memberId = jwtUtil.getMemberId(token);
         String email = jwtUtil.getEmail(token);
         String role = jwtUtil.getRole(token);
+        String nickname = jwtUtil.getNickname(token);
 
         //User를 생성하여 값 set
 
         // 비밀번호는 토큰에 없었음
         // 필드가 비어있으면 안되니 그냥 임시로 아무거나 넣어두자
         // 어짜피 이거 안쓴다.
-        Member member = new Member(memberId, email, "temppassword", "tempnickname", MemberRoleEnum.valueOf(role));
+        Member member = new Member(memberId, email, "temppassword", nickname, MemberRoleEnum.valueOf(role));
         
         // UserDetails에 회원 정보 객체 담기
         CustomUserDetails customUserDetails = new CustomUserDetails(member);
