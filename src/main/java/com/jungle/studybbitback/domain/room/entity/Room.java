@@ -8,7 +8,6 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -23,29 +22,37 @@ public class Room extends ModifiedTimeEntity {
     private Long id;
 
     //name, roomUrl, participants,max~는 변경 불가
+    @Column(nullable = false)
     private String name;
+
+    @Column(nullable = false)
     private String roomUrl;
     private String password;
     private String detail;
+
+    @Column(nullable = false)
     private Integer participants;
+
+    @Column(nullable = false)
     private Integer maxParticipants;
+
     private String profileImageUrl;
 
-    @Column(name = "leader_id")
+    @Column(nullable = false, name = "leader_id") //leaderId로 쓸 ID임
     private Long leaderId;
 
     @OneToMany (mappedBy = "room")
     private Set<RoomBoard> roomBoard = new HashSet<>();
 
-    public Room(CreateRoomRequestDto requestDto, Long leaderId) {
+    public Room(CreateRoomRequestDto requestDto, Long memberId) {
         this.name = requestDto.getName();
         this.roomUrl = requestDto.getRoomUrl();
         this.password = requestDto.getPassword();
         this.detail = requestDto.getDetail();
-        this.participants = 0;
+        this.participants = 1;
         this.maxParticipants = requestDto.getMaxParticipants();
         this.profileImageUrl = requestDto.getProfileImageUrl();
-        this.leaderId = leaderId;
+        this.leaderId = memberId;
     }
 
     public void updateDetails(UpdateRoomRequestDto requestDto) {

@@ -12,8 +12,10 @@ public class CreateRoomResponseDto {
     private String roomUrl;
     private String password;
     private String detail;
+    private Integer participants;
     private Integer maxParticipants;
     private String profileImageUrl;
+    private Long leaderId;
 
     private LocalDateTime createdAt;
 
@@ -23,8 +25,10 @@ public class CreateRoomResponseDto {
         this.roomUrl = room.getRoomUrl();
         this.password = room.getPassword();
         this.detail = room.getDetail();
+        this.participants = room.getParticipants();
         this.maxParticipants = room.getMaxParticipants();
         this.profileImageUrl = room.getProfileImageUrl();
         this.createdAt = room.getCreatedAt();
+        this.leaderId = room.getLeaderId();
     }
 }

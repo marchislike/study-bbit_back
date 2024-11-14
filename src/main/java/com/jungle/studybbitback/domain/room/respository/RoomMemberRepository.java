@@ -17,4 +17,7 @@ public interface RoomMemberRepository extends JpaRepository<RoomMember, Long> {
 
     // 특정 방의 멤버수 세기
     int countByRoom(Room room);
+
+    // Room을 기준으로 RoomMember 삭제
+    void deleteByRoom(Room room);
 }

@@ -38,13 +38,17 @@ public class RoomService {
         CustomUserDetails userDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         Long memberId = userDetails.getMemberId();
 
+        // 방 생성자의 Member 정보 가져오기
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
+
         Room room = new Room(requestDto, memberId);
         Room savedRoom = roomRepository.saveAndFlush(room);
 
-        // Response DTO 생성
-        CreateRoomResponseDto responseDto = new CreateRoomResponseDto(savedRoom);
+        RoomMember roomMember = new RoomMember(savedRoom, member);
+        roomMemberRepository.save(roomMember);
 
-        return responseDto;
+        return new CreateRoomResponseDto(savedRoom);
     }
 
     public List<GetRoomResponseDto> getRoomAll() {
@@ -94,6 +98,9 @@ public class RoomService {
         if (room.getLeaderId() != memberId) {
             throw new IllegalStateException("삭제 권한이 없습니다.");
         }
+
+        // RoomMember 레코드 삭제
+        roomMemberRepository.deleteByRoom(room);
 
         roomRepository.delete(room);
         return "스터디룸이 삭제되었습니다.";
