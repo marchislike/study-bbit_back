@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -104,6 +105,23 @@ public class RoomService {
 
         roomRepository.delete(room);
         return "스터디룸이 삭제되었습니다.";
+    }
+
+    @Transactional
+    public UUID startMeeting(Long roomId) {
+        Room room = roomRepository.findById(roomId)
+                .orElseThrow(() -> new IllegalArgumentException("Room not found"));
+
+        room.startMeeting(); // 매번 새로운 meetingId 생성
+        return room.getMeetingId();
+    }
+
+    @Transactional
+    public void endMeeting(Long roomId) {
+        Room room = roomRepository.findById(roomId)
+                .orElseThrow(() -> new IllegalArgumentException("Room not found"));
+
+        room.endMeeting();
     }
 
     @Transactional
