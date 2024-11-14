@@ -97,7 +97,7 @@ public class SecurityConfig {
 
         //// 로그인 필터를 등록해준다.
         LoginFilter loginFilter = new LoginFilter(authenticationManager(authenticationConfiguration), jwtUtil);
-        loginFilter.setFilterProcessesUrl("/member/login");
+        loginFilter.setFilterProcessesUrl("/api/member/login");
 
         http
                 .addFilterAt(loginFilter, UsernamePasswordAuthenticationFilter.class);
