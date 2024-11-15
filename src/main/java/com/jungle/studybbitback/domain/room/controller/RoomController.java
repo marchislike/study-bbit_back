@@ -63,13 +63,6 @@ public class RoomController {
         String response = roomService.deleteRoom(id);
         return ResponseEntity.ok(response);
     }
-
-    // 방에 참여하기 (사용자가 스스로 방에 들어감)
-    @PostMapping("/{roomId}/join")
-    public ResponseEntity<JoinRoomResponseDto> joinRoom(@PathVariable("roomId") Long roomId, @RequestBody JoinRoomRequestDto requestDto) {
-        JoinRoomResponseDto response = roomService.joinRoom(roomId, requestDto);
-        return ResponseEntity.ok(response);
-    }
     
     //화상회의 시작, 종료, 참여 아래로 구현 예정
 }

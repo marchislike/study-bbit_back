@@ -1,7 +1,8 @@
 package com.jungle.studybbitback.domain.room.controller;
 
+import com.jungle.studybbitback.domain.room.dto.roommember.JoinRoomMemberRequestDto;
+import com.jungle.studybbitback.domain.room.dto.roommember.JoinRoomMemberResponseDto;
 import com.jungle.studybbitback.domain.room.dto.roommember.*;
-import com.jungle.studybbitback.domain.room.entity.RoomMember;
 import com.jungle.studybbitback.domain.room.service.RoomMemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -13,6 +14,13 @@ import org.springframework.web.bind.annotation.*;
 public class RoomMemberController {
 
     private final RoomMemberService roomMemberService;
+
+    // 방에 참여하기 (사용자가 스스로 방에 들어감)
+    @PostMapping("/join/{roomId}")
+    public ResponseEntity<JoinRoomMemberResponseDto> joinRoom(@PathVariable("roomId") Long roomId, @RequestBody JoinRoomMemberRequestDto requestDto) {
+        JoinRoomMemberResponseDto response = roomMemberService.joinRoom(roomId, requestDto);
+        return ResponseEntity.ok(response);
+    }
 
     // 방 멤버 초대
     @PostMapping("/invite/{roomId}")
@@ -31,7 +39,7 @@ public class RoomMemberController {
         return ResponseEntity.ok(response);
     }
 
-    // 방 멤버 삭제
+    // 방 나가기
     @DeleteMapping("/leave/{roomId}")
     public ResponseEntity<String> leaveRoom(
             @PathVariable Long roomId, @PathVariable Long memberId) {

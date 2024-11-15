@@ -23,6 +23,9 @@ public class Room extends ModifiedTimeEntity {
     private Long id;
 
     @Column(nullable = false)
+    private boolean isPrivacy = false; // default : 공개방
+
+    @Column(nullable = false)
     private String name;
 
     @Column(nullable = false)

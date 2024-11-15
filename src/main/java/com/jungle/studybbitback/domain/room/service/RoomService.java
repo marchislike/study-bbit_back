@@ -132,29 +132,4 @@ public class RoomService {
         return "스터디룸이 삭제되었습니다.";
     }
 
-    @Transactional
-    public JoinRoomResponseDto joinRoom(Long roomId, JoinRoomRequestDto requestDto) {
-//        Long roomId = requestDto.getRoomId();
-
-        // 로그인한 사용자 정보 가져오기
-        CustomUserDetails userDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        Long memberId = userDetails.getMemberId();
-
-        Room room = roomRepository.findById(roomId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 방입니다."));
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
-
-        // 이미 방에 참여한 경우 확인
-        if (roomMemberRepository.existsByRoomAndMember(room, member)) {
-            throw new IllegalStateException("이미 참여한 방입니다.");
-        }
-
-        // 방 참여 처리
-        RoomMember roomMember = new RoomMember(room, member);
-        roomMemberRepository.save(roomMember);
-
-        int participantCount = roomMemberRepository.countByRoom(room);
-        return new JoinRoomResponseDto(roomId, memberId, participantCount, memberId +"님이 방에 참여했습니다.");
-    }
 }
