@@ -84,4 +84,5 @@ public class Room extends ModifiedTimeEntity {
     public void endMeeting() {
         this.meetingId = null;
     }
+    //이하 구현 예정
 }
