@@ -43,9 +43,16 @@ public class RoomService {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
 
+        // 비공개 방일 경우 비밀번호가 필수
+        if (requestDto.isPrivate() && (requestDto.getPassword() == null || requestDto.getPassword().isEmpty())) {
+            throw new IllegalArgumentException("비공개 방은 비밀번호를 설정해야 합니다.");
+        }
+
+        //방 생성
         Room room = new Room(requestDto, memberId);
         Room savedRoom = roomRepository.saveAndFlush(room);
 
+        //방 개설한 사람은 자동으로 참여명단에 추가.
         RoomMember roomMember = new RoomMember(savedRoom, member);
         roomMemberRepository.save(roomMember);
 
@@ -106,6 +113,16 @@ public class RoomService {
         if (room.getLeaderId() != memberId){
             throw new IllegalArgumentException("스터디장만 수정할 수 있습니다.");
         }
+
+    // 공개 방이면 비밀번호 무시
+        if (!room.isPrivate()) {
+            requestDto = UpdateRoomRequestDto.builder()
+                    .detail(requestDto.getDetail())
+                    .password(null) // 비밀번호 제거
+                    .profileImageUrl(requestDto.getProfileImageUrl())
+                    .build();
+        }
+
         room.updateDetails(requestDto);
         roomRepository.save(room);
 

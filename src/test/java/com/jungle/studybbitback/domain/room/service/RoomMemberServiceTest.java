@@ -2,11 +2,11 @@ package com.jungle.studybbitback.domain.room.service;
 
 import com.jungle.studybbitback.domain.member.entity.Member;
 import com.jungle.studybbitback.domain.member.repository.MemberRepository;
+import com.jungle.studybbitback.domain.room.dto.room.CreateRoomRequestDto;
+import com.jungle.studybbitback.domain.room.dto.roommember.GetRoomMemberResponseDto;
 import com.jungle.studybbitback.domain.room.dto.roommember.InviteRoomMemberRequestDto;
 import com.jungle.studybbitback.domain.room.dto.roommember.InviteRoomMemberResponseDto;
 import com.jungle.studybbitback.domain.room.dto.roommember.LeaveRoomMemberRequestDto;
-import com.jungle.studybbitback.domain.room.dto.roommember.GetRoomMemberResponseDto;
-import com.jungle.studybbitback.domain.room.dto.room.CreateRoomRequestDto;
 import com.jungle.studybbitback.domain.room.entity.Room;
 import com.jungle.studybbitback.domain.room.entity.RoomMember;
 import com.jungle.studybbitback.domain.room.respository.RoomMemberRepository;
@@ -19,7 +19,8 @@ import org.mockito.MockitoAnnotations;
 
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -53,13 +54,14 @@ class RoomMemberServiceTest {
         CreateRoomRequestDto createRoomRequestDto = new CreateRoomRequestDto(
                 "Test Room",           // name
                 "test-room-url",       // roomUrl
-                null,                  // password (nullable로 설정됨)
+                null,                  // password (nullable)
                 "Room detail",         // detail
+                1,                     // participants
                 10,                    // maxParticipants
-                null,                  // profileImageUrl (nullable로 설정됨)
-                "1"                    // leaderId (String 값으로 제공)
+                null,                  // profileImageUrl (nullable)
+                false                  // isPrivate (공개 방)
         );
-        Room room = new Room(roomId, createRoomRequestDto, member.getId());  // 테스트용 생성자 사용
+        Room room = new Room(roomId, createRoomRequestDto, member.getId());
         RoomMember roomMember = new RoomMember(room, member);
 
         // Mocking
@@ -83,13 +85,14 @@ class RoomMemberServiceTest {
         Long roomId = 1L;
         Long memberId = 1L;
         CreateRoomRequestDto createRoomRequestDto = new CreateRoomRequestDto(
-                "Test Room",           // name
-                "test-room-url",       // roomUrl
-                null,                  // password (nullable로 설정됨)
-                "Room detail",         // detail
-                10,                    // maxParticipants
-                null,                  // profileImageUrl (nullable로 설정됨)
-                "1"                    // leaderId (String 값으로 제공)
+                "Test Room",
+                "test-room-url",
+                null,
+                "Room detail",
+                1,
+                10,
+                null,
+                false
         );
         Room room = new Room(roomId, createRoomRequestDto, memberId);
         Member member = new Member(memberId, "test@example.com", "password", "nickname", null);
@@ -114,13 +117,14 @@ class RoomMemberServiceTest {
         Long memberId = 1L;
         LeaveRoomMemberRequestDto requestDto = new LeaveRoomMemberRequestDto(roomId, memberId);
         CreateRoomRequestDto createRoomRequestDto = new CreateRoomRequestDto(
-                "Test Room",           // name
-                "test-room-url",       // roomUrl
-                null,                  // password (nullable로 설정됨)
-                "Room detail",         // detail
-                10,                    // maxParticipants
-                null,                  // profileImageUrl (nullable로 설정됨)
-                "1"                      // leaderId
+                "Test Room",
+                "test-room-url",
+                null,
+                "Room detail",
+                1,
+                10,
+                null,
+                false
         );
         Room room = new Room(roomId, createRoomRequestDto, memberId);
         Member member = new Member(memberId, "test@example.com", "password", "nickname", null);
