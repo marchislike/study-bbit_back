@@ -43,10 +43,8 @@ public class RoomMemberController {
 
     // 방 나가기
     @DeleteMapping("/leave/{roomId}")
-    public ResponseEntity<String> leaveRoom(
-            @PathVariable Long roomId, @PathVariable Long memberId) {
-        LeaveRoomMemberRequestDto requestDto = new LeaveRoomMemberRequestDto(roomId, memberId);
-        String response = roomMemberService.leaveRoom(requestDto);
+    public ResponseEntity<String> leaveRoom(@PathVariable Long roomId) {
+        String response = roomMemberService.leaveRoom(roomId);
         return ResponseEntity.ok(response);
     }
 }

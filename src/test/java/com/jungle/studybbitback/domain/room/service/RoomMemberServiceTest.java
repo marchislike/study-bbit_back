@@ -167,7 +167,7 @@ class RoomMemberServiceTest {
         // Given
         Long roomId = 1L;
         Long memberId = 1L;
-        LeaveRoomMemberRequestDto requestDto = new LeaveRoomMemberRequestDto(roomId, memberId);
+
         CreateRoomRequestDto createRoomRequestDto = new CreateRoomRequestDto(
                 "Test Room",
                 "test-room-url",
@@ -186,7 +186,7 @@ class RoomMemberServiceTest {
         when(roomMemberRepository.findByRoomIdAndMemberId(roomId, memberId)).thenReturn(Optional.of(roomMember));
 
         // When
-        String response = roomMemberService.leaveRoom(requestDto);
+        String response = roomMemberService.leaveRoom(roomId);
 
         // Then
         assertEquals("스터디룸을 떠납니다.", response);

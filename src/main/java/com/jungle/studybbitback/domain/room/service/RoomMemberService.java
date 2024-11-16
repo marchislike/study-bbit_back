@@ -97,10 +97,10 @@ public class RoomMemberService {
 
         // 현재 로그인된 사용자 정보 가져오기
         CustomUserDetails userDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        Long requesterId = userDetails.getMemberId();
+        Long memberId = userDetails.getMemberId();
 
         // 초대자 역할이 방장인지 확인
-        if (!room.getLeaderId().equals(requesterId)) {
+        if (!room.getLeaderId().equals(memberId)) {
             throw new IllegalStateException("방장만 초대할 수 있습니다.");
         }
 
@@ -108,7 +108,8 @@ public class RoomMemberService {
         if (room.getParticipants() >= room.getMaxParticipants()) {
             throw new IllegalStateException("해당 방은 이미 가득 찼습니다.");
         }
-        
+
+
         // 초대할 사용자가 존재하는지 확인
         Member member = memberRepository.findByEmail(email)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
@@ -128,13 +129,24 @@ public class RoomMemberService {
     }
 
 
-
     //스터디룸 나가기
     @Transactional
-    public String leaveRoom(LeaveRoomMemberRequestDto requestDto) {
-        RoomMember roomMember = roomMemberRepository.findByRoomIdAndMemberId(requestDto.getRoomId(), requestDto.getMemberId())
-                .orElseThrow(() -> new IllegalArgumentException("해당 스터디그룹에 속해있지 않습니다."));
+    public String leaveRoom(Long roomId) {
 
+        // 현재 로그인된 사용자 정보 가져오기
+        CustomUserDetails userDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Long memberId = userDetails.getMemberId();
+
+        Room room = roomRepository.findById(roomId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 방입니다."));
+
+        // 리더는 방을 나갈 수 없도록 처리
+        if (room.getLeaderId().equals(memberId)) {
+            throw new IllegalStateException("방장은 방을 나갈 수 없습니다. 방을 삭제하거나 다른 멤버에게 방장 권한을 위임해야 합니다.");
+        }
+
+        RoomMember roomMember = roomMemberRepository.findByRoomIdAndMemberId(roomId, memberId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 스터디그룹에 속해있지 않습니다."));
         roomMemberRepository.delete(roomMember);
         return "스터디룸을 떠납니다.";
     }
