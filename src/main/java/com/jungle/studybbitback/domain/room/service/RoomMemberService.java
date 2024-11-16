@@ -19,6 +19,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -28,6 +31,28 @@ public class RoomMemberService {
     private final RoomMemberRepository roomMemberRepository;
     private final RoomRepository roomRepository;
     private final MemberRepository memberRepository;
+
+    //스터디룸 전체 멤버 조회
+    public List<GetRoomMemberResponseDto> getRoomMembers(Long roomId) {
+        // 현재 로그인된 사용자 정보 가져오기
+        CustomUserDetails userDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Long memberId = userDetails.getMemberId();
+
+        // 현재 사용자가 해당 스터디룸의 멤버인지 확인
+        boolean isMember = roomMemberRepository.findByRoomIdAndMemberId(roomId, memberId).isPresent();
+        if (!isMember) {
+            throw new IllegalArgumentException("해당 스터디룸의 멤버만 조회할 수 있습니다.");
+        }
+
+
+        List<RoomMember> roomMember = roomMemberRepository.findByRoomId(roomId);
+        if (roomMember.isEmpty()) {
+            throw new IllegalArgumentException("해당 방에 멤버가 없습니다.");
+        }
+        return roomMember.stream()
+                .map(GetRoomMemberResponseDto::new)
+                .collect(Collectors.toList());
+    }
 
     //스터디룸 참여(가입)
     @Transactional
@@ -80,12 +105,6 @@ public class RoomMemberService {
         return new InviteRoomMemberResponseDto(savedRoomMember);
     }
 
-
-    public GetRoomMemberResponseDto getRoomMember(Long roomId, Long memberId) {
-        RoomMember roomMember = roomMemberRepository.findByRoomIdAndMemberId(roomId, memberId)
-                .orElseThrow(() -> new IllegalArgumentException("해당 방에 존재하지 않는 회원입니다."));
-        return new GetRoomMemberResponseDto(roomMember);
-    }
 
     //스터디룸 나가기
     @Transactional

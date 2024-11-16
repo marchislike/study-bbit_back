@@ -5,9 +5,13 @@ import com.jungle.studybbitback.domain.room.entity.Room;
 import com.jungle.studybbitback.domain.room.entity.RoomMember;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface RoomMemberRepository extends JpaRepository<RoomMember, Long> {
+
+    // 스터디룸 멤버 전체 조회
+    List<RoomMember> findByRoomId(Long roomId);
 
     // 특정 회원이 "이미" 참여했는지 확인용
     boolean existsByRoomAndMember(Room room, Member member);

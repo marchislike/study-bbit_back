@@ -1,4 +1,4 @@
-package com.jungle.studybbitback.domain.room.service;
+package com.jungle.studybbitback.domain.roommember;
 
 import com.jungle.studybbitback.domain.member.entity.Member;
 import com.jungle.studybbitback.domain.member.repository.MemberRepository;
@@ -11,12 +11,14 @@ import com.jungle.studybbitback.domain.room.entity.Room;
 import com.jungle.studybbitback.domain.room.entity.RoomMember;
 import com.jungle.studybbitback.domain.room.respository.RoomMemberRepository;
 import com.jungle.studybbitback.domain.room.respository.RoomRepository;
+import com.jungle.studybbitback.domain.room.service.RoomMemberService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -94,20 +96,24 @@ class RoomMemberServiceTest {
                 null,
                 false
         );
-        Room room = new Room(roomId, createRoomRequestDto, memberId);
-        Member member = new Member(memberId, "test@example.com", "password", "nickname", null);
-        RoomMember roomMember = new RoomMember(room, member);
+        Room room = new Room(createRoomRequestDto, memberId);
+        Member member1 = new Member(1L, "test@example.com", "password", "nickname", null);
+        Member member2 = new Member(2L, "test2@example.com", "password", "nickname2", null);
+        RoomMember roomMember1 = new RoomMember(room, member1);
+        RoomMember roomMember2 = new RoomMember(room, member2);
+        List<RoomMember> roomMembers = List.of(roomMember1, roomMember2);
 
         // Mocking
-        when(roomMemberRepository.findByRoomIdAndMemberId(roomId, memberId)).thenReturn(Optional.of(roomMember));
+        when(roomMemberRepository.findByRoomId(roomId)).thenReturn(roomMembers);
 
         // When
-        GetRoomMemberResponseDto response = roomMemberService.getRoomMember(roomId, memberId);
+        List<GetRoomMemberResponseDto> response = roomMemberService.getRoomMembers(roomId);
 
         // Then
         assertNotNull(response);
-        assertEquals(roomMember.getMember().getId(), response.getMemberId());
-        assertEquals(roomMember.getRoom().getId(), response.getRoomId());
+        assertEquals(2, response.size());  // 확인할 멤버 수가 2명이라고 가정
+        assertEquals(member1.getId(), response.get(0).getRoomId());
+        assertEquals(member2.getId(), response.get(1).getRoomId());
     }
 
     @Test
