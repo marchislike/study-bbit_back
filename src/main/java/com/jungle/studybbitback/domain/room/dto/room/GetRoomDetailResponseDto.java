@@ -11,6 +11,7 @@ public class GetRoomDetailResponseDto {
     private Integer participants;
     private Integer maxParticipants;
     private String profileImageUrl;
+    private boolean isPrivate;
     private String leaderNickname;
 
     public GetRoomDetailResponseDto(Room room, String leaderNickname) {
@@ -20,6 +21,7 @@ public class GetRoomDetailResponseDto {
         this.participants = room.getParticipants();
         this.maxParticipants = room.getMaxParticipants();
         this.profileImageUrl = room.getProfileImageUrl();
+        this.isPrivate = room.isPrivate();
         this.leaderNickname = leaderNickname;
     }
 
