@@ -11,14 +11,16 @@ public class GetRoomDetailResponseDto {
     private Integer participants;
     private Integer maxParticipants;
     private String profileImageUrl;
+    private String leaderNickname;
 
-    public GetRoomDetailResponseDto(Room room) {
+    public GetRoomDetailResponseDto(Room room, String leaderNickname) {
         this.id = room.getId();
         this.name = room.getName();
         this.detail = room.getDetail();
         this.participants = room.getParticipants();
         this.maxParticipants = room.getMaxParticipants();
         this.profileImageUrl = room.getProfileImageUrl();
+        this.leaderNickname = leaderNickname;
     }
 
 }

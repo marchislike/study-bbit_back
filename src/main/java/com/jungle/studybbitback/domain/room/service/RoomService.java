@@ -87,7 +87,12 @@ public class RoomService {
         Room room = roomRepository.findById(id).orElseThrow(
                 () -> new IllegalArgumentException("존재하지 않는 방입니다.")
         );
-        return new GetRoomDetailResponseDto(room);
+        // leaderId를 통해 방장의 닉네임 조회
+        String leaderNickname = memberRepository.findById(room.getLeaderId())
+                .orElseThrow(() -> new IllegalArgumentException("방장이 존재하지 않습니다."))
+                .getNickname();
+
+        return new GetRoomDetailResponseDto(room, leaderNickname);
     }
 
     // 대시보드 접근 시 멤버 여부 확인
