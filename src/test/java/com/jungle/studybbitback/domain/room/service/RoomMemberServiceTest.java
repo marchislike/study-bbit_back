@@ -190,5 +190,6 @@ class RoomMemberServiceTest {
 
         // Then
         assertEquals("스터디룸을 떠납니다.", response);
+        assertEquals(1, room.getParticipants()); // 참여자 수가 1로 감소했는지 확인
     }
 }

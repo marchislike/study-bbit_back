@@ -84,12 +84,18 @@ public class Room extends ModifiedTimeEntity {
         }
     }
 
-    // participants 증가 메서드 추가
+    // participants 증감 메서드 추가
     public void increaseParticipants() {
         if (this.participants >= this.maxParticipants) {
             throw new IllegalStateException("참여 가능 인원이 초과되었습니다.");
         }
         this.participants += 1;
+    }
+
+    public void decreaseParticipants() {
+        if (this.participants > 0) {
+            this.participants -= 1;
+        }
     }
 
     public void startMeeting() {

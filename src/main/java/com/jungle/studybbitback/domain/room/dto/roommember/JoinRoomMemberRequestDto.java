@@ -5,10 +5,10 @@ import lombok.Getter;
 @Getter
 public class JoinRoomMemberRequestDto {
     private Long roomId;
-    private Long memberId;
+    private String password;
 
-    public JoinRoomMemberRequestDto(Long roomId, Long memberId) {
+    public JoinRoomMemberRequestDto(Long roomId, String password) {
         this.roomId = roomId;
-        this.memberId = memberId;
+        this.password = password;
     }
 }
