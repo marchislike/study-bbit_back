@@ -77,6 +77,11 @@ public class RoomService {
         return new GetRoomResponseDto(room);
     }
 
+    public Page<GetRoomResponseDto> searchRooms(String keyword, Pageable pageable) {
+        Page<Room> rooms = roomRepository.findByNameContainingOrDetailContaining(keyword, keyword, pageable); //nameKeyword, detailKeyword 순
+        return rooms.map(GetRoomResponseDto::new);
+    }
+
     public GetRoomDetailResponseDto getRoomDetail(Long id) {
 
         Room room = roomRepository.findById(id).orElseThrow(

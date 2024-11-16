@@ -42,6 +42,14 @@ public class RoomController {
         return ResponseEntity.ok(room);
     }
 
+    //검색으로 방 찾기(방 이름 or 방 설명)
+    @GetMapping("/search")
+    public ResponseEntity<Page<GetRoomResponseDto>> searchRooms(
+            @RequestParam String keyword, Pageable pageable){
+        Page<GetRoomResponseDto> rooms = roomService.searchRooms(keyword, pageable);
+        return ResponseEntity.ok(rooms);
+    }
+
     // 상세 방 설명
     @GetMapping("/detail/{roomId}")
     public ResponseEntity<GetRoomDetailResponseDto> getRoomDetail(@PathVariable("roomId") Long id) {
