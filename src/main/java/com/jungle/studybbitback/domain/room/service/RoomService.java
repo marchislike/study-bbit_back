@@ -12,6 +12,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -59,13 +62,11 @@ public class RoomService {
         return new CreateRoomResponseDto(savedRoom);
     }
 
-    public List<GetRoomResponseDto> getRoomAll() {
+    public Page<GetRoomResponseDto> getRoomAll(int page, int size) {
 
-        List<Room> roomList = roomRepository.findAll(Sort.by(Sort.Direction.DESC, "createdAt"));
-
-        return roomList.stream()
-                .map(GetRoomResponseDto::new)
-                .collect(Collectors.toList());
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
+        Page<Room> roomPage = roomRepository.findAll(pageable);
+        return roomPage.map(GetRoomResponseDto::new);
     }
 
     public GetRoomResponseDto getRoomById(Long id) {

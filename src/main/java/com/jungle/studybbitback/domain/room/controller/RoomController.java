@@ -3,6 +3,10 @@ package com.jungle.studybbitback.domain.room.controller;
 import com.jungle.studybbitback.domain.room.dto.room.*;
 import com.jungle.studybbitback.domain.room.service.RoomService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,8 +28,10 @@ public class RoomController {
 
     // 모든 방 조회 (메인에서 보이는 전체 스터디룸 목록)
     @GetMapping
-    public ResponseEntity<List<GetRoomResponseDto>> getRoomAll() {
-        List<GetRoomResponseDto> rooms = roomService.getRoomAll();
+    public ResponseEntity<Page<GetRoomResponseDto>> getRoomAll(
+           @RequestParam(defaultValue = "0") int page,
+           @RequestParam(defaultValue = "8") int size) {
+        Page<GetRoomResponseDto> rooms = roomService.getRoomAll(page, size);
         return ResponseEntity.ok(rooms);
     }
 
