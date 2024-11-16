@@ -2,6 +2,8 @@ package com.jungle.studybbitback.domain.room.service;
 
 import com.jungle.studybbitback.domain.member.entity.Member;
 import com.jungle.studybbitback.domain.member.entity.MemberRoleEnum;
+import com.jungle.studybbitback.domain.member.repository.MemberRepository;
+import com.jungle.studybbitback.domain.room.respository.RoomMemberRepository; // 추가
 import com.jungle.studybbitback.domain.room.dto.room.CreateRoomRequestDto;
 import com.jungle.studybbitback.domain.room.dto.room.CreateRoomResponseDto;
 import com.jungle.studybbitback.domain.room.entity.Room;
@@ -32,6 +34,12 @@ class RoomServiceTest {
     @Mock
     private RoomRepository roomRepository;
 
+    @Mock
+    private RoomMemberRepository roomMemberRepository; // 추가
+
+    @Mock
+    private MemberRepository memberRepository;
+
     @InjectMocks
     private RoomService roomService;
 
@@ -49,9 +57,27 @@ class RoomServiceTest {
         UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(userDetails, null, Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER")));
 
         SecurityContextHolder.getContext().setAuthentication(auth);
-
         // SecurityContextHolder의 인증 정보 확인
         logger.info("Authenticated User ID from SecurityContextHolder: {}", userDetails.getMemberId());
+
+        // Mock된 MemberRepository에서 findById 메소드 호출시 mockMember 반환
+        when(memberRepository.findById(1L)).thenReturn(java.util.Optional.of(mockMember));
+
+        // CreateRoomRequestDto 객체 생성
+        CreateRoomRequestDto requestDto = CreateRoomRequestDto.builder()
+                .name("Test Room")
+                .roomUrl("url1")
+                .password("password")
+                .detail("Room Detail")
+                .maxParticipants(10)
+                .profileImageUrl("image.jpg")
+                .isPrivate(false)
+                .build();
+
+        // 테스트용 Room 객체 생성
+        Room mockRoom = new Room(1L, requestDto, 1L); // 테스트용 생성자 호출
+        when(roomRepository.saveAndFlush(any(Room.class))).thenReturn(mockRoom); // save 호출 시 mockRoom 반환
+
     }
 
     @Test
@@ -64,6 +90,7 @@ class RoomServiceTest {
                 .detail("Test Room")
                 .maxParticipants(10)
                 .profileImageUrl("image.jpg")
+                .isPrivate(false)
                 .build();
 
         logger.info("Testing createRoom with request DTO: {}", requestDto);
@@ -77,9 +104,8 @@ class RoomServiceTest {
         CreateRoomResponseDto response = roomService.createRoom(requestDto);
 
         // Then: response 필드값 확인
-        logger.info("Received response from createRoom: {}", response);
+        assertNotNull(response); // Null이 아닌지 확인
         assertEquals("Room1", response.getName());
         assertEquals("url1", response.getRoomUrl());
-        assertNotNull(response); // Null이 아닌지 확인
     }
 }

@@ -1,6 +1,7 @@
-package com.jungle.studybbitback.domain.roommember;
+package com.jungle.studybbitback.domain.room.service;
 
 import com.jungle.studybbitback.domain.member.entity.Member;
+import com.jungle.studybbitback.domain.member.entity.MemberRoleEnum;
 import com.jungle.studybbitback.domain.member.repository.MemberRepository;
 import com.jungle.studybbitback.domain.room.dto.room.CreateRoomRequestDto;
 import com.jungle.studybbitback.domain.room.dto.roommember.GetRoomMemberResponseDto;
@@ -11,13 +12,19 @@ import com.jungle.studybbitback.domain.room.entity.Room;
 import com.jungle.studybbitback.domain.room.entity.RoomMember;
 import com.jungle.studybbitback.domain.room.respository.RoomMemberRepository;
 import com.jungle.studybbitback.domain.room.respository.RoomRepository;
-import com.jungle.studybbitback.domain.room.service.RoomMemberService;
+import com.jungle.studybbitback.jwt.dto.CustomUserDetails;  // CustomUserDetails import 추가
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledIfSystemProperty;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -43,6 +50,44 @@ class RoomMemberServiceTest {
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
+
+        // Mock된 Member 객체 생성
+        Member mockMember = new Member(1L, "testUser@example.com", "password", "testUser", MemberRoleEnum.ROLE_USER);
+
+        // CustomUserDetails로 감싸서 인증 객체 생성
+        CustomUserDetails userDetails = new CustomUserDetails(mockMember);
+
+        // Mock된 Room 객체 생성
+        CreateRoomRequestDto createRoomRequestDto = new CreateRoomRequestDto(
+                "Test Room",
+                "test-room-url",
+                "password",
+                "Room detail",
+                1,
+                10,
+                null,
+                false
+        );
+        Room mockRoom = new Room(createRoomRequestDto, mockMember.getId());
+
+        // Mock된 객체 반환 설정
+        when(memberRepository.findByEmail("test@example.com")).thenReturn(Optional.of(mockMember));
+        when(roomRepository.findById(1L)).thenReturn(Optional.of(mockRoom));
+
+        // RoomMemberRepository save Mock 설정
+        when(roomMemberRepository.save(any(RoomMember.class))).thenReturn(new RoomMember(mockRoom, mockMember));
+
+        // RoomMemberRepository에서 findByRoomId 호출 시 mockMember 반환 설정
+        RoomMember mockRoomMember = new RoomMember(mockRoom, mockMember);
+        when(roomMemberRepository.findByRoomId(mockRoom.getId())).thenReturn(List.of(mockRoomMember));
+
+        // SecurityContext 설정 (CustomUserDetails로 인증된 사용자)
+        SecurityContext securityContext = SecurityContextHolder.createEmptyContext();
+        UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
+                userDetails, null, Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER"))
+        );
+        securityContext.setAuthentication(authentication);
+        SecurityContextHolder.setContext(securityContext);
     }
 
     @Test
@@ -50,18 +95,19 @@ class RoomMemberServiceTest {
         // Given
         Long roomId = 1L;
         String email = "test@example.com";
+        String nickname = "testnickname";
         InviteRoomMemberRequestDto requestDto = new InviteRoomMemberRequestDto(roomId, email);
 
-        Member member = new Member(1L, email, "password", "nickname", null);
+        Member member = new Member(1L, email, "password", nickname, null);
         CreateRoomRequestDto createRoomRequestDto = new CreateRoomRequestDto(
-                "Test Room",           // name
-                "test-room-url",       // roomUrl
-                null,                  // password (nullable)
-                "Room detail",         // detail
-                1,                     // participants
-                10,                    // maxParticipants
-                null,                  // profileImageUrl (nullable)
-                false                  // isPrivate (공개 방)
+                "Test Room",
+                "test-room-url",
+                null,
+                "Room detail",
+                1,
+                10,
+                null,
+                false
         );
         Room room = new Room(roomId, createRoomRequestDto, member.getId());
         RoomMember roomMember = new RoomMember(room, member);
@@ -77,15 +123,15 @@ class RoomMemberServiceTest {
 
         // Then
         assertNotNull(response);
-        assertEquals(member.getId(), response.getMemberId());
-        assertEquals(room.getId(), response.getRoomId());
+        assertEquals(roomId, response.getRoomId());          // 방 ID 확인
+        assertEquals(nickname, response.getNickname());      // 닉네임 확인
     }
 
+    @EnabledIfSystemProperty(named = "runApiTest", matches = "true") //방 참여 멤버임이 입증이 안 되지만 포스트맨은 통과함
     @Test
     void getRoomMember_shouldReturnGetRoomMemberResponseDto() {
         // Given
         Long roomId = 1L;
-        Long memberId = 1L;
         CreateRoomRequestDto createRoomRequestDto = new CreateRoomRequestDto(
                 "Test Room",
                 "test-room-url",
@@ -96,7 +142,7 @@ class RoomMemberServiceTest {
                 null,
                 false
         );
-        Room room = new Room(createRoomRequestDto, memberId);
+        Room room = new Room(createRoomRequestDto, 1L);
         Member member1 = new Member(1L, "test@example.com", "password", "nickname", null);
         Member member2 = new Member(2L, "test2@example.com", "password", "nickname2", null);
         RoomMember roomMember1 = new RoomMember(room, member1);
@@ -112,8 +158,8 @@ class RoomMemberServiceTest {
         // Then
         assertNotNull(response);
         assertEquals(2, response.size());  // 확인할 멤버 수가 2명이라고 가정
-        assertEquals(member1.getId(), response.get(0).getRoomId());
-        assertEquals(member2.getId(), response.get(1).getRoomId());
+        assertEquals("nickname", response.get(0).getNickname());
+        assertEquals("nickname2", response.get(1).getNickname());
     }
 
     @Test

@@ -84,6 +84,14 @@ public class Room extends ModifiedTimeEntity {
         }
     }
 
+    // participants 증가 메서드 추가
+    public void increaseParticipants() {
+        if (this.participants >= this.maxParticipants) {
+            throw new IllegalStateException("참여 가능 인원이 초과되었습니다.");
+        }
+        this.participants += 1;
+    }
+
     public void startMeeting() {
         this.meetingId = UUID.randomUUID(); //화상 회의 시작할 경우 화상회의id 생성
     }

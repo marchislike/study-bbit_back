@@ -35,8 +35,8 @@ public class RoomMemberController {
     // 방 멤버 초대
     @PostMapping("/invite/{roomId}")
     public ResponseEntity<InviteRoomMemberResponseDto> inviteRoomMember(
-            @PathVariable Long roomId, @RequestBody String email) {
-        InviteRoomMemberRequestDto requestDto = new InviteRoomMemberRequestDto(roomId, email);
+            @PathVariable Long roomId, @RequestBody InviteRoomMemberRequestDto requestDto) {
+        requestDto.setId(roomId);
         InviteRoomMemberResponseDto response = roomMemberService.inviteRoomMember(requestDto);
         return ResponseEntity.ok(response);
     }

@@ -11,4 +11,8 @@ public class InviteRoomMemberRequestDto {
         this.roomId = roomId;
         this.email = email;
     }
+
+    public void setId(Long roomId) {
+        this.roomId = roomId;
+    }
 }
