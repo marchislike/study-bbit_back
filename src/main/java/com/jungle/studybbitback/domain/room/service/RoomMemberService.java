@@ -38,19 +38,25 @@ public class RoomMemberService {
         CustomUserDetails userDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         Long memberId = userDetails.getMemberId();
 
-        // 현재 사용자가 해당 스터디룸의 멤버인지 확인
-        boolean isMember = roomMemberRepository.findByRoomIdAndMemberId(roomId, memberId).isPresent();
-        if (!isMember) {
+        // 사용자가 해당 방의 멤버인지 확인
+        if (!roomMemberRepository.findByRoomIdAndMemberId(roomId, memberId).isPresent()) {
             throw new IllegalArgumentException("해당 스터디룸의 멤버만 조회할 수 있습니다.");
         }
 
+        // Room 객체를 조회하여 leaderId 가져오기
+        Room room = roomRepository.findById(roomId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 방이 존재하지 않습니다."));
+        Long leaderId = room.getLeaderId();
 
-        List<RoomMember> roomMember = roomMemberRepository.findByRoomId(roomId);
-        if (roomMember.isEmpty()) {
+        // 해당 방의 모든 멤버 조회
+        List<RoomMember> roomMembers = roomMemberRepository.findByRoomId(roomId);
+        if (roomMembers.isEmpty()) {
             throw new IllegalArgumentException("해당 방에 멤버가 없습니다.");
         }
-        return roomMember.stream()
-                .map(GetRoomMemberResponseDto::new)
+
+        // DTO로 변환하여 반환 (leaderId 포함)
+        return roomMembers.stream()
+                .map(roomMember -> new GetRoomMemberResponseDto(roomMember, leaderId))
                 .collect(Collectors.toList());
     }
 
