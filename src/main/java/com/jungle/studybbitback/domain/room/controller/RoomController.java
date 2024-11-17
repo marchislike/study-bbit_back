@@ -3,6 +3,10 @@ package com.jungle.studybbitback.domain.room.controller;
 import com.jungle.studybbitback.domain.room.dto.room.*;
 import com.jungle.studybbitback.domain.room.service.RoomService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,8 +28,10 @@ public class RoomController {
 
     // 모든 방 조회 (메인에서 보이는 전체 스터디룸 목록)
     @GetMapping
-    public ResponseEntity<List<GetRoomResponseDto>> getRoomAll() {
-        List<GetRoomResponseDto> rooms = roomService.getRoomAll();
+    public ResponseEntity<Page<GetRoomResponseDto>> getRoomAll(
+           @RequestParam(defaultValue = "0") int page,
+           @RequestParam(defaultValue = "8") int size) {
+        Page<GetRoomResponseDto> rooms = roomService.getRoomAll(page, size);
         return ResponseEntity.ok(rooms);
     }
 
@@ -34,6 +40,14 @@ public class RoomController {
     public ResponseEntity<GetRoomResponseDto> getRoomById(@PathVariable("roomId") Long id) {
         GetRoomResponseDto room = roomService.getRoomById(id);
         return ResponseEntity.ok(room);
+    }
+
+    //검색으로 방 찾기(방 이름 or 방 설명)
+    @GetMapping("/search")
+    public ResponseEntity<Page<GetRoomResponseDto>> searchRooms(
+            @RequestParam String keyword, Pageable pageable){
+        Page<GetRoomResponseDto> rooms = roomService.searchRooms(keyword, pageable);
+        return ResponseEntity.ok(rooms);
     }
 
     // 상세 방 설명
@@ -61,13 +75,6 @@ public class RoomController {
     @DeleteMapping("/{roomId}")
     public ResponseEntity<String> deleteRoom(@PathVariable("roomId") Long id) {
         String response = roomService.deleteRoom(id);
-        return ResponseEntity.ok(response);
-    }
-
-    // 방에 참여하기 (사용자가 스스로 방에 들어감)
-    @PostMapping("/{roomId}/join")
-    public ResponseEntity<JoinRoomResponseDto> joinRoom(@PathVariable("roomId") Long roomId, @RequestBody JoinRoomRequestDto requestDto) {
-        JoinRoomResponseDto response = roomService.joinRoom(roomId, requestDto);
         return ResponseEntity.ok(response);
     }
     

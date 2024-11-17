@@ -1,15 +1,15 @@
-package com.jungle.studybbitback.domain.room.dto.room;
+package com.jungle.studybbitback.domain.room.dto.roommember;
 
 import lombok.Getter;
 
 @Getter
-public class JoinRoomResponseDto {
+public class JoinRoomMemberResponseDto {
     private Long roomId;
     private Long memberId;
     private int participantCount;
     private String message;
 
-    public JoinRoomResponseDto(Long roomId, Long memberId, int participantCount, String message) {
+    public JoinRoomMemberResponseDto(Long roomId, Long memberId, int participantCount, String message) {
         this.roomId = roomId;
         this.memberId = memberId;
         this.participantCount = participantCount;

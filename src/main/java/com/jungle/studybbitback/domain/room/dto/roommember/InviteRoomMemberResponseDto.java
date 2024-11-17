@@ -6,10 +6,12 @@ import lombok.Getter;
 @Getter
 public class InviteRoomMemberResponseDto {
     private Long roomId;
-    private Long memberId;
+    private String nickname;
+    private String email;
 
     public InviteRoomMemberResponseDto(RoomMember roomMember) {
         this.roomId = roomMember.getRoom().getId();
-        this.memberId = roomMember.getMember().getId();
+        this.nickname = roomMember.getMember().getNickname();
+        this.email = roomMember.getMember().getEmail();
     }
 }

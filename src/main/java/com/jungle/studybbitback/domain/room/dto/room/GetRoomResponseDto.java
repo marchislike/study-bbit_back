@@ -16,6 +16,7 @@ public class GetRoomResponseDto {
     private String profileImageUrl;
     private LocalDateTime createdAt;
     private LocalDateTime modifiedAt;
+    private boolean isPrivate;
     private Long leaderId;
 
     public GetRoomResponseDto(Room room) {
@@ -28,6 +29,7 @@ public class GetRoomResponseDto {
         this.profileImageUrl = room.getProfileImageUrl();
         this.createdAt = room.getCreatedAt();
         this.modifiedAt = room.getModifiedAt();
+        this.isPrivate = room.isPrivate();
         this.leaderId = room.getLeaderId();
     }
 }

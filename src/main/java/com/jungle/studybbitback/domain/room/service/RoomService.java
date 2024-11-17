@@ -12,6 +12,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -43,22 +46,27 @@ public class RoomService {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
 
+        // 비공개 방일 경우 비밀번호가 필수
+        if (requestDto.isPrivate() && (requestDto.getPassword() == null || requestDto.getPassword().isEmpty())) {
+            throw new IllegalArgumentException("비공개 방은 비밀번호를 설정해야 합니다.");
+        }
+
+        //방 생성
         Room room = new Room(requestDto, memberId);
         Room savedRoom = roomRepository.saveAndFlush(room);
 
+        //방 개설한 사람은 자동으로 참여명단에 추가.
         RoomMember roomMember = new RoomMember(savedRoom, member);
         roomMemberRepository.save(roomMember);
 
         return new CreateRoomResponseDto(savedRoom);
     }
 
-    public List<GetRoomResponseDto> getRoomAll() {
+    public Page<GetRoomResponseDto> getRoomAll(int page, int size) {
 
-        List<Room> roomList = roomRepository.findAll(Sort.by(Sort.Direction.DESC, "createdAt"));
-
-        return roomList.stream()
-                .map(GetRoomResponseDto::new)
-                .collect(Collectors.toList());
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
+        Page<Room> roomPage = roomRepository.findAll(pageable);
+        return roomPage.map(GetRoomResponseDto::new);
     }
 
     public GetRoomResponseDto getRoomById(Long id) {
@@ -69,12 +77,22 @@ public class RoomService {
         return new GetRoomResponseDto(room);
     }
 
+    public Page<GetRoomResponseDto> searchRooms(String keyword, Pageable pageable) {
+        Page<Room> rooms = roomRepository.findByNameContainingOrDetailContaining(keyword, keyword, pageable); //nameKeyword, detailKeyword 순
+        return rooms.map(GetRoomResponseDto::new);
+    }
+
     public GetRoomDetailResponseDto getRoomDetail(Long id) {
 
         Room room = roomRepository.findById(id).orElseThrow(
                 () -> new IllegalArgumentException("존재하지 않는 방입니다.")
         );
-        return new GetRoomDetailResponseDto(room);
+        // leaderId를 통해 방장의 닉네임 조회
+        String leaderNickname = memberRepository.findById(room.getLeaderId())
+                .orElseThrow(() -> new IllegalArgumentException("방장이 존재하지 않습니다."))
+                .getNickname();
+
+        return new GetRoomDetailResponseDto(room, leaderNickname);
     }
 
     // 대시보드 접근 시 멤버 여부 확인
@@ -106,6 +124,16 @@ public class RoomService {
         if (room.getLeaderId() != memberId){
             throw new IllegalArgumentException("스터디장만 수정할 수 있습니다.");
         }
+
+    // 공개 방이면 비밀번호 무시
+        if (!room.isPrivate()) {
+            requestDto = UpdateRoomRequestDto.builder()
+                    .detail(requestDto.getDetail())
+                    .password(null) // 비밀번호 제거
+                    .profileImageUrl(requestDto.getProfileImageUrl())
+                    .build();
+        }
+
         room.updateDetails(requestDto);
         roomRepository.save(room);
 
@@ -132,29 +160,4 @@ public class RoomService {
         return "스터디룸이 삭제되었습니다.";
     }
 
-    @Transactional
-    public JoinRoomResponseDto joinRoom(Long roomId, JoinRoomRequestDto requestDto) {
-//        Long roomId = requestDto.getRoomId();
-
-        // 로그인한 사용자 정보 가져오기
-        CustomUserDetails userDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        Long memberId = userDetails.getMemberId();
-
-        Room room = roomRepository.findById(roomId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 방입니다."));
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
-
-        // 이미 방에 참여한 경우 확인
-        if (roomMemberRepository.existsByRoomAndMember(room, member)) {
-            throw new IllegalStateException("이미 참여한 방입니다.");
-        }
-
-        // 방 참여 처리
-        RoomMember roomMember = new RoomMember(room, member);
-        roomMemberRepository.save(roomMember);
-
-        int participantCount = roomMemberRepository.countByRoom(room);
-        return new JoinRoomResponseDto(roomId, memberId, participantCount, memberId +"님이 방에 참여했습니다.");
-    }
 }

@@ -22,6 +22,9 @@ public class Room extends ModifiedTimeEntity {
     @Column(name = "room_id")
     private Long id;
 
+    @Column(name = "is_private", nullable = false)
+    private boolean isPrivate = false; // default : 공개방
+
     @Column(nullable = false)
     private String name;
 
@@ -50,7 +53,8 @@ public class Room extends ModifiedTimeEntity {
     public Room(CreateRoomRequestDto requestDto, Long memberId) {
         this.name = requestDto.getName();
         this.roomUrl = requestDto.getRoomUrl();
-        this.password = requestDto.getPassword();
+        this.isPrivate = requestDto.isPrivate();
+        this.password = this.isPrivate ? requestDto.getPassword() : null;
         this.detail = requestDto.getDetail();
         this.participants = 1;
         this.maxParticipants = requestDto.getMaxParticipants();
@@ -63,7 +67,7 @@ public class Room extends ModifiedTimeEntity {
         this.id = id; // 테스트용 id
         this.name = requestDto.getName();
         this.roomUrl = requestDto.getRoomUrl();
-        this.password = requestDto.getPassword();
+        this.password = this.isPrivate ? requestDto.getPassword() : null;
         this.detail = requestDto.getDetail();
         this.participants = 1;
         this.maxParticipants = requestDto.getMaxParticipants();
@@ -72,9 +76,26 @@ public class Room extends ModifiedTimeEntity {
     }
 
     public void updateDetails(UpdateRoomRequestDto requestDto) {
-        this.password = requestDto.getPassword();
         this.detail = requestDto.getDetail();
         this.profileImageUrl = requestDto.getProfileImageUrl();
+        // 비공개 방에서만 비밀번호 수정
+        if (this.isPrivate) {
+            this.password = requestDto.getPassword();
+        }
+    }
+
+    // participants 증감 메서드 추가
+    public void increaseParticipants() {
+        if (this.participants >= this.maxParticipants) {
+            throw new IllegalStateException("참여 가능 인원이 초과되었습니다.");
+        }
+        this.participants += 1;
+    }
+
+    public void decreaseParticipants() {
+        if (this.participants > 0) {
+            this.participants -= 1;
+        }
     }
 
     public void startMeeting() {

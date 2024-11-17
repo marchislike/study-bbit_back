@@ -16,6 +16,7 @@ public class CreateRoomResponseDto {
     private Integer maxParticipants;
     private String profileImageUrl;
     private Long leaderId;
+    private boolean isPrivate;
 
     private LocalDateTime createdAt;
 
@@ -30,5 +31,6 @@ public class CreateRoomResponseDto {
         this.profileImageUrl = room.getProfileImageUrl();
         this.createdAt = room.getCreatedAt();
         this.leaderId = room.getLeaderId();
+        this.isPrivate = room.isPrivate();
     }
 }
