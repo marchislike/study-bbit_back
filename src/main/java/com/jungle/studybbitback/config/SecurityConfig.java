@@ -19,6 +19,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 
+import java.util.Arrays;
 import java.util.Collections;
 
 @Configuration
@@ -53,7 +54,11 @@ public class SecurityConfig {
 
                         CorsConfiguration configuration = new CorsConfiguration();
 
-                        configuration.setAllowedOrigins(Collections.singletonList("http://localhost:3000")); // 3000번대만 허용한다.
+                        // 여러 도메인 허용
+                        configuration.setAllowedOrigins(Arrays.asList(
+                                "http://localhost:3000",    // 로컬 개발 환경
+                                "https://studybbit.store"  // 배포된 환경
+                        ));
                         configuration.setAllowedMethods(Collections.singletonList("*")); // 모든 메소드 허용
                         configuration.setAllowCredentials(true); // 쿠키와 같은 자격 증명 있는 요청이 허용되도록 한다.
                         configuration.setAllowedHeaders(Collections.singletonList("*")); // 모든 헤더 허용
@@ -90,17 +95,14 @@ public class SecurityConfig {
                                 .anyRequest().permitAll()
                 );
 
-        //// jwt 필터를 등록해준다.
-        http
-                .addFilterAt(new JWTFilter(jwtUtil), LoginFilter.class);
-
-
         //// 로그인 필터를 등록해준다.
         LoginFilter loginFilter = new LoginFilter(authenticationManager(authenticationConfiguration), jwtUtil);
         loginFilter.setFilterProcessesUrl("/api/member/login");
 
         http
-                .addFilterAt(loginFilter, UsernamePasswordAuthenticationFilter.class);
+                .addFilterAt(loginFilter, UsernamePasswordAuthenticationFilter.class)
+                //// jwt 필터를 등록해준다.
+                .addFilterAfter(new JWTFilter(jwtUtil), LoginFilter.class);
 
         // 세션설정 : stateless하게
         http.sessionManagement((session) -> session
