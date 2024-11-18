@@ -1,6 +1,8 @@
 package com.jungle.studybbitback.config;
 
 import jakarta.servlet.http.HttpServletRequest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -14,9 +16,12 @@ import java.util.Map;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
+    private static final Logger logger = LoggerFactory.getLogger(GlobalExceptionHandler.class);
+
     // IllegalArgumentException 전용 핸들러
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<Map<String, Object>> handleIllegalArgumentException(IllegalArgumentException ex, HttpServletRequest request) {
+        logger.error("IllegalArgumentException occurred: {}", ex.getMessage(), ex); // 로그 추가
         Map<String, Object> errorResponse = createErrorResponse(HttpStatus.BAD_REQUEST, ex.getMessage(), request.getRequestURI());
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
@@ -24,6 +29,7 @@ public class GlobalExceptionHandler {
     // @Valid 유효성 검사 실패에 대한 핸들러 추가
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, Object>> handleValidationException(MethodArgumentNotValidException ex, HttpServletRequest request) {
+        logger.error("Validation exception occurred: {}", ex.getMessage(), ex); // 로그 추가
         Map<String, Object> errorResponse = createErrorResponse(HttpStatus.BAD_REQUEST, "Validation failed", request.getRequestURI());
         errorResponse.put("details", ex.getBindingResult().getFieldErrors().stream()
                 .map(fieldError -> fieldError.getField() + ": " + fieldError.getDefaultMessage())
@@ -34,6 +40,7 @@ public class GlobalExceptionHandler {
     // 전체 예외 핸들러
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Map<String, Object>> handleGlobalException(Exception ex, HttpServletRequest request) {
+        logger.error("Unhandled exception occurred: {}", ex.getMessage(), ex); // 로그 추가
         Map<String, Object> errorResponse = createErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage(), request.getRequestURI());
         return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
     }
