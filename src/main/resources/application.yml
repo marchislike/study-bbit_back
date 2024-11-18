@@ -16,9 +16,25 @@ spring:
       enabled: true
       charset: UTF-8
       force: true
+  cloud:
+    aws:
+      credentials:
+        accessKey: ${AWS_ACCESS_KEY_ID}
+        secretKey: ${AWS_SECRET_ACCESS_KEY}
+      s3:
+        bucketName: ${AWS_S3_BUCKET_NAME}
+      region:
+        static: ${AWS_REGION}
+      stack:
+        auto: false
+  servlet:
+    multipart:
+      max-file-size: 10MB  # 허용되는 파일 크기 제한
+      max-request-size: 10MB
 #
 #  thymeleaf:
 #    cache: false
+  # S3
 
   jpa:
     hibernate:
@@ -35,3 +51,4 @@ spring:
 jwt:
   secret:
     key: ${JWT_SECRET_KEY}
+
