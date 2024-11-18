@@ -24,8 +24,8 @@ public class Member extends ModifiedTimeEntity {
     @Column(nullable = false)
     private String nickname;
 
-    @Column
-    private String profile_image_url;
+    @Column(name = "profile_image_url")
+    private String profileImageUrl;
     
     @Column(nullable = false)
     @Enumerated(value = EnumType.STRING)
