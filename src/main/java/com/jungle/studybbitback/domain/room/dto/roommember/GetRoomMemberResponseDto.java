@@ -12,12 +12,14 @@ public class GetRoomMemberResponseDto {
     private Long roomId;
     private String nickname;
     private String leaderLabel;
+    private String profileImageUrl;
 
     // 기본 생성자
     public GetRoomMemberResponseDto(RoomMember roomMember) {
         this.roomId = roomMember.getRoom().getId();
         this.nickname = roomMember.getMember().getNickname();
         this.leaderLabel = ""; // 기본값
+        this.profileImageUrl = "";
     }
 
     // 새로운 생성자 추가 (RoomMember와 leaderId를 매개변수로 받음)
@@ -25,5 +27,7 @@ public class GetRoomMemberResponseDto {
         this.roomId = roomMember.getRoom().getId();
         this.nickname = roomMember.getMember().getNickname();
         this.leaderLabel = roomMember.getMember().getId().equals(leaderId) ? "방장" : ""; // 방장이면 "방장", 아니면 빈 문자열
+        this.profileImageUrl = roomMember.getMember().getProfileImageUrl(); //null이면 기본 이미지
+
     }
 }
