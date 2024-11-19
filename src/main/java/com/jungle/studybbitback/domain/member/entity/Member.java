@@ -1,9 +1,11 @@
 package com.jungle.studybbitback.domain.member.entity;
 
 import com.jungle.studybbitback.common.entity.ModifiedTimeEntity;
+import com.jungle.studybbitback.domain.member.dto.UpdateMemberRequestDto;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.util.StringUtils;
 
 @Getter
 @NoArgsConstructor
@@ -44,5 +46,17 @@ public class Member extends ModifiedTimeEntity {
         this.password = password;
         this.nickname = nickname;
         this.role = role;
+    }
+
+    public void updateMember(UpdateMemberRequestDto requestDto, String password, String profileUrl) {
+        if (StringUtils.hasText(requestDto.getNickname())) {
+            this.nickname = requestDto.getNickname();
+        }
+        if (StringUtils.hasText(password)) {
+            this.password = password;
+        }
+        if(requestDto.isProfileChanged()) {
+            this.profileImageUrl = profileUrl;
+        }
     }
 }
