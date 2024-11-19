@@ -50,7 +50,7 @@ jobs:
         key: ${{ secrets.EC2_KEY }}
         port: 22
         script: |
-          docker pull gyqjajang/study-bbit_back
-          docker stop study-bbit_back || true
-          docker rm study-bbit_back || true
-          docker run --env-file /home/ubuntu/envdir/back/.env -d -p 8080:8080 --name study-bbit_back gyqjajang/study-bbit_back
+          sudo docker pull gyqjajang/study-bbit_back
+          sudo docker stop study-bbit_back || true
+          sudo docker rm study-bbit_back || true
+          sudo docker run --env-file /home/ubuntu/envdir/back/.env -d -p 8080:8080 --name study-bbit_back gyqjajang/study-bbit_back
