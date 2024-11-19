@@ -14,7 +14,7 @@ public interface ScheduleRepository extends JpaRepository<Schedule, Long> {
     Page<Schedule> findByRoomId(Long roomId, Pageable pageable);
 
     // 특정 Room의 특정 달에 해당하는 일정 조회
-    Page<Schedule> findByRoomIdAndScheduleDateTimeBetween(
+    Page<Schedule> findByRoomIdAndStartDateTimeBetween(
             Long roomId,
             LocalDateTime start,
             LocalDateTime end,

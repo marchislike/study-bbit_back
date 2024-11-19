@@ -7,7 +7,6 @@ import com.jungle.studybbitback.domain.room.dto.schedule.GetScheduleResponseDto;
 import com.jungle.studybbitback.domain.room.service.schedule.ScheduleService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 

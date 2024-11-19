@@ -9,14 +9,16 @@ import java.time.LocalDateTime;
 public class CreateScheduleRequestDto {
     private Long roomId;
     private String title;
-    private LocalDateTime scheduleDateTime;
+    private LocalDateTime startDateTime;  // 시작 시간
+    private LocalDateTime endDateTime;    // 종료 시간
     private String detail;
 
     @Builder
-    public CreateScheduleRequestDto(Long roomId, String title, LocalDateTime scheduleDateTime, String detail) {
+    public CreateScheduleRequestDto(Long roomId, String title, LocalDateTime startDateTime, LocalDateTime endDateTime, String detail) {
         this.roomId = roomId;
         this.title = title;
-        this.scheduleDateTime = scheduleDateTime;
+        this.startDateTime = startDateTime;
+        this.endDateTime = endDateTime;
         this.detail = detail;
     }
 }

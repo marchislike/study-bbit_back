@@ -11,7 +11,8 @@ import java.time.LocalDateTime;
 public class GetScheduleResponseDto {
     private Long scheduleId;
     private String title;
-    private LocalDateTime scheduleDateTime;
+    private LocalDateTime startDateTime;
+    private LocalDateTime endDateTime;
     private String detail;
     private Long roomId;
     private String creatorName;
@@ -20,7 +21,8 @@ public class GetScheduleResponseDto {
         return GetScheduleResponseDto.builder()
                 .scheduleId(schedule.getId())
                 .title(schedule.getTitle())
-                .scheduleDateTime(schedule.getScheduleDateTime())
+                .startDateTime(schedule.getStartDateTime())
+                .endDateTime(schedule.getEndDateTime())
                 .detail(schedule.getDetail())
                 .roomId(schedule.getRoom().getId())
                 .creatorName(schedule.getCreatedBy().getNickname())

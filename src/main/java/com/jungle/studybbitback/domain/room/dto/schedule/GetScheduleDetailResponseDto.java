@@ -15,7 +15,8 @@ import java.util.stream.Collectors;
 public class GetScheduleDetailResponseDto {
     private Long scheduleId;
     private String title;
-    private LocalDateTime scheduleDateTime;
+    private LocalDateTime startDateTime;
+    private LocalDateTime endDateTime;
     private String detail;
     private Long roomId;
     private String creatorName;
@@ -30,7 +31,8 @@ public class GetScheduleDetailResponseDto {
         return GetScheduleDetailResponseDto.builder()
                 .scheduleId(schedule.getId())
                 .title(schedule.getTitle())
-                .scheduleDateTime(schedule.getScheduleDateTime())
+                .startDateTime(schedule.getStartDateTime())
+                .endDateTime(schedule.getEndDateTime())
                 .detail(schedule.getDetail())
                 .roomId(schedule.getRoom().getId())
                 .creatorName(schedule.getCreatedBy().getNickname())

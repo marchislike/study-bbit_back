@@ -51,6 +51,7 @@ public class ScheduleService {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
 
+        // Room 엔터티 조회
         Room room = roomRepository.findById(requestDto.getRoomId())
                 .orElseThrow(() -> new IllegalArgumentException("스터디룸이 존재하지 않습니다."));
 
@@ -59,13 +60,27 @@ public class ScheduleService {
             throw new AccessDeniedException("해당 스터디룸에 가입된 사용자만 일정을 생성할 수 있습니다.");
         }
 
+        // 현재 연도 가져오기
+        int currentYear = LocalDate.now().getYear();
+
+        // 시작 날짜에 연도만 현재 연도로 변경 (기존 연도는 그대로 두고, 현재 연도로만 수정)
+        LocalDateTime adjustedStartDateTime = requestDto.getStartDateTime().withYear(currentYear);
+        LocalDateTime adjustedEndDateTime = requestDto.getEndDateTime().withYear(currentYear);
+
+        // 종료 시간이 시작 시간보다 앞서지 않도록 검증
+        if (adjustedEndDateTime.isBefore(adjustedStartDateTime)) {
+            throw new IllegalArgumentException("종료 시간이 시작 시간보다 과거일 수 없습니다.");
+        }
+
         // 일정 생성 및 저장
         Schedule schedule = Schedule.from(requestDto, room, member);
+        schedule.setStartDateTime(adjustedStartDateTime);
+        schedule.setEndDateTime(adjustedEndDateTime);
+
         Schedule savedSchedule = scheduleRepository.save(schedule);
 
         // DTO 변환 및 반환
         return CreateScheduleResponseDto.from(savedSchedule);
-
     }
 
     @Transactional(readOnly = true)
@@ -95,7 +110,7 @@ public class ScheduleService {
         Pageable pageable = PageRequest.of(0, size);  // 0 페이지에서 size 크기만큼 반환
 
         // 월별 일정 조회
-        Page<Schedule> schedules = scheduleRepository.findByRoomIdAndScheduleDateTimeBetween(roomId, startOfMonth, endOfMonth, pageable);
+        Page<Schedule> schedules = scheduleRepository.findByRoomIdAndStartDateTimeBetween(roomId, startOfMonth, endOfMonth, pageable);
 
         // DTO 변환 및 반환
         return schedules.map(GetScheduleResponseDto::from);

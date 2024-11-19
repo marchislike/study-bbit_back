@@ -27,8 +27,11 @@ public class Schedule extends ModifiedTimeEntity {
     @NotBlank // 공백 문자열 허용하지 않음
     private String title;
 
-    @Column(nullable = false)
-    private LocalDateTime scheduleDateTime;
+    @Column(name = "start_date_time", nullable = false)
+    private LocalDateTime startDateTime;  // 시작 시간
+
+    @Column(name = "end_date_time", nullable = false)
+    private LocalDateTime endDateTime;    // 종료 시간
 
     @Column(length = 255)
     private String detail;
@@ -42,11 +45,20 @@ public class Schedule extends ModifiedTimeEntity {
     @JoinColumn(name = "created_by", nullable = false)
     private Member createdBy; // 일정 작성자
 
+    public void setStartDateTime(LocalDateTime startDateTime) {
+        this.startDateTime = startDateTime;
+    }
+
+    public void setEndDateTime(LocalDateTime endDateTime) {
+        this.endDateTime = endDateTime;
+    }
+
     // DTO와 Room, 작성자를 한 번에 받아 Schedule 생성
     public static Schedule from(CreateScheduleRequestDto requestDto, Room room, Member createdBy) {
         Schedule schedule = new Schedule();
         schedule.title = requestDto.getTitle();
-        schedule.scheduleDateTime = requestDto.getScheduleDateTime();
+        schedule.startDateTime = requestDto.getStartDateTime();
+        schedule.endDateTime = requestDto.getEndDateTime();
         schedule.detail = requestDto.getDetail();
         schedule.room = room;
         schedule.createdBy = createdBy;
