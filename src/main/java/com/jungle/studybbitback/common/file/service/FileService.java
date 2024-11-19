@@ -15,6 +15,7 @@ import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.*;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -119,6 +120,29 @@ public class FileService {
             throw new RuntimeException("Failed to delete file", e);
         }
         return "success";
+    }
+
+    public int deleteRoomFiles(Long roomId) {
+        // 파일 목록 조회
+        List<UserFile> files = fileRepository.findByRoomId(roomId);
+
+        // 삭제할 파일이 없으면 바로 0 반환
+        if (files.isEmpty()) {
+            return 0;
+        }
+
+        // Stream API를 사용해 삭제 처리
+        return files.stream()
+                .mapToInt(file -> {
+                    try {
+                        deleteFile(file.getFileUploadPath());
+                        return 1; // 삭제 성공 시 1 반환
+                    } catch (Exception e) {
+                        log.warn("파일 삭제 중 오류 발생: " + file.getFileUploadPath(), e);
+                        return 0; // 삭제 실패 시 0 반환
+                    }
+                })
+                .sum(); // 삭제된 파일 개수 합산
     }
 
 }
