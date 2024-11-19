@@ -30,9 +30,13 @@ public class ScheduleMember {
     @Column(nullable = false)
     private Boolean isParticipated; // boolean 대신 Boolean으로 참/불참 외 null(무응답)도 넘길 수 있게 설정
 
-    public ScheduleMember(Schedule schedule, Member member, boolean isParticipated) {
+    public ScheduleMember(Schedule schedule, Member member, Boolean isParticipated) {
         this.schedule = schedule;
         this.member = member;
+        this.isParticipated = isParticipated;
+    }
+    // isParticipated 상태를 설정
+    public void setIsParticipated(Boolean isParticipated) {
         this.isParticipated = isParticipated;
     }
 }

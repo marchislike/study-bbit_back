@@ -7,13 +7,14 @@ import lombok.Getter;
 @Getter
 @Builder
 public class GetScheduleMemberResponseDto {
+    private Long scheduleId;
     private Long memberId;
     private String nickname;
     private Boolean isParticipated;
 
     public static GetScheduleMemberResponseDto from(ScheduleMember scheduleMember) {
-        //Boolean isParticipated = scheduleMember.getIsParticipated();
         return GetScheduleMemberResponseDto.builder()
+                .scheduleId(scheduleMember.getSchedule().getId())
                 .memberId(scheduleMember.getMember().getId())
                 .nickname(scheduleMember.getMember().getNickname())
                 .isParticipated(scheduleMember.getIsParticipated())

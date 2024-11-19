@@ -8,15 +8,15 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class CreateScheduleMemberResponseDto {
+public class UpdateScheduleParticipationResponseDto {
     private Long scheduleId;
     private Long scheduleMemberId;
     private Long memberId;
-    private Boolean isParticipated;
+    private Boolean isParticipated; // true : 참석, false : 불참석, null : 무응답
     private String nickname;
 
-    public static CreateScheduleMemberResponseDto from(ScheduleMember scheduleMember) {
-        return new CreateScheduleMemberResponseDto(
+    public static UpdateScheduleParticipationResponseDto from(ScheduleMember scheduleMember) {
+        return new UpdateScheduleParticipationResponseDto(
                 scheduleMember.getSchedule().getId(),
                 scheduleMember.getId(),
                 scheduleMember.getMember().getId(),
@@ -25,4 +25,3 @@ public class CreateScheduleMemberResponseDto {
         );
     }
 }
-
