@@ -12,6 +12,12 @@ public class CorsMvcConfig implements WebMvcConfigurer {
     public void addCorsMappings(CorsRegistry corsRegistry) {
 
         corsRegistry.addMapping("/**") // 모든 경로에 대해 CORS 허용을 지정한다.
-                .allowedOrigins("http://localhost:3000"); // 3000번대의 요청만 허용한다.
+                .allowedOrigins(
+                        "http://localhost:3000",    // 로컬 개발 환경
+                        "https://studybbit.store"  // 배포된 환경
+                )
+                .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS") // 허용할 HTTP 메서드
+                .allowedHeaders("*") // 모든 헤더 허용
+                .allowCredentials(true); // 쿠키 및 인증 정보 포함 허용
     }
 }
