@@ -7,7 +7,6 @@ import com.jungle.studybbitback.domain.member.dto.UpdateMemberResponseDto;
 import com.jungle.studybbitback.domain.member.entity.Member;
 import com.jungle.studybbitback.domain.member.entity.MemberRoleEnum;
 import com.jungle.studybbitback.domain.member.repository.MemberRepository;
-import com.jungle.studybbitback.domain.posting.entity.Posting;
 import com.jungle.studybbitback.jwt.JWTUtil;
 import com.jungle.studybbitback.jwt.dto.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
@@ -63,6 +62,8 @@ public class MemberService {
         if(memberId != sessionMemberId) {
             throw new IllegalArgumentException("잘못된 로그인 정보입니다.");
         }
+        log.info("request Dto = {}", requestDto.getNickname());
+        log.info("request Dto = {}", requestDto.getMemberProfile());
 
         String password = "";
         if(StringUtils.hasText(requestDto.getPassword())) {
@@ -76,6 +77,7 @@ public class MemberService {
             }
             if(!requestDto.getMemberProfile().isEmpty()) { // 새로 올린 것 있으면 저장
                 profileUrl = fileService.uploadFile(requestDto.getMemberProfile(), "image", 0L);
+                log.info("profileUrl = {}", profileUrl);
             }
         }
 

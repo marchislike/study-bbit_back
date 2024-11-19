@@ -4,12 +4,10 @@ import com.jungle.studybbitback.domain.member.dto.SignupRequestDto;
 import com.jungle.studybbitback.domain.member.dto.UpdateMemberRequestDto;
 import com.jungle.studybbitback.domain.member.dto.UpdateMemberResponseDto;
 import com.jungle.studybbitback.domain.member.service.MemberService;
-import com.jungle.studybbitback.domain.room.dto.room.GetRoomResponseDto;
-import com.jungle.studybbitback.domain.room.dto.room.UpdateRoomRequestDto;
-import com.jungle.studybbitback.domain.room.dto.room.UpdateRoomResponseDto;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -35,10 +33,11 @@ public class MemberController {
     }
     
     // 회원수정
-    @PostMapping("/{memberId}")
-    public ResponseEntity<UpdateMemberResponseDto> updateMember(@PathVariable("memberId") Long memberId, @RequestBody UpdateMemberRequestDto requestDto) {
+    @PostMapping(value = "/{memberId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<UpdateMemberResponseDto> updateMember(
+            @PathVariable("memberId") Long memberId,
+            @ModelAttribute UpdateMemberRequestDto requestDto) {
         UpdateMemberResponseDto responseDto = memberService.updateMember(memberId, requestDto);
         return ResponseEntity.ok(responseDto);
     }
-
 }

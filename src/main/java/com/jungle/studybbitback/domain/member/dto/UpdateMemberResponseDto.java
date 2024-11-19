@@ -1,8 +1,8 @@
 package com.jungle.studybbitback.domain.member.dto;
 
 import com.jungle.studybbitback.domain.member.entity.Member;
-import org.springframework.web.multipart.MultipartFile;
-
+import lombok.Getter;
+@Getter
 public class UpdateMemberResponseDto {
 	private String nickname;
 	private String memberProfileUrl;
