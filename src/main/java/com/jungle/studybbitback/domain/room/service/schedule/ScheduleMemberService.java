@@ -4,7 +4,6 @@ import com.jungle.studybbitback.domain.member.entity.Member;
 import com.jungle.studybbitback.domain.member.repository.MemberRepository;
 import com.jungle.studybbitback.domain.room.dto.schedulemember.*;
 import com.jungle.studybbitback.domain.room.entity.Room;
-import com.jungle.studybbitback.domain.room.entity.RoomMember;
 import com.jungle.studybbitback.domain.room.entity.schedule.Schedule;
 import com.jungle.studybbitback.domain.room.entity.schedule.ScheduleMember;
 import com.jungle.studybbitback.domain.room.respository.RoomMemberRepository;
@@ -18,7 +17,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
