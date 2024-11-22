@@ -99,6 +99,13 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         response.setStatus(400);
         response.setContentType("text/plain; charset=UTF-8");
         response.setCharacterEncoding("UTF-8");
-        response.getWriter().write("토큰이 유효하지 않습니다.");
+
+        if (failed != null) {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.getWriter().write("이메일 또는 비밀번호가 올바르지 않습니다.");
+        } else {
+            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            response.getWriter().write("인증에 실패하였습니다.");
+        }
     }
 }
