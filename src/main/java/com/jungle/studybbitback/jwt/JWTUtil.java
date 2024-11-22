@@ -47,6 +47,9 @@ public class JWTUtil {
 
     public String createJwt(Long memberId, String email, String role, String nickname, Long expiredMs) {
 
+        log.info("start = {}", new Date(System.currentTimeMillis()));
+        log.info("end = {}", new Date(System.currentTimeMillis() + expiredMs));
+
         return Jwts.builder()
                 .claim("member_id", memberId)
                 .claim("email", email)
