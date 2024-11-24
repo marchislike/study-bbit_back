@@ -43,8 +43,15 @@ public class RoomBoardController {
 
     // 스터디룸 게시글 상세 조회
     @GetMapping("/detail/{roomBoardId}")
-    public ResponseEntity<GetRoomBoardDetailResponseDto> getRoomBoardDetail(@PathVariable Long roomBoardId) {
-        GetRoomBoardDetailResponseDto responseDto = roomBoardService.getRoomBoardDetail(roomBoardId);
+    public ResponseEntity<GetRoomBoardDetailResponseDto> getRoomBoardDetail(
+            @PathVariable Long roomBoardId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "5") int size
+    ) { //게시글 댓글 함께 조회
+        GetRoomBoardDetailResponseDto responseDto = roomBoardService.getRoomBoardDetail(roomBoardId, page, size);
         return ResponseEntity.ok(responseDto);
     }
+
+    // 스터디룸 게시글 수정
+
 }

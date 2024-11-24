@@ -8,17 +8,23 @@ import com.jungle.studybbitback.domain.room.dto.roomboard.GetRoomBoardDetailResp
 import com.jungle.studybbitback.domain.room.dto.roomboard.GetRoomBoardResponseDto;
 import com.jungle.studybbitback.domain.room.entity.Room;
 import com.jungle.studybbitback.domain.room.entity.roomboard.RoomBoard;
+import com.jungle.studybbitback.domain.room.entity.roomboard.RoomBoardComment;
 import com.jungle.studybbitback.domain.room.respository.RoomMemberRepository;
 import com.jungle.studybbitback.domain.room.respository.RoomRepository;
+import com.jungle.studybbitback.domain.room.respository.roomboard.RoomBoardCommentRepository;
 import com.jungle.studybbitback.domain.room.respository.roomboard.RoomBoardRepository;
 import com.jungle.studybbitback.jwt.dto.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -30,6 +36,7 @@ public class RoomBoardService {
     private final RoomRepository roomRepository;
     private final RoomMemberRepository roomMemberRepository;
     private final MemberRepository memberRepository;
+    private final RoomBoardCommentRepository commentRepository;
 
     @Transactional
     public CreateRoomBoardResponseDto createRoomBoard(CreateRoomBoardRequestDto requestDto) {
@@ -72,11 +79,19 @@ public class RoomBoardService {
 
     // 게시글 상세 조회
     @Transactional(readOnly = true)
-    public GetRoomBoardDetailResponseDto getRoomBoardDetail(Long roomBoardId) {
+    public GetRoomBoardDetailResponseDto getRoomBoardDetail(Long roomBoardId, int page, int size) {
         return roomBoardRepository.findById(roomBoardId)
                 .map(roomBoard -> {
-                    String createdByNickname = roomBoard.getCreatedByNickname(memberRepository);
-                    return GetRoomBoardDetailResponseDto.from(roomBoard, createdByNickname);
+                    String createdByNickname = memberRepository.findById(roomBoard.getCreatedBy())
+                            .map(Member::getNickname)
+                            .orElse("알 수 없음");
+
+                    Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+                    //댓글 목록 조회
+                    Page<RoomBoardComment> comments = commentRepository.findByRoomBoardId(roomBoardId, pageable);
+
+                    return GetRoomBoardDetailResponseDto.from(roomBoard, createdByNickname, comments, memberRepository);
+
                 })
                 .orElseThrow(() -> new IllegalArgumentException("해당 게시글이 존재하지 않습니다."));
     }
@@ -85,6 +100,9 @@ public class RoomBoardService {
         return memberRepository.findById(((CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getMemberId())
                 .orElseThrow(() -> new IllegalArgumentException("로그인이 필요합니다."));
     }
+
+    //스터디룸 게시글 수정
+    
 
 
 }

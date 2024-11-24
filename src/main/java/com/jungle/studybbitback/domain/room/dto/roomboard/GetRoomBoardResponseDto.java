@@ -3,10 +3,12 @@ package com.jungle.studybbitback.domain.room.dto.roomboard;
 import com.jungle.studybbitback.domain.room.entity.roomboard.RoomBoard;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
 @Getter
+@NoArgsConstructor
 @AllArgsConstructor
 public class GetRoomBoardResponseDto {
     private Long roomBoardId;
