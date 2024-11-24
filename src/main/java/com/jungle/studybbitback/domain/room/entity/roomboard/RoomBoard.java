@@ -54,4 +54,12 @@ public class RoomBoard extends CreatedEntity {
                 .orElse("알 수 없음"); // 작성자를 찾을 수 없을 경우 기본값 반환
     }
 
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public void setContent(String content) {
+        this.content = content;
+    }
+
 }

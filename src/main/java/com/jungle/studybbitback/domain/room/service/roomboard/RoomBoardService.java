@@ -2,10 +2,7 @@ package com.jungle.studybbitback.domain.room.service.roomboard;
 
 import com.jungle.studybbitback.domain.member.entity.Member;
 import com.jungle.studybbitback.domain.member.repository.MemberRepository;
-import com.jungle.studybbitback.domain.room.dto.roomboard.CreateRoomBoardRequestDto;
-import com.jungle.studybbitback.domain.room.dto.roomboard.CreateRoomBoardResponseDto;
-import com.jungle.studybbitback.domain.room.dto.roomboard.GetRoomBoardDetailResponseDto;
-import com.jungle.studybbitback.domain.room.dto.roomboard.GetRoomBoardResponseDto;
+import com.jungle.studybbitback.domain.room.dto.roomboard.*;
 import com.jungle.studybbitback.domain.room.entity.Room;
 import com.jungle.studybbitback.domain.room.entity.roomboard.RoomBoard;
 import com.jungle.studybbitback.domain.room.entity.roomboard.RoomBoardComment;
@@ -102,7 +99,34 @@ public class RoomBoardService {
     }
 
     //스터디룸 게시글 수정
-    
+    @Transactional
+    public UpdateRoomBoardResponseDto updateRoomBoard(Long roomBoardId, UpdateRoomBoardRequestDto requestDto) {
+        RoomBoard roomBoard = roomBoardRepository.findById(roomBoardId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 게시글이 존재하지 않습니다."));
+
+        // 게시글 정보 업데이트
+        roomBoard.setTitle(requestDto.getTitle());
+        roomBoard.setContent(requestDto.getContent());
+
+        // 업데이트된 게시글 저장
+        roomBoardRepository.save(roomBoard);
+
+        // 응답 DTO 생성
+        return new UpdateRoomBoardResponseDto(roomBoard.getId(), roomBoard.getTitle(), roomBoard.getContent());
+    }
+
+    //스터디룸 게시글 삭제
+    @Transactional
+    public void deleteRoomBoard(Long roomBoardId) {
+        // 게시글을 데이터베이스에서 찾기
+        RoomBoard roomBoard = roomBoardRepository.findById(roomBoardId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 게시글이 존재하지 않습니다."));
+
+        // 게시글 삭제 - 연관된 댓글들도 자동으로 삭제됨 (Cascade 설정 필요)
+        roomBoardRepository.delete(roomBoard);
+    }
+
+
 
 
 }
