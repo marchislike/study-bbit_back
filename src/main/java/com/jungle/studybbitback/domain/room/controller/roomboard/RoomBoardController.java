@@ -1,9 +1,6 @@
 package com.jungle.studybbitback.domain.room.controller.roomboard;
 
-import com.jungle.studybbitback.domain.room.dto.roomboard.CreateRoomBoardRequestDto;
-import com.jungle.studybbitback.domain.room.dto.roomboard.CreateRoomBoardResponseDto;
-import com.jungle.studybbitback.domain.room.dto.roomboard.GetRoomBoardDetailResponseDto;
-import com.jungle.studybbitback.domain.room.dto.roomboard.GetRoomBoardResponseDto;
+import com.jungle.studybbitback.domain.room.dto.roomboard.*;
 import com.jungle.studybbitback.domain.room.service.roomboard.RoomBoardService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -43,8 +40,30 @@ public class RoomBoardController {
 
     // 스터디룸 게시글 상세 조회
     @GetMapping("/detail/{roomBoardId}")
-    public ResponseEntity<GetRoomBoardDetailResponseDto> getRoomBoardDetail(@PathVariable Long roomBoardId) {
-        GetRoomBoardDetailResponseDto responseDto = roomBoardService.getRoomBoardDetail(roomBoardId);
+    public ResponseEntity<GetRoomBoardDetailResponseDto> getRoomBoardDetail(
+            @PathVariable Long roomBoardId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "5") int size
+    ) { //게시글 댓글 함께 조회
+        GetRoomBoardDetailResponseDto responseDto = roomBoardService.getRoomBoardDetail(roomBoardId, page, size);
         return ResponseEntity.ok(responseDto);
     }
+
+    // 스터디룸 게시글 수정
+// 게시글 수정
+    @PostMapping("/{roomBoardId}")
+    public ResponseEntity<UpdateRoomBoardResponseDto> updateRoomBoard(
+            @PathVariable Long roomBoardId,
+            @RequestBody UpdateRoomBoardRequestDto requestDto) {
+        UpdateRoomBoardResponseDto responseDto = roomBoardService.updateRoomBoard(roomBoardId, requestDto);
+        return ResponseEntity.ok(responseDto);
+    }
+
+    // 게시글 삭제
+    @DeleteMapping("/{roomBoardId}")
+    public ResponseEntity<Void> deleteRoomBoard(@PathVariable Long roomBoardId) {
+        roomBoardService.deleteRoomBoard(roomBoardId);
+        return ResponseEntity.noContent().build();
+    }
+
 }

@@ -10,6 +10,9 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Getter
 @NoArgsConstructor
@@ -34,6 +37,8 @@ public class RoomBoard extends CreatedEntity {
     @Column(name = "created_by")  // createdBy를 Member와 연결
     private Long createdBy;  // 작성자는 Member 객체로 연결
 
+    @OneToMany(mappedBy = "roomBoard", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<RoomBoardComment> comments = new ArrayList<>();
 
     public RoomBoard(Room room, String title, String content, Long createdBy) {
         this.room = room;
@@ -47,6 +52,14 @@ public class RoomBoard extends CreatedEntity {
         return memberRepository.findById(this.createdBy)
                 .map(member -> member.getNickname())
                 .orElse("알 수 없음"); // 작성자를 찾을 수 없을 경우 기본값 반환
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public void setContent(String content) {
+        this.content = content;
     }
 
 }
