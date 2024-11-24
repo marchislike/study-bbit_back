@@ -27,11 +27,20 @@ public class DmController {
 	}
 
 	// 내가 받은 디엠 조회
-	@GetMapping()
-	public ResponseEntity<Page<GetDmResponseDto>> getDm(
+	@GetMapping("/received")
+	public ResponseEntity<Page<GetDmResponseDto>> getReceivedDm(
 			@PageableDefault(size = 5, sort = "createdAt", direction = Sort.Direction.DESC)
 			Pageable pageable) {
-		Page<GetDmResponseDto> response = dmService.getDm(pageable);
+		Page<GetDmResponseDto> response = dmService.getReceivedDm(pageable);
+		return ResponseEntity.ok(response);
+	}
+
+	// 내가 보낸 디엠 조회
+	@GetMapping("/sent")
+	public ResponseEntity<Page<GetDmResponseDto>> getSentDm(
+			@PageableDefault(size = 5, sort = "createdAt", direction = Sort.Direction.DESC)
+			Pageable pageable) {
+		Page<GetDmResponseDto> response = dmService.getSentDm(pageable);
 		return ResponseEntity.ok(response);
 	}
 

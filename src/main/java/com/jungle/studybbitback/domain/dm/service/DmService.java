@@ -8,7 +8,6 @@ import com.jungle.studybbitback.domain.dm.repository.DmRepository;
 import com.jungle.studybbitback.domain.member.entity.Member;
 import com.jungle.studybbitback.domain.member.repository.MemberRepository;
 import com.jungle.studybbitback.jwt.dto.CustomUserDetails;
-import com.jungle.studybbitback.sse.controller.SseController;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -24,7 +23,7 @@ public class DmService {
 
 	private final MemberRepository memberRepository;
 	private final DmRepository dmRepository;
-	private final SseController sseController;
+	//private final SseController sseController;
 
 	@Transactional
 	public SendDmResponseDto sendDm(SendDmRequestDto request) {
@@ -45,7 +44,13 @@ public class DmService {
 		return new SendDmResponseDto(savedDm);
 	}
 
-	public Page<GetDmResponseDto> getDm(Pageable pageable) {
+	public Page<GetDmResponseDto> getReceivedDm(Pageable pageable) {
+		CustomUserDetails userDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+		return dmRepository.findByReceiverId(userDetails.getMemberId(), pageable).map(GetDmResponseDto::new);
+	}
+
+	public Page<GetDmResponseDto> getSentDm(Pageable pageable) {
 		CustomUserDetails userDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
 		return dmRepository.findBySenderId(userDetails.getMemberId(), pageable).map(GetDmResponseDto::new);
