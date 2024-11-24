@@ -2,10 +2,14 @@ package com.jungle.studybbitback.domain.member.entity;
 
 import com.jungle.studybbitback.common.entity.ModifiedTimeEntity;
 import com.jungle.studybbitback.domain.member.dto.UpdateMemberRequestDto;
+import com.jungle.studybbitback.domain.room.entity.RoomMember;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.util.StringUtils;
+
+import java.util.HashSet;
+import java.util.Set;
 
 @Getter
 @NoArgsConstructor
@@ -32,6 +36,10 @@ public class Member extends ModifiedTimeEntity {
     @Column(nullable = false)
     @Enumerated(value = EnumType.STRING)
     private MemberRoleEnum role;
+
+    // Member와 연결된 RoomMember를 통해 참여한 Room들을 조회
+    @OneToMany(mappedBy = "member")
+    private Set<RoomMember> roomMembers = new HashSet<>();
 
     public Member(String email, String password, String nickname, MemberRoleEnum role) {
         this.email = email;

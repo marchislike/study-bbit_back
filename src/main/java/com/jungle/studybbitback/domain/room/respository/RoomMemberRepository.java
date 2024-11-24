@@ -3,10 +3,13 @@ import com.jungle.studybbitback.domain.member.entity.Member;
 
 import com.jungle.studybbitback.domain.room.entity.Room;
 import com.jungle.studybbitback.domain.room.entity.RoomMember;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 public interface RoomMemberRepository extends JpaRepository<RoomMember, Long> {
 
@@ -24,4 +27,8 @@ public interface RoomMemberRepository extends JpaRepository<RoomMember, Long> {
 
     // Room을 기준으로 RoomMember 삭제
     void deleteByRoom(Room room);
+
+
+    // 특정 Member에 속한 RoomMember를 페이지로 조회
+    Page<RoomMember> findByMemberId(Long memberId, Pageable pageable);
 }

@@ -1,9 +1,10 @@
 package com.jungle.studybbitback.domain.room.entity;
 
 import com.jungle.studybbitback.common.entity.ModifiedTimeEntity;
+
 import com.jungle.studybbitback.domain.room.dto.room.CreateRoomRequestDto;
 import com.jungle.studybbitback.domain.room.dto.room.UpdateRoomRequestDto;
-import com.jungle.studybbitback.domain.room.entity.roomboard.RoomBoard;
+
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -47,8 +48,9 @@ public class Room extends ModifiedTimeEntity {
     @Column(name = "meeting_id", columnDefinition = "UUID", unique = true)
     private UUID meetingId;
 
+    // Room과 연결된 RoomMember를 통해 참여한 Member들을 조회
     @OneToMany(mappedBy = "room")
-    private Set<RoomBoard> roomBoard = new HashSet<>();
+    private Set<RoomMember> roomMembers = new HashSet<>();
 
     public Room(CreateRoomRequestDto requestDto, Long memberId) {
         this.name = requestDto.getName();

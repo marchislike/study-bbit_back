@@ -1,16 +1,24 @@
 package com.jungle.studybbitback.domain.member.service;
 
 import com.jungle.studybbitback.common.file.service.FileService;
+import com.jungle.studybbitback.domain.member.dto.GetMyRoomResponseDto;
 import com.jungle.studybbitback.domain.member.dto.SignupRequestDto;
 import com.jungle.studybbitback.domain.member.dto.UpdateMemberRequestDto;
 import com.jungle.studybbitback.domain.member.dto.UpdateMemberResponseDto;
 import com.jungle.studybbitback.domain.member.entity.Member;
 import com.jungle.studybbitback.domain.member.entity.MemberRoleEnum;
 import com.jungle.studybbitback.domain.member.repository.MemberRepository;
+import com.jungle.studybbitback.domain.room.entity.Room;
+import com.jungle.studybbitback.domain.room.entity.RoomMember;
+import com.jungle.studybbitback.domain.room.respository.RoomMemberRepository;
+import com.jungle.studybbitback.domain.room.respository.RoomRepository;
 import com.jungle.studybbitback.jwt.JWTUtil;
 import com.jungle.studybbitback.jwt.dto.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -25,6 +33,8 @@ public class MemberService {
     private final JWTUtil jwtUtil;
 
     private final MemberRepository memberRepository;
+    private final RoomRepository roomRepository;
+    private final RoomMemberRepository roomMemberRepository;
     private final FileService fileService;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private static final String ADMIN_TOKEN = "AAABnvxRVklrnYxKZ0aHgTBcXukeZygoC";
@@ -85,4 +95,17 @@ public class MemberService {
 
         return new UpdateMemberResponseDto(member);
     }
+
+    @Transactional
+    public GetMyRoomResponseDto getUserStudyRooms(Long memberId, int page, int size){
+        Pageable pageable = PageRequest.of(page, size);
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(()-> new IllegalArgumentException("사용자가 존재하지 않습니다."));
+
+        // RoomRepository에서 수정된 메서드를 사용하여 Member가 속한 Room을 페이지로 조회
+        Page<Room> roomPage = roomRepository.findByRoomMembersMember(member, pageable);
+
+        return new GetMyRoomResponseDto(roomPage);
+    }
+
 }
