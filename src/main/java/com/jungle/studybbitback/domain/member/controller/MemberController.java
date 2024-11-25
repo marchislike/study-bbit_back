@@ -6,12 +6,15 @@ import com.jungle.studybbitback.domain.member.dto.UpdateMemberRequestDto;
 import com.jungle.studybbitback.domain.member.dto.UpdateMemberResponseDto;
 import com.jungle.studybbitback.domain.member.service.MemberService;
 import com.jungle.studybbitback.domain.room.entity.Room;
+import com.jungle.studybbitback.jwt.JWTUtil;
+import com.jungle.studybbitback.jwt.dto.CustomUserDetails;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -20,6 +23,7 @@ import org.springframework.web.bind.annotation.*;
 public class MemberController {
 
     private final MemberService memberService;
+    private final JWTUtil jwtUtil;
     
     // 회원가입
     @PostMapping("/signup")
@@ -45,12 +49,13 @@ public class MemberController {
     }
 
     // 내 스터디 조회
-    @GetMapping("/room/{memberId}")
+    @GetMapping("/mystudy")
     public ResponseEntity<GetMyRoomResponseDto> getUserStudyRooms(
-            @PathVariable Long memberId,
+            @RequestHeader("Authorization") String authorizationHeader,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "4") int size) {
-        GetMyRoomResponseDto responseDto = memberService.getUserStudyRooms(memberId, page, size);
+
+        GetMyRoomResponseDto responseDto = memberService.getUserStudyRooms(page, size);
         return ResponseEntity.ok(responseDto);
     }
 }

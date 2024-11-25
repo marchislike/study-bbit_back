@@ -97,17 +97,14 @@ public class MemberService {
     }
 
     @Transactional
-    public GetMyRoomResponseDto getUserStudyRooms(Long memberId, int page, int size){
+    public GetMyRoomResponseDto getUserStudyRooms(int page, int size){
 
         CustomUserDetails userDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         Long loggedInMemberId = userDetails.getMemberId();  // 로그인한 사용자의 ID
 
-        if (!loggedInMemberId.equals(memberId)) {
-            throw new IllegalArgumentException("본인만 조회할 수 있습니다.");
-        }
-
         Pageable pageable = PageRequest.of(page, size);
-        Member member = memberRepository.findById(memberId)
+
+        Member member = memberRepository.findById(loggedInMemberId)
                 .orElseThrow(()-> new IllegalArgumentException("사용자가 존재하지 않습니다."));
 
         // RoomRepository에서 수정된 메서드를 사용하여 Member가 속한 Room을 페이지로 조회
