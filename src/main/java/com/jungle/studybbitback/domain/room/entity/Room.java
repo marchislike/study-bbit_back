@@ -8,6 +8,7 @@ import com.jungle.studybbitback.domain.room.dto.room.UpdateRoomRequestDto;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.util.StringUtils;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -30,7 +31,6 @@ public class Room extends ModifiedTimeEntity {
     private String name;
 
     @Column(nullable = false)
-    private String roomUrl;
     private String password;
     private String detail;
 
@@ -48,28 +48,33 @@ public class Room extends ModifiedTimeEntity {
     @Column(name = "meeting_id", columnDefinition = "UUID", unique = true)
     private UUID meetingId;
 
+
+
     // Room과 연결된 RoomMember를 통해 참여한 Member들을 조회
     @OneToMany(mappedBy = "room")
     private Set<RoomMember> roomMembers = new HashSet<>();
 
-    public Room(CreateRoomRequestDto requestDto, Long memberId) {
+    public Room(CreateRoomRequestDto requestDto, Long memberId, String roomImageUrl) {
         this.name = requestDto.getName();
-        this.roomUrl = requestDto.getRoomUrl();
         this.isPrivate = requestDto.isPrivate();
         this.password = this.isPrivate ? requestDto.getPassword() : null;
         this.detail = requestDto.getDetail();
         this.participants = 1;
         this.maxParticipants = requestDto.getMaxParticipants();
-        this.profileImageUrl = requestDto.getProfileImageUrl();
+        this.profileImageUrl = roomImageUrl;
         this.leaderId = memberId;
     }
 
-    public void updateDetails(UpdateRoomRequestDto requestDto) {
-        this.detail = requestDto.getDetail();
-        this.profileImageUrl = requestDto.getProfileImageUrl();
+    public void updateDetails(String detail, String password, String roomImageUrl, boolean isRoomImageChanged) {
+        if (StringUtils.hasText(detail)) {
+            this.detail = detail;
+        }
+        if (isRoomImageChanged) {
+            this.profileImageUrl = roomImageUrl;
+        }
         // 비공개 방에서만 비밀번호 수정
-        if (this.isPrivate) {
-            this.password = requestDto.getPassword();
+        if (this.isPrivate && StringUtils.hasText(password)) {
+            this.password = password;
         }
     }
 

@@ -3,26 +3,33 @@ package com.jungle.studybbitback.domain.room.controller;
 import com.jungle.studybbitback.domain.room.dto.room.*;
 import com.jungle.studybbitback.domain.room.service.RoomService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/room")
 @RequiredArgsConstructor
+@Slf4j
 public class RoomController {
 
     private final RoomService roomService;
 
     // 방 생성
-    @PostMapping
-    public ResponseEntity<CreateRoomResponseDto> createRoom(@RequestBody CreateRoomRequestDto requestDto) {
-        CreateRoomResponseDto response = roomService.createRoom(requestDto);
+    @PostMapping(value ="", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<CreateRoomResponseDto> createRoom(
+            @ModelAttribute CreateRoomRequestDto requestDto,
+            @RequestParam("roomImage") MultipartFile roomImage
+    ) {
+        CreateRoomResponseDto response = roomService.createRoom(requestDto, roomImage);
         return ResponseEntity.ok(response);
     }
 
@@ -65,9 +72,17 @@ public class RoomController {
     }
 
     // 방 수정
-    @PostMapping("/{roomId}")
-    public ResponseEntity<UpdateRoomResponseDto> updateRoom(@PathVariable("roomId") Long id, @RequestBody UpdateRoomRequestDto requestDto) {
-        UpdateRoomResponseDto response = roomService.updateRoom(id, requestDto);
+    @PostMapping(value = "/{roomId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<UpdateRoomResponseDto> updateRoom(
+            @PathVariable Long roomId,
+            @ModelAttribute UpdateRoomRequestDto updateRoomRequestDto) {
+
+        // 디버깅용 로그 출력
+        log.info("Detail: {}", updateRoomRequestDto.getDetail());
+        log.info("Password: {}", updateRoomRequestDto.getPassword());
+        log.info("RoomImage: {}", updateRoomRequestDto.getRoomImage() != null ? updateRoomRequestDto.getRoomImage().getOriginalFilename() : "null");
+
+        UpdateRoomResponseDto response = roomService.updateRoom(roomId, updateRoomRequestDto);
         return ResponseEntity.ok(response);
     }
 

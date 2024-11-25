@@ -7,11 +7,12 @@ import lombok.Getter;
 public class UpdateRoomResponseDto {
     private String detail;
     private String password;
-    private String profileImageUrl;
+    private String roomImageUrl;
 
     public UpdateRoomResponseDto(Room room) {
 
         this.detail = room.getDetail();
         this.password = room.getPassword();
-        this.profileImageUrl = room.getProfileImageUrl();}
+        this.roomImageUrl = room.getProfileImageUrl();
+    }
 }

@@ -66,7 +66,6 @@
 //        // CreateRoomRequestDto 객체 생성
 //        CreateRoomRequestDto requestDto = CreateRoomRequestDto.builder()
 //                .name("Test Room")
-//                .roomUrl("url1")
 //                .password("password")
 //                .detail("Room Detail")
 //                .maxParticipants(10)
@@ -85,7 +84,6 @@
 //        // Given: CreateRoomRequestDto 객체 생성
 //        CreateRoomRequestDto requestDto = CreateRoomRequestDto.builder()
 //                .name("Room1")
-//                .roomUrl("url1")
 //                .password("password")
 //                .detail("Test Room")
 //                .maxParticipants(10)
@@ -106,6 +104,5 @@
 //        // Then: response 필드값 확인
 //        assertNotNull(response); // Null이 아닌지 확인
 //        assertEquals("Room1", response.getName());
-//        assertEquals("url1", response.getRoomUrl());
 //    }
 //}
