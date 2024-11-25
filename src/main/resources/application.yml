@@ -31,6 +31,9 @@ spring:
     multipart:
       max-file-size: 10MB  # 허용되는 파일 크기 제한
       max-request-size: 10MB
+#  web:
+#    resources:
+#      static-locations: classpath:/static/
 #
 #  thymeleaf:
 #    cache: false
