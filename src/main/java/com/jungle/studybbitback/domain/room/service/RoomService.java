@@ -65,22 +65,46 @@ public class RoomService {
     public Page<GetRoomResponseDto> getRoomAll(int page, int size) {
 
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
-        Page<Room> roomPage = roomRepository.findAll(pageable);
-        return roomPage.map(GetRoomResponseDto::new);
+        return roomRepository.findAll(pageable)
+                .map(room -> {
+                    Member leader = memberRepository.findById(room.getLeaderId())
+                            .orElseThrow(() -> new IllegalArgumentException("방장 정보를 찾을 수 없습니다."));
+                    return new GetRoomResponseDto(
+                            room,
+                            leader.getProfileImageUrl(),
+                            leader.getNickname() // 방장 닉네임 추가
+                    );
+                });
     }
 
     public GetRoomResponseDto getRoomById(Long id) {
-
         Room room = roomRepository.findById(id).orElseThrow(
                 () -> new IllegalArgumentException("존재하지 않는 방입니다.")
         );
-        return new GetRoomResponseDto(room);
+        Member leader = memberRepository.findById(room.getLeaderId()).orElseThrow(
+                () -> new IllegalArgumentException("방장 정보를 찾을 수 없습니다.")
+        );
+        return new GetRoomResponseDto(
+                room,
+                leader.getProfileImageUrl(),
+                leader.getNickname()
+        );
     }
 
     public Page<GetRoomResponseDto> searchRooms(String keyword, Pageable pageable) {
-        Page<Room> rooms = roomRepository.findByNameContainingOrDetailContaining(keyword, keyword, pageable); //nameKeyword, detailKeyword 순
-        return rooms.map(GetRoomResponseDto::new);
+        Page<Room> rooms = roomRepository.findByNameContainingOrDetailContaining(keyword, keyword, pageable);
+        return rooms.map(room -> {
+            Member leader = memberRepository.findById(room.getLeaderId()).orElseThrow(
+                    () -> new IllegalArgumentException("방장 정보를 찾을 수 없습니다.")
+            );
+            return new GetRoomResponseDto(
+                    room,
+                    leader.getProfileImageUrl(),
+                    leader.getNickname()
+            );
+        });
     }
+
 
     public GetRoomDetailResponseDto getRoomDetail(Long id) {
 

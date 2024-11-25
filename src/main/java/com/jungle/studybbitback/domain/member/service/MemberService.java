@@ -110,7 +110,7 @@ public class MemberService {
         // RoomRepository에서 수정된 메서드를 사용하여 Member가 속한 Room을 페이지로 조회
         Page<Room> roomPage = roomRepository.findByRoomMembersMember(member, pageable);
 
-        return new GetMyRoomResponseDto(roomPage);
+        return new GetMyRoomResponseDto(roomPage, memberRepository);
     }
 
 }

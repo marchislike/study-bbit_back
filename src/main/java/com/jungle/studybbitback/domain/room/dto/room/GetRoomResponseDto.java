@@ -18,8 +18,10 @@ public class GetRoomResponseDto {
     private LocalDateTime modifiedAt;
     private boolean isPrivate;
     private Long leaderId;
+    private String leaderNickname;
+    private String leaderImageUrl;
 
-    public GetRoomResponseDto(Room room) {
+    public GetRoomResponseDto(Room room, String leaderNickname, String leaderImageUrl) {
         this.id = room.getId();
         this.name = room.getName();
         this.roomUrl = room.getRoomUrl();
@@ -31,5 +33,7 @@ public class GetRoomResponseDto {
         this.modifiedAt = room.getModifiedAt();
         this.isPrivate = room.isPrivate();
         this.leaderId = room.getLeaderId();
+        this.leaderNickname = leaderNickname;
+        this.leaderImageUrl = leaderImageUrl;
     }
 }
