@@ -64,19 +64,6 @@ public class Room extends ModifiedTimeEntity {
         this.leaderId = memberId;
     }
 
-//    // 테스트 전용 id 생성
-//    public Room(Long id, CreateRoomRequestDto requestDto, Long leaderId) {
-//        this.id = id; // 테스트용 id
-//        this.name = requestDto.getName();
-//        this.roomUrl = requestDto.getRoomUrl();
-//        this.password = this.isPrivate ? requestDto.getPassword() : null;
-//        this.detail = requestDto.getDetail();
-//        this.participants = 1;
-//        this.maxParticipants = requestDto.getMaxParticipants();
-//        this.profileImageUrl = requestDto.getProfileImageUrl();
-//        this.leaderId = leaderId;
-//    }
-
     public void updateDetails(UpdateRoomRequestDto requestDto) {
         this.detail = requestDto.getDetail();
         this.profileImageUrl = requestDto.getProfileImageUrl();

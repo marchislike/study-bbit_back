@@ -9,6 +9,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -21,34 +22,40 @@ public class GetRoomBoardDetailResponseDto {
     private Long roomBoardId;
     private String title;
     private String content;
-    private String createdBy; // 게시글 작성자 (닉네임)
+    private String createdBy; // 게시글 작성자 닉네임
+    private String createdByProfileUrl; // 게시글 작성자 프로필 이미지 URL
     private Long roomId;
     private LocalDateTime createdAt;
     private Page<GetRoomBoardCommentResponseDto> comments; // 게시글에 대한 댓글 리스트
 
-    public static GetRoomBoardDetailResponseDto from(RoomBoard roomBoard, String createdByNickname, Page<RoomBoardComment> comments, MemberRepository memberRepository) {
+    public static GetRoomBoardDetailResponseDto from(RoomBoard roomBoard, Page<RoomBoardComment> comments, MemberRepository memberRepository, Pageable pageable) {
+        // 게시글 작성자 정보를 가져옴
+        Member roomBoardCreator = memberRepository.findById(roomBoard.getCreatedBy())
+                .orElseThrow(() -> new IllegalArgumentException("게시글 작성자 정보가 존재하지 않습니다."));
+
         Page<GetRoomBoardCommentResponseDto> commentDtos = comments.map(comment -> {
-            String commentCreatedByNickname = memberRepository.findById(comment.getCreatedBy())
-                    .map(Member::getNickname)
-                    .orElse("알 수 없음");
+            Member commentCreator = memberRepository.findById(comment.getCreatedBy())
+                    .orElseThrow(() -> new IllegalArgumentException("댓글 작성자가 존재하지 않습니다."));
             return new GetRoomBoardCommentResponseDto(
                     comment.getId(),
                     comment.getContent(),
-                    commentCreatedByNickname,
+                    commentCreator.getNickname(),
+                    commentCreator.getProfileImageUrl(), // 프로필 이미지 URL을 포함
                     comment.getCreatedAt(),
                     roomBoard.getId()
             );
         });
 
-        // 모든 필드를 초기화하는 생성자 사용
         return new GetRoomBoardDetailResponseDto(
                 roomBoard.getId(),
                 roomBoard.getTitle(),
                 roomBoard.getContent(),
-                createdByNickname,
+                roomBoardCreator.getNickname(), // 게시글 작성자 닉네임
+                roomBoardCreator.getProfileImageUrl(), // 게시글 작성자 프로필 이미지 URL
                 roomBoard.getRoom().getId(),
                 roomBoard.getCreatedAt(),
                 commentDtos
         );
     }
 }
+

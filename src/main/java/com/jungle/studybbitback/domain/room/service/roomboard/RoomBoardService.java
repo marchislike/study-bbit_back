@@ -68,8 +68,10 @@ public class RoomBoardService {
     public Page<GetRoomBoardResponseDto> getRoomBoards(Long roomId, Pageable pageable) {
         return roomBoardRepository.findByRoomId(roomId, pageable)
                 .map(roomBoard -> {
-                    String createdByNickname = roomBoard.getCreatedByNickname(memberRepository);
-                    return GetRoomBoardResponseDto.from(roomBoard, createdByNickname);
+                    // 게시글 작성자 정보를 MemberRepository를 사용하여 조회
+                    Member member = memberRepository.findById(roomBoard.getCreatedBy())
+                            .orElseThrow(() -> new IllegalArgumentException("게시글 작성자 정보를 찾을 수 없습니다."));
+                    return GetRoomBoardResponseDto.from(roomBoard, member);
                 });
     }
 
@@ -87,7 +89,7 @@ public class RoomBoardService {
                     //댓글 목록 조회
                     Page<RoomBoardComment> comments = commentRepository.findByRoomBoardId(roomBoardId, pageable);
 
-                    return GetRoomBoardDetailResponseDto.from(roomBoard, createdByNickname, comments, memberRepository);
+                    return GetRoomBoardDetailResponseDto.from(roomBoard, comments, memberRepository, pageable);
 
                 })
                 .orElseThrow(() -> new IllegalArgumentException("해당 게시글이 존재하지 않습니다."));

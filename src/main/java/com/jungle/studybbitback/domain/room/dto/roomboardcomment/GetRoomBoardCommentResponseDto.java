@@ -13,13 +13,15 @@ public class GetRoomBoardCommentResponseDto {
     private String content;
     private String createdBy;
     private LocalDateTime createdAt;
+    private String createdByProfileUrl;
     private Long roomBoardId;
 
-    // 명시적으로 생성자 정의
-    public GetRoomBoardCommentResponseDto(Long id, String content, String createdBy, LocalDateTime createdAt, Long roomBoardId) {
+    //
+    public GetRoomBoardCommentResponseDto(Long id, String content, String createdBy, String createdByProfileUrl, LocalDateTime createdAt, Long roomBoardId) {
         this.id = id;
         this.content = content;
         this.createdBy = createdBy;
+        this.createdByProfileUrl = createdByProfileUrl; // 생성자에서 프로필 이미지 URL 초기화
         this.createdAt = createdAt;
         this.roomBoardId = roomBoardId;
     }
