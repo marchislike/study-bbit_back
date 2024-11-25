@@ -92,7 +92,7 @@ public class RoomService {
     }
 
     public Page<GetRoomResponseDto> searchRooms(String keyword, Pageable pageable) {
-        Page<Room> rooms = roomRepository.findByNameContainingOrDetailContaining(keyword, keyword, pageable);
+        Page<Room> rooms = roomRepository.searchByNameAndDetailIgnoreCase(keyword, pageable);
         return rooms.map(room -> {
             Member leader = memberRepository.findById(room.getLeaderId()).orElseThrow(
                     () -> new IllegalArgumentException("방장 정보를 찾을 수 없습니다.")
