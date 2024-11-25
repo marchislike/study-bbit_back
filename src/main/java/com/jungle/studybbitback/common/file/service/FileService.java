@@ -1,16 +1,12 @@
 package com.jungle.studybbitback.common.file.service;
 
-import com.jungle.studybbitback.common.file.dto.GetRoomFileResponseDto;
 import com.jungle.studybbitback.common.file.entity.UserFile;
 import com.jungle.studybbitback.common.file.repository.FileRepository;
-import com.jungle.studybbitback.domain.dm.dto.GetDmResponseDto;
 import com.jungle.studybbitback.domain.room.entity.Room;
 import com.jungle.studybbitback.domain.room.respository.RoomRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
@@ -149,8 +145,4 @@ public class FileService {
                 .sum(); // 삭제된 파일 개수 합산
     }
 
-
-    public Page<GetRoomFileResponseDto> getRoomFile(Pageable pageable, Long roomId) {
-        return fileRepository.findByRoomId(roomId, pageable).map(GetRoomFileResponseDto::new);
-    }
 }

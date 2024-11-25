@@ -1,13 +1,7 @@
 package com.jungle.studybbitback.common.file.controller;
 
-import com.jungle.studybbitback.common.file.dto.GetRoomFileResponseDto;
 import com.jungle.studybbitback.common.file.service.FileService;
-import com.jungle.studybbitback.domain.dm.dto.GetDmResponseDto;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.*;
@@ -19,21 +13,12 @@ import org.springframework.web.multipart.MultipartFile;
 public class FileController {
     private final FileService fileService;
 
-    @PostMapping()
+    @PostMapping("/upload")
     public ResponseEntity<String> uploadFile(@RequestParam("file") MultipartFile file, @RequestParam("roomId") Long id) {
         return ResponseEntity.ok(fileService.uploadFile(file, "file", id));
     }
 
-    @GetMapping("/{roomId}")
-    public ResponseEntity<Page<GetRoomFileResponseDto>> getRoomFile(
-            @PageableDefault(size = 5, sort = "createdAt", direction = Sort.Direction.DESC)
-            Pageable pageable,
-            @PathVariable("roomId") Long roomId) {
-        Page<GetRoomFileResponseDto> response = fileService.getRoomFile(pageable, roomId);
-        return ResponseEntity.ok(response);
-    }
-
-    @DeleteMapping()
+    @PostMapping("/delete")
     public ResponseEntity<String> deleteFile(@RequestParam("fileUrl") String fileUrl) {
         return ResponseEntity.ok(fileService.deleteFile(fileUrl));
     }

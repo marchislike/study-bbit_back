@@ -1,6 +1,5 @@
 package com.jungle.studybbitback.common.file.entity;
 
-import com.jungle.studybbitback.common.entity.CreatedEntity;
 import com.jungle.studybbitback.common.entity.ModifiedTimeEntity;
 import com.jungle.studybbitback.domain.room.entity.Room;
 import jakarta.persistence.*;
@@ -10,14 +9,14 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 @Entity
-public class UserFile extends CreatedEntity {
+public class UserFile extends ModifiedTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "file_id")
     private Long id;
 
-    @Column(name = "file_name", nullable = false)
+    @Column(name = "file_name", nullable = false, unique = true)
     private String uploadName;
 
     @Column(name = "file_type", nullable = false)
