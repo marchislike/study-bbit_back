@@ -1,5 +1,6 @@
 package com.jungle.studybbitback.domain.room.service;
 
+import com.jungle.studybbitback.common.file.service.FileService;
 import com.jungle.studybbitback.domain.member.entity.Member;
 import com.jungle.studybbitback.domain.member.repository.MemberRepository;
 import com.jungle.studybbitback.domain.room.dto.room.*;
@@ -20,6 +21,7 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -35,9 +37,10 @@ public class RoomService {
     private final RoomRepository roomRepository;
     private final RoomMemberRepository roomMemberRepository;
     private final MemberRepository memberRepository;
+    private final FileService fileService;
 
     @Transactional
-    public CreateRoomResponseDto createRoom(CreateRoomRequestDto requestDto) {
+    public CreateRoomResponseDto createRoom(CreateRoomRequestDto requestDto, MultipartFile roomImage) {
 
         CustomUserDetails userDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         Long memberId = userDetails.getMemberId();
@@ -51,15 +54,20 @@ public class RoomService {
             throw new IllegalArgumentException("비공개 방은 비밀번호를 설정해야 합니다.");
         }
 
+        String roomImageUrl = null;
+        if (roomImage != null && !roomImage.isEmpty()) {
+            roomImageUrl = fileService.uploadFile(roomImage, "images", memberId);
+        }
+
         //방 생성
-        Room room = new Room(requestDto, memberId);
-        Room savedRoom = roomRepository.saveAndFlush(room);
+        Room room = new Room(requestDto, memberId, roomImageUrl);
+        roomRepository.save(room);
 
         //방 개설한 사람은 자동으로 참여명단에 추가.
-        RoomMember roomMember = new RoomMember(savedRoom, member);
+        RoomMember roomMember = new RoomMember(room, member);
         roomMemberRepository.save(roomMember);
 
-        return new CreateRoomResponseDto(savedRoom);
+        return new CreateRoomResponseDto(room);
     }
 
     public Page<GetRoomResponseDto> getRoomAll(int page, int size) {
@@ -152,18 +160,26 @@ public class RoomService {
             throw new IllegalArgumentException("스터디장만 수정할 수 있습니다.");
         }
 
-    // 공개 방이면 비밀번호 무시
-        if (!room.isPrivate()) {
-            requestDto = UpdateRoomRequestDto.builder()
-                    .detail(requestDto.getDetail())
-                    .password(null) // 비밀번호 제거
-                    .profileImageUrl(requestDto.getProfileImageUrl())
-                    .build();
+        String roomImageUrl = room.getProfileImageUrl();
+        if(requestDto.isRoomImageChanged() &&
+                requestDto.getRoomImage() != null
+                && !requestDto.getRoomImage().isEmpty()) {
+            if(roomImageUrl != null){
+                //기존 이미지가 있으면 삭제
+                fileService.deleteFile(roomImageUrl);
+            }
+            // 새 이미지 업로드
+            roomImageUrl = fileService.uploadFile(requestDto.getRoomImage(), "images", room.getId());
+
         }
 
-        room.updateDetails(requestDto);
-        roomRepository.save(room);
+        // 공개 방이면 비밀번호 무시
+        if (!room.isPrivate()) {
+            requestDto = requestDto.toBuilder().password(null).build(); // 비밀번호를 null로 설정
+        }
 
+        room.updateDetails(requestDto.getDetail(), requestDto.getPassword(), roomImageUrl, requestDto.isRoomImageChanged());
+        roomRepository.save(room);
         return new UpdateRoomResponseDto(room);
     }
 
