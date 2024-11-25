@@ -1,6 +1,7 @@
 package com.jungle.studybbitback.domain.dm.entity;
 
 import com.jungle.studybbitback.common.entity.CreatedEntity;
+import com.jungle.studybbitback.common.entity.CreatedTimeEntity;
 import com.jungle.studybbitback.domain.dm.dto.SendDmRequestDto;
 import com.jungle.studybbitback.domain.member.entity.Member;
 import jakarta.persistence.*;
@@ -11,7 +12,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Dm extends CreatedEntity {
+public class Dm extends CreatedTimeEntity {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
