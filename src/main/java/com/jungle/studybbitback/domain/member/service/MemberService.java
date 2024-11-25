@@ -1,15 +1,11 @@
 package com.jungle.studybbitback.domain.member.service;
 
 import com.jungle.studybbitback.common.file.service.FileService;
-import com.jungle.studybbitback.domain.member.dto.GetMyRoomResponseDto;
-import com.jungle.studybbitback.domain.member.dto.SignupRequestDto;
-import com.jungle.studybbitback.domain.member.dto.UpdateMemberRequestDto;
-import com.jungle.studybbitback.domain.member.dto.UpdateMemberResponseDto;
+import com.jungle.studybbitback.domain.member.dto.*;
 import com.jungle.studybbitback.domain.member.entity.Member;
 import com.jungle.studybbitback.domain.member.entity.MemberRoleEnum;
 import com.jungle.studybbitback.domain.member.repository.MemberRepository;
 import com.jungle.studybbitback.domain.room.entity.Room;
-import com.jungle.studybbitback.domain.room.entity.RoomMember;
 import com.jungle.studybbitback.domain.room.respository.RoomMemberRepository;
 import com.jungle.studybbitback.domain.room.respository.RoomRepository;
 import com.jungle.studybbitback.jwt.JWTUtil;
@@ -113,4 +109,11 @@ public class MemberService {
         return new GetMyRoomResponseDto(roomPage, memberRepository);
     }
 
+    public FindMemberResponseDto findMember(Long memberId) {
+
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(()-> new IllegalArgumentException("사용자가 존재하지 않습니다."));
+
+        return new FindMemberResponseDto(member);
+    }
 }
