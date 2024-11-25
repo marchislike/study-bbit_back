@@ -37,6 +37,9 @@ public class RoomBoard extends CreatedEntity {
     @Column(name = "created_by")  // createdBy를 Member와 연결
     private Long createdBy;  // 작성자는 Member 객체로 연결
 
+    @Column(name = "is_notice", nullable = false)
+    private boolean isNotice = false;
+
     @OneToMany(mappedBy = "roomBoard", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<RoomBoardComment> comments = new ArrayList<>();
 
@@ -45,6 +48,7 @@ public class RoomBoard extends CreatedEntity {
         this.title = title;
         this.content = content;
         this.createdBy = createdBy;
+        this.isNotice = false;
     }
 
     // 작성자 닉네임 조회
@@ -60,6 +64,16 @@ public class RoomBoard extends CreatedEntity {
 
     public void setContent(String content) {
         this.content = content;
+    }
+
+    // 공지사항 설정 메서드
+    public void markAsNotice() {
+        this.isNotice = true;
+    }
+
+    // 공지사항 해제 메서드
+    public void unmarkAsNotice() {
+        this.isNotice = false;
     }
 
 }

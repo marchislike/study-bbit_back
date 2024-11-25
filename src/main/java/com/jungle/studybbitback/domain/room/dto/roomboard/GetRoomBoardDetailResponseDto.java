@@ -24,6 +24,7 @@ public class GetRoomBoardDetailResponseDto {
     private String content;
     private String createdBy; // 게시글 작성자 닉네임
     private String createdByProfileUrl; // 게시글 작성자 프로필 이미지 URL
+    private boolean isNotice;
     private Long roomId;
     private LocalDateTime createdAt;
     private Page<GetRoomBoardCommentResponseDto> comments; // 게시글에 대한 댓글 리스트
@@ -52,6 +53,7 @@ public class GetRoomBoardDetailResponseDto {
                 roomBoard.getContent(),
                 roomBoardCreator.getNickname(), // 게시글 작성자 닉네임
                 roomBoardCreator.getProfileImageUrl(), // 게시글 작성자 프로필 이미지 URL
+                roomBoard.isNotice(),
                 roomBoard.getRoom().getId(),
                 roomBoard.getCreatedAt(),
                 commentDtos

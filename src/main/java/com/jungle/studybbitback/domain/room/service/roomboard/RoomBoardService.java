@@ -66,7 +66,7 @@ public class RoomBoardService {
     // 해당 스터디룸 게시글 전체 조회
     @Transactional(readOnly = true)
     public Page<GetRoomBoardResponseDto> getRoomBoards(Long roomId, Pageable pageable) {
-        return roomBoardRepository.findByRoomId(roomId, pageable)
+        return roomBoardRepository.findByRoomIdOrderByIsNoticeDescCreatedAtDesc(roomId, pageable)
                 .map(roomBoard -> {
                     // 게시글 작성자 정보를 MemberRepository를 사용하여 조회
                     Member member = memberRepository.findById(roomBoard.getCreatedBy())
@@ -128,7 +128,51 @@ public class RoomBoardService {
         roomBoardRepository.delete(roomBoard);
     }
 
+    @Transactional
+    public void setNotice(Long roomBoardId, Long roomId, Long memberId) {
+        // 1. 방장 여부 확인
+        Room room = roomRepository.findById(roomId)
+                .orElseThrow(()-> new IllegalArgumentException("존재하지 않는 방에 대한 접근입니다."));
+        if(!room.getLeaderId().equals(memberId)) {
+            throw new IllegalArgumentException("방장만 공지사항을 설정할 수 있습니다.");
+        }
 
+        // 2. 기존에 설정된 공지사항 해제 - 라디오 버튼 형식
+        RoomBoard roomBoard = roomBoardRepository.findById(roomBoardId)
+                .orElseThrow(() -> new IllegalArgumentException("게시글을 찾을 수 없습니다."));
+        if (!roomBoard.getRoom().getId().equals(roomId)) {
+            throw new IllegalArgumentException("해당 게시글은 요청한 방에 속하지 않습니다.");
+        }
 
+        // 3. 기존에 설정된 공지사항 해제
+        roomBoardRepository.findFirstByRoomIdAndIsNoticeTrue(roomId)
+                .ifPresent(existingNotice -> existingNotice.unmarkAsNotice());
 
+        // 4. 공지사항 새로 설정
+        roomBoard.markAsNotice();
+    }
+
+    @Transactional
+    public void removeNotice(Long roomId, Long roomBoardId, Long memberId) {
+        // 1. 방장 여부 확인
+        Room room = roomRepository.findById(roomId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 방에 대한 접근입니다."));
+        if (!room.getLeaderId().equals(memberId)) {
+            throw new IllegalArgumentException("방장만 공지사항을 해제할 수 있습니다.");
+        }
+
+        // 2. roomBoardId가 해당 roomId에 속하는지 확인
+        RoomBoard roomBoard = roomBoardRepository.findById(roomBoardId)
+                .orElseThrow(() -> new IllegalArgumentException("게시글을 찾을 수 없습니다."));
+        if (!roomBoard.getRoom().getId().equals(roomId)) {
+            throw new IllegalArgumentException("해당 게시글은 요청한 방에 속하지 않습니다.");
+        }
+
+        // 3. 공지사항 해제
+        if (roomBoard.isNotice()) {
+            roomBoard.unmarkAsNotice();
+        } else {
+            throw new IllegalArgumentException("해당 게시글은 공지사항이 아닙니다.");
+        }
+    }
 }
