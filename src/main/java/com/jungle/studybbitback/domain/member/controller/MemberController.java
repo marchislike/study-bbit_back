@@ -1,20 +1,13 @@
 package com.jungle.studybbitback.domain.member.controller;
 
-import com.jungle.studybbitback.domain.member.dto.GetMyRoomResponseDto;
-import com.jungle.studybbitback.domain.member.dto.SignupRequestDto;
-import com.jungle.studybbitback.domain.member.dto.UpdateMemberRequestDto;
-import com.jungle.studybbitback.domain.member.dto.UpdateMemberResponseDto;
+import com.jungle.studybbitback.domain.member.dto.*;
 import com.jungle.studybbitback.domain.member.service.MemberService;
-import com.jungle.studybbitback.domain.room.entity.Room;
 import com.jungle.studybbitback.jwt.JWTUtil;
-import com.jungle.studybbitback.jwt.dto.CustomUserDetails;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -33,6 +26,13 @@ public class MemberController {
         return "success";
     }
     
+    // 회원정보 조회
+    @GetMapping("/{memberId}")
+    public ResponseEntity<FindMemberResponseDto> findMember(@PathVariable("memberId") Long memberId) {
+        FindMemberResponseDto responseDto =  memberService.findMember(memberId);
+        return ResponseEntity.ok(responseDto);
+    }
+
     // 닉네임 중복 체크
     @GetMapping("/isExist/{nickname}")
     public boolean isExistNickname(@PathVariable("nickname") String nickname) {
