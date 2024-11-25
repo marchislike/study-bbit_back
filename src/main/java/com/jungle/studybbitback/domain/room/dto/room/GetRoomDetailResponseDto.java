@@ -13,8 +13,9 @@ public class GetRoomDetailResponseDto {
     private String profileImageUrl;
     private boolean isPrivate;
     private String leaderNickname;
+    private String leaderImageUrl;
 
-    public GetRoomDetailResponseDto(Room room, String leaderNickname) {
+    public GetRoomDetailResponseDto(Room room, String leaderNickname, String leaderImageUrl) {
         this.id = room.getId();
         this.name = room.getName();
         this.detail = room.getDetail();
@@ -23,6 +24,7 @@ public class GetRoomDetailResponseDto {
         this.profileImageUrl = room.getProfileImageUrl();
         this.isPrivate = room.isPrivate();
         this.leaderNickname = leaderNickname;
+        this.leaderImageUrl = leaderImageUrl;
     }
 
 }
