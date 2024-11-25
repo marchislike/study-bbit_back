@@ -18,6 +18,7 @@ public class GetRoomBoardResponseDto {
     private String createdBy;
     private String createdByProfileUrl;
     private LocalDateTime createdAt;
+    private boolean isNotice;
     private Long roomId;
 
     // RoomBoard 엔티티를 DTO로 변환
@@ -29,6 +30,7 @@ public class GetRoomBoardResponseDto {
                 member.getNickname(), // 닉네임을 외부에서 전달
                 member.getProfileImageUrl(),
                 roomBoard.getCreatedAt(),
+                roomBoard.isNotice(),
                 roomBoard.getRoom().getId()
         );
     }

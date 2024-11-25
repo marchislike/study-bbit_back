@@ -14,5 +14,11 @@ import java.util.Optional;
 public interface RoomBoardRepository extends JpaRepository<RoomBoard, Long> {
     Page<RoomBoard> findByRoomId(Long roomId, Pageable pageable); // Page<RoomBoard> 반환
     Optional<RoomBoard> findById(Long roomBoardId); // Optional<RoomBoard> 반환
+
+    // 공지사항 우선 정렬 후 최신순으로 게시글 목록 반환
+    Page<RoomBoard> findByRoomIdOrderByIsNoticeDescCreatedAtDesc(Long roomId, Pageable pageable);
+
+    //공지사항 게시글 단일 조회
+    Optional<RoomBoard> findFirstByRoomIdAndIsNoticeTrue(Long roomId);
 }
 
