@@ -16,7 +16,7 @@ public class GetRoomBoardResponseDto {
     private String title;
     private String content;
     private String createdBy;
-    private String profileImageUrl;
+    private String createdByProfileUrl;
     private LocalDateTime createdAt;
     private Long roomId;
 

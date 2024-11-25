@@ -111,12 +111,15 @@ public class RoomService {
         Room room = roomRepository.findById(id).orElseThrow(
                 () -> new IllegalArgumentException("존재하지 않는 방입니다.")
         );
-        // leaderId를 통해 방장의 닉네임 조회
-        String leaderNickname = memberRepository.findById(room.getLeaderId())
-                .orElseThrow(() -> new IllegalArgumentException("방장이 존재하지 않습니다."))
-                .getNickname();
+        // leaderId를 통해 방장 정보 조회
+        Member leader = memberRepository.findById(room.getLeaderId())
+                .orElseThrow(() -> new IllegalArgumentException("방장이 존재하지 않습니다."));
 
-        return new GetRoomDetailResponseDto(room, leaderNickname);
+        // 닉네임과 프로필 이미지를 조회
+        String leaderNickname = leader.getNickname();
+        String leaderImageUrl = leader.getProfileImageUrl();
+
+        return new GetRoomDetailResponseDto(room, leaderNickname, leaderImageUrl);
     }
 
     // 대시보드 접근 시 멤버 여부 확인
