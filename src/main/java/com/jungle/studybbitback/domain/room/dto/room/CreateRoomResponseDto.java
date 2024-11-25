@@ -9,12 +9,11 @@ import java.time.LocalDateTime;
 public class CreateRoomResponseDto {
     private Long id;
     private String name;
-    private String roomUrl;
     private String password;
     private String detail;
     private Integer participants;
     private Integer maxParticipants;
-    private String profileImageUrl;
+    private String roomImageUrl;
     private Long leaderId;
     private boolean isPrivate;
 
@@ -23,12 +22,11 @@ public class CreateRoomResponseDto {
     public CreateRoomResponseDto(Room room) {
         this.id = room.getId();
         this.name = room.getName();
-        this.roomUrl = room.getRoomUrl();
         this.password = room.getPassword();
         this.detail = room.getDetail();
         this.participants = room.getParticipants();
         this.maxParticipants = room.getMaxParticipants();
-        this.profileImageUrl = room.getProfileImageUrl();
+        this.roomImageUrl = room.getProfileImageUrl();
         this.createdAt = room.getCreatedAt();
         this.leaderId = room.getLeaderId();
         this.isPrivate = room.isPrivate();

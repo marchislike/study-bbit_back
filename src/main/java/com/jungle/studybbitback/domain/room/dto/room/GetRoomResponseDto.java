@@ -9,7 +9,6 @@ import java.time.LocalDateTime;
 public class GetRoomResponseDto {
     private Long id;
     private String name;
-    private String roomUrl;
     private String detail;
     private Integer participants;
     private Integer maxParticipants;
@@ -24,7 +23,6 @@ public class GetRoomResponseDto {
     public GetRoomResponseDto(Room room, String leaderNickname, String leaderImageUrl) {
         this.id = room.getId();
         this.name = room.getName();
-        this.roomUrl = room.getRoomUrl();
         this.detail = room.getDetail();
         this.participants = room.getParticipants();
         this.maxParticipants = room.getMaxParticipants();

@@ -1,12 +1,17 @@
 package com.jungle.studybbitback.domain.room.dto.room;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
+import org.springframework.web.multipart.MultipartFile;
 
 @Getter
-@Builder
+@AllArgsConstructor
+@Builder(toBuilder = true)
 public class UpdateRoomRequestDto {
     private String detail;
     private String password;
-    private String profileImageUrl;
+    private MultipartFile roomImage;
+    private boolean roomImageChanged;
 }
