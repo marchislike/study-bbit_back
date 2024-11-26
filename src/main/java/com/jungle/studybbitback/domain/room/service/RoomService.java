@@ -21,6 +21,7 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
@@ -50,8 +51,13 @@ public class RoomService {
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
 
         // 비공개 방일 경우 비밀번호가 필수
-        if (requestDto.isPrivate() && (requestDto.getPassword() == null || requestDto.getPassword().isEmpty())) {
-            throw new IllegalArgumentException("비공개 방은 비밀번호를 설정해야 합니다.");
+        String password = null;
+        if (requestDto.isPrivate()) { //true
+            // 비공개 방에서 비밀번호를 입력하지 않으면 예외 처리
+            if (!StringUtils.hasText(requestDto.getPassword())) {
+                throw new IllegalArgumentException("비공개 방은 비밀번호를 설정해야 합니다.");
+            }
+            password = requestDto.getPassword();  // 비밀번호 설정
         }
 
         String roomImageUrl = null;
@@ -164,7 +170,7 @@ public class RoomService {
         if(requestDto.isRoomImageChanged() &&
                 requestDto.getRoomImage() != null
                 && !requestDto.getRoomImage().isEmpty()) {
-            if(roomImageUrl != null){
+            if(StringUtils.hasText(roomImageUrl)){
                 //기존 이미지가 있으면 삭제
                 fileService.deleteFile(roomImageUrl);
             }
@@ -173,9 +179,10 @@ public class RoomService {
 
         }
 
-        // 공개 방이면 비밀번호 무시
-        if (!room.isPrivate()) {
-            requestDto = requestDto.toBuilder().password(null).build(); // 비밀번호를 null로 설정
+        // 공개 방이면 비밀번호는 null 처리
+        String password = null;
+        if (room.isPrivate() && StringUtils.hasText(requestDto.getPassword())) {
+            password = requestDto.getPassword();
         }
 
         room.updateDetails(requestDto.getDetail(), requestDto.getPassword(), roomImageUrl, requestDto.isRoomImageChanged());
