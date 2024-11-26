@@ -7,11 +7,9 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.ColumnTransformer;
-import org.hibernate.annotations.Type;
 
 import java.time.Duration;
 import java.time.LocalDate;
-import java.util.Date;
 
 @Getter
 @NoArgsConstructor
