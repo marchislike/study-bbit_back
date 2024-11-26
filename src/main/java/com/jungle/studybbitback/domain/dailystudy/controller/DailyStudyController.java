@@ -1,11 +1,9 @@
 package com.jungle.studybbitback.domain.dailystudy.controller;
 
-import com.jungle.studybbitback.domain.dailystudy.dto.GetDailyStudyRequestDto;
 import com.jungle.studybbitback.domain.dailystudy.dto.GetDailyStudyResponseDto;
 import com.jungle.studybbitback.domain.dailystudy.dto.WriteStudyRequestDto;
 import com.jungle.studybbitback.domain.dailystudy.dto.WriteStudyResponseDto;
 import com.jungle.studybbitback.domain.dailystudy.service.DailyStudyService;
-import com.jungle.studybbitback.domain.dm.dto.GetDmResponseDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -13,6 +11,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDate;
 
 @RestController
 @RequestMapping("/api/daily-study")
@@ -38,9 +38,9 @@ public class DailyStudyController {
 	}
 
 	// 특정 날짜 공부시간 조회
-	@GetMapping("/date")
-	public ResponseEntity<GetDailyStudyResponseDto> getStudyByDate(@RequestBody GetDailyStudyRequestDto request) {
-		GetDailyStudyResponseDto response = dailyStudyService.getStudyByDate(request);
+	@GetMapping("/{studyDate}")
+	public ResponseEntity<GetDailyStudyResponseDto> getStudyByDate(@PathVariable("studyDate") LocalDate studyDate) {
+		GetDailyStudyResponseDto response = dailyStudyService.getStudyByDate(studyDate);
 		return ResponseEntity.ok(response);
 	}
 }
