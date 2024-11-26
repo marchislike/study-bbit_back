@@ -85,7 +85,7 @@ public class RoomBoardService {
                             .map(Member::getNickname)
                             .orElse("알 수 없음");
 
-                    Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+                    Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").ascending());
                     //댓글 목록 조회
                     Page<RoomBoardComment> comments = commentRepository.findByRoomBoardId(roomBoardId, pageable);
 
