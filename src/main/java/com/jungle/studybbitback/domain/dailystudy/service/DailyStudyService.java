@@ -1,12 +1,10 @@
 package com.jungle.studybbitback.domain.dailystudy.service;
 
-import com.jungle.studybbitback.domain.dailystudy.dto.GetDailyStudyRequestDto;
 import com.jungle.studybbitback.domain.dailystudy.dto.GetDailyStudyResponseDto;
 import com.jungle.studybbitback.domain.dailystudy.dto.WriteStudyRequestDto;
 import com.jungle.studybbitback.domain.dailystudy.dto.WriteStudyResponseDto;
 import com.jungle.studybbitback.domain.dailystudy.entity.DailyStudy;
 import com.jungle.studybbitback.domain.dailystudy.repositody.DailyStudyRepository;
-import com.jungle.studybbitback.domain.dm.dto.GetDmResponseDto;
 import com.jungle.studybbitback.domain.member.entity.Member;
 import com.jungle.studybbitback.domain.member.repository.MemberRepository;
 import com.jungle.studybbitback.jwt.dto.CustomUserDetails;
@@ -80,14 +78,14 @@ public class DailyStudyService {
 		return dailyStudyRepository.findByMemberId(userDetails.getMemberId(), pageable).map(GetDailyStudyResponseDto::new);
 	}
 
-	public GetDailyStudyResponseDto getStudyByDate(GetDailyStudyRequestDto request) {
+	public GetDailyStudyResponseDto getStudyByDate(LocalDate studyDate) {
 		CustomUserDetails userDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		DailyStudy dailyStudy = dailyStudyRepository.findByMemberIdAndStudyDate(userDetails.getMemberId(), request.getStudyDate())
+		DailyStudy dailyStudy = dailyStudyRepository.findByMemberIdAndStudyDate(userDetails.getMemberId(), studyDate)
 						.orElse(null);
 		if (dailyStudy != null) {
 			return new GetDailyStudyResponseDto(dailyStudy);
 		} else {
-			return new GetDailyStudyResponseDto(request.getStudyDate());
+			return new GetDailyStudyResponseDto(studyDate);
 		}
 	}
 }
