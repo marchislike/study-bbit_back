@@ -11,12 +11,14 @@ public class GetRoomFileResponseDto {
 	private String fileType;
 	private Long fileSize;
 	private String fileUploadPath;
+	private String createdBy;
 
-	public GetRoomFileResponseDto(UserFile file) {
+	public GetRoomFileResponseDto(UserFile file, String nickname) {
 		this.id = file.getId();
 		this.uploadName = file.getUploadName();
 		this.fileType = file.getFileType();
 		this.fileSize = file.getFileSize();
 		this.fileUploadPath = file.getFileUploadPath();
+		this.createdBy = nickname; // 닉네임 추가
 	}
 }

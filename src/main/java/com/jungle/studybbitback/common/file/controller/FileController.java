@@ -2,14 +2,12 @@ package com.jungle.studybbitback.common.file.controller;
 
 import com.jungle.studybbitback.common.file.dto.GetRoomFileResponseDto;
 import com.jungle.studybbitback.common.file.service.FileService;
-import com.jungle.studybbitback.domain.dm.dto.GetDmResponseDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -35,6 +33,7 @@ public class FileController {
 
     @DeleteMapping()
     public ResponseEntity<String> deleteFile(@RequestParam("fileUrl") String fileUrl) {
-        return ResponseEntity.ok(fileService.deleteFile(fileUrl));
+
+        return ResponseEntity.ok(fileService.deleteUserFile(fileUrl));
     }
 }
