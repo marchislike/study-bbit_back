@@ -1,13 +1,17 @@
 package com.jungle.studybbitback.domain.member.entity;
 
+import com.jungle.studybbitback.common.DurationToIntervalConverter;
 import com.jungle.studybbitback.common.entity.ModifiedTimeEntity;
+import com.jungle.studybbitback.domain.member.dto.DailyGoalRequestDto;
 import com.jungle.studybbitback.domain.member.dto.UpdateMemberRequestDto;
 import com.jungle.studybbitback.domain.room.entity.RoomMember;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.ColumnTransformer;
 import org.springframework.util.StringUtils;
 
+import java.time.Duration;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -41,6 +45,11 @@ public class Member extends ModifiedTimeEntity {
     @OneToMany(mappedBy = "member")
     private Set<RoomMember> roomMembers = new HashSet<>();
 
+    @Convert(converter = DurationToIntervalConverter.class)
+    @Column(name = "daily_goal", columnDefinition = "INTERVAL")
+    @ColumnTransformer(write = "CAST(? AS INTERVAL)") // 삽입 시 CAST 적용
+    private Duration dailyGoal;
+
     public Member(String email, String password, String nickname, MemberRoleEnum role) {
         this.email = email;
         this.password = password;
@@ -66,5 +75,9 @@ public class Member extends ModifiedTimeEntity {
         if(requestDto.isProfileChanged()) {
             this.profileImageUrl = profileUrl;
         }
+    }
+
+    public void updateDailyGoal(DailyGoalRequestDto request) {
+        this.dailyGoal = request.getDailyGoal();
     }
 }

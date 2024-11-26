@@ -58,4 +58,20 @@ public class MemberController {
         GetMyRoomResponseDto responseDto = memberService.getUserStudyRooms(page, size);
         return ResponseEntity.ok(responseDto);
     }
+
+    // 내 목표 업데이트
+    @PostMapping("/dailyGoal")
+    public ResponseEntity<DailyGoalResponseDto> setDailyGoal(@RequestBody DailyGoalRequestDto request) {
+
+        DailyGoalResponseDto response = memberService.setDailyGoal(request);
+        return ResponseEntity.ok(response);
+    }
+    
+    // 내 목표 조회
+    @GetMapping("/dailyGoal")
+    public ResponseEntity<DailyGoalResponseDto> getDailyGoal() {
+
+        DailyGoalResponseDto response = memberService.getDailyGoal();
+        return ResponseEntity.ok(response);
+    }
 }

@@ -116,4 +116,25 @@ public class MemberService {
 
         return new FindMemberResponseDto(member);
     }
+
+    @Transactional
+    public DailyGoalResponseDto setDailyGoal(DailyGoalRequestDto request) {
+        CustomUserDetails userDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        Member member = memberRepository.findById(userDetails.getMemberId())
+                .orElseThrow(()-> new IllegalArgumentException("사용자가 존재하지 않습니다."));
+
+        member.updateDailyGoal(request);
+
+        return new DailyGoalResponseDto(member);
+    }
+
+    public DailyGoalResponseDto getDailyGoal() {
+        CustomUserDetails userDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        Member member = memberRepository.findById(userDetails.getMemberId())
+                .orElseThrow(()-> new IllegalArgumentException("사용자가 존재하지 않습니다."));
+
+        return new DailyGoalResponseDto(member);
+    }
 }
