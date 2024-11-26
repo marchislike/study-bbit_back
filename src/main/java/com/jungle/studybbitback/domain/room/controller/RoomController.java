@@ -1,5 +1,6 @@
 package com.jungle.studybbitback.domain.room.controller;
 
+import com.jungle.studybbitback.common.file.service.FileService;
 import com.jungle.studybbitback.domain.room.dto.room.*;
 import com.jungle.studybbitback.domain.room.service.RoomService;
 import lombok.RequiredArgsConstructor;
@@ -10,6 +11,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -22,13 +24,28 @@ import java.util.List;
 public class RoomController {
 
     private final RoomService roomService;
+    private final FileService fileService;
 
     // 방 생성
     @PostMapping(value ="", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<CreateRoomResponseDto> createRoom(
             @ModelAttribute CreateRoomRequestDto requestDto,
-            @RequestParam("roomImage") MultipartFile roomImage
+            @RequestParam(value = "roomImage", required = false) MultipartFile roomImage // 이미지 필드를 선택적으로 설정
     ) {
+        log.info("Room Image provided: {}", roomImage != null ? roomImage.getOriginalFilename() : "방 이미지가 없습니다.");
+
+        // 이미지가 없으면 null로 설정
+        String roomImageUrl = null;
+        if (roomImage != null && !roomImage.isEmpty()) {
+            // 이미지가 있으면 업로드 처리
+            roomImageUrl = fileService.uploadFile(roomImage, "image", 0L);
+        }
+
+        // 만약 roomImageUrl이 빈 문자열이라면 null로 처리
+        if (StringUtils.isEmpty(roomImageUrl)) {
+            roomImageUrl = null;
+        }
+
         CreateRoomResponseDto response = roomService.createRoom(requestDto, roomImage);
         return ResponseEntity.ok(response);
     }
