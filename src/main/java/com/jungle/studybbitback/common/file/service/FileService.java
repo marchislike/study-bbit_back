@@ -1,13 +1,22 @@
 package com.jungle.studybbitback.common.file.service;
 
+import com.jungle.studybbitback.common.file.dto.GetRoomFileResponseDto;
 import com.jungle.studybbitback.common.file.entity.UserFile;
 import com.jungle.studybbitback.common.file.repository.FileRepository;
+import com.jungle.studybbitback.domain.member.entity.Member;
+import com.jungle.studybbitback.domain.member.repository.MemberRepository;
 import com.jungle.studybbitback.domain.room.entity.Room;
 import com.jungle.studybbitback.domain.room.respository.RoomRepository;
+import com.jungle.studybbitback.jwt.dto.CustomUserDetails;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 import software.amazon.awssdk.core.sync.RequestBody;
@@ -16,7 +25,9 @@ import software.amazon.awssdk.services.s3.model.*;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -25,10 +36,12 @@ public class FileService {
     private final S3Client s3Client;
     private final RoomRepository roomRepository;
     private final FileRepository fileRepository;
+    private final MemberRepository memberRepository;
 
     @Value("${spring.cloud.aws.s3.bucketName}")
     private String bucketName;
 
+    @Transactional
     public String uploadFile(MultipartFile file, String type, Long roomId) {
         if (file.isEmpty()) {
             throw new IllegalArgumentException("업로드 할 파일이 없습니다.");
@@ -122,6 +135,7 @@ public class FileService {
         return "success";
     }
 
+
     public int deleteRoomFiles(Long roomId) {
         // 파일 목록 조회
         List<UserFile> files = fileRepository.findByRoomId(roomId);
@@ -145,4 +159,43 @@ public class FileService {
                 .sum(); // 삭제된 파일 개수 합산
     }
 
+    @Transactional(readOnly = true)
+    public Page<GetRoomFileResponseDto> getRoomFile(Pageable pageable, Long roomId) {
+        //return fileRepository.findByRoomId(roomId, pageable).map(GetRoomFileResponseDto::new);
+        // 파일 데이터를 페이징으로 가져옴.
+        Page<UserFile> userFiles = fileRepository.findByRoomId(roomId, pageable);
+
+        // 모든 createdBy ID 추출
+        List<Long> createdByIds = userFiles.stream()
+                .map(UserFile::getCreatedBy)
+                .collect(Collectors.toList());
+
+        // ID로 Member 데이터를 한 번에 조회
+        Map<Long, String> memberNicknames = memberRepository.findAllById(createdByIds)
+                .stream()
+                .collect(Collectors.toMap(Member::getId, Member::getNickname));
+
+        // DTO 매핑 시 닉네임 포함
+        return userFiles.map(userFile -> {
+            String nickname = memberNicknames.getOrDefault(userFile.getCreatedBy(), "Unknown");
+            return new GetRoomFileResponseDto(userFile, nickname);
+        });
+    }
+
+    @Transactional
+    public String deleteUserFile(String fileUrl) {
+
+        UserFile file = fileRepository.findByFileUploadPath(fileUrl)
+                .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 파일입니다."));
+
+        CustomUserDetails userDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        if(userDetails.getMemberId() != file.getCreatedBy()) {
+            throw new IllegalArgumentException("생성자만이 삭제 가능합니다.");
+        }
+
+        fileRepository.deleteByFileUploadPath(fileUrl);
+
+        return deleteFile(fileUrl);
+    }
 }
