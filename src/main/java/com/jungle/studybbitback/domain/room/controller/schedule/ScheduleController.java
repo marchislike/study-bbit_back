@@ -29,33 +29,44 @@ public class ScheduleController {
         return ResponseEntity.status(201).body(response);
     }
 
-    // 일정 전체 조회
+    /*** 전체 일정 조회* GET /api/schedules?roomId={roomId}&page={page}&size={size}*/
     @GetMapping("/{roomId}")
-    public ResponseEntity<Page<GetScheduleResponseDto>> getSchedules(
+    public ResponseEntity<Page<GetScheduleResponseDto>> getAllSchedules(
             @PathVariable Long roomId,
-            @RequestParam(required = false) Integer year,
-            @RequestParam(required = false) Integer month,
-            @RequestParam(required = false, defaultValue = "0") int page,
-            @RequestParam(required = false, defaultValue = "5") int size,
             Pageable pageable) {
-        // year와 month가 null인 경우 기본값 설정
-        if (year == null) {
-            year = LocalDate.now().getYear(); // 기본값: 현재 연도
-        }
-        if (month == null) {
-            month = LocalDate.now().getMonthValue(); // 기본값: 현재 월
-        }
-
-        Page<GetScheduleResponseDto> schedules = scheduleService.getSchedulesByMonth(roomId, year, month, pageable);
+        Page<GetScheduleResponseDto> schedules = scheduleService.getAllSchedules(roomId, pageable);
         return ResponseEntity.ok(schedules);
     }
+
+
+//    // 일정 전체 조회
+//    @GetMapping("/{roomId}")
+//    public ResponseEntity<Page<GetScheduleResponseDto>> getSchedules(
+//            @PathVariable Long roomId,
+//            @RequestParam(required = false) Integer year,
+//            @RequestParam(required = false) Integer month,
+//            @RequestParam(required = false, defaultValue = "0") int page,
+//            @RequestParam(required = false, defaultValue = "5") int size,
+//            Pageable pageable) {
+//        // year와 month가 null인 경우 기본값 설정
+//        if (year == null) {
+//            year = LocalDate.now().getYear(); // 기본값: 현재 연도
+//        }
+//        if (month == null) {
+//            month = LocalDate.now().getMonthValue(); // 기본값: 현재 월
+//        }
+//
+//        Page<GetScheduleResponseDto> schedules = scheduleService.getSchedulesByMonth(roomId, year, month, pageable);
+//        return ResponseEntity.ok(schedules);
+//    }
 
     //일정 상세 조회
     @GetMapping("/detail/{scheduleId}")
     public ResponseEntity<GetScheduleDetailResponseDto> getScheduleDetail(
-            @PathVariable Long scheduleId
+            @PathVariable Long scheduleId,
+            Pageable commentPageable
     ) {
-        GetScheduleDetailResponseDto scheduleDetail = scheduleService.getScheduleDetail(scheduleId);
+        GetScheduleDetailResponseDto scheduleDetail = scheduleService.getScheduleDetail(scheduleId, commentPageable);
         return ResponseEntity.ok(scheduleDetail);
 
     }

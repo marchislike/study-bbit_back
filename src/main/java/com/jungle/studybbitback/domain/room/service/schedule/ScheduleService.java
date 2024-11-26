@@ -185,27 +185,21 @@ public class ScheduleService {
         return firstRecurringSchedule;
     }
 
-    // 특정 월의 일정 조회
-    @Transactional(readOnly = true)
-    public Page<GetScheduleResponseDto> getSchedulesByMonth(Long roomId, int year, int month, Pageable pageable) {
+    @Transactional
+    public Page<GetScheduleResponseDto> getAllSchedules(Long roomId, Pageable pageable) {
         CustomUserDetails userDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         Long memberId = userDetails.getMemberId();
         validateRoomMembership(roomId, memberId);
 
-        // 해당 월의 첫날과 마지막 날 계산
-        YearMonth yearMonth = YearMonth.of(year, month);
-        LocalDateTime startOfMonth = yearMonth.atDay(1).atStartOfDay(); // 월의 첫날 00:00
-        LocalDateTime endOfMonth = yearMonth.atEndOfMonth().atTime(23, 59, 59); // 월의 마지막 날 23:59:59
 
-        // 월별 일정 조회
-        Page<Schedule> schedules = scheduleRepository.findByRoomIdAndStartDateTimeBetween(roomId, startOfMonth, endOfMonth, pageable);
+        Page<Schedule> schedules = scheduleRepository.findByRoomId(roomId, pageable);
 
-        // DTO 변환 및 반환
         return schedules.map(GetScheduleResponseDto::from);
     }
 
+
     @Transactional(readOnly = true)
-    public GetScheduleDetailResponseDto getScheduleDetail(Long scheduleId) {
+    public GetScheduleDetailResponseDto getScheduleDetail(Long scheduleId, Pageable commentPageable) {
         CustomUserDetails userDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         Long memberId = userDetails.getMemberId();
 
@@ -215,7 +209,11 @@ public class ScheduleService {
 
         // 방 멤버 여부 검증
         Long roomId = schedule.getRoom().getId();
-        validateRoomMembership(scheduleId, memberId);
+        validateRoomMembership(roomId, memberId);
+
+        // 댓글 목록 조회 (댓글 기능 구현 시 주석 해제)
+        // Page<Comment> comments = commentRepository.findByScheduleId(scheduleId, commentPageable);
+        // List<CommentDto> commentDtos = comments.map(CommentDto::from).getContent();
 
         // TODO: 출석부 로직 추가
 
