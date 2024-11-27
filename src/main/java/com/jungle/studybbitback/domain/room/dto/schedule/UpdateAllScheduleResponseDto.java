@@ -10,7 +10,7 @@ import java.time.LocalTime;
 
 @Getter
 @NoArgsConstructor
-public class UpdateScheduleResponseDto {
+public class UpdateAllScheduleResponseDto {
     private Long scheduleId;
     private String title;
     private String detail;
@@ -24,7 +24,7 @@ public class UpdateScheduleResponseDto {
     private Long scheduleCycleId; //단일일정은 null로 받음 & 반복 일정에서 하루만 수정하면 역시 null로 옴
 
     // Schedule 엔터티를 기반으로 DTO를 생성하는 생성자
-    public UpdateScheduleResponseDto(Schedule schedule) {
+    public UpdateAllScheduleResponseDto(Schedule schedule) {
         this.scheduleId = schedule.getId();
         this.title = schedule.getTitle();
         this.detail = schedule.getDetail();

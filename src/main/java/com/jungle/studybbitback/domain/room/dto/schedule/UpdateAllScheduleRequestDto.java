@@ -8,7 +8,7 @@ import java.time.LocalTime;
 
 @Getter
 @ToString
-public class UpdateScheduleRequestDto {
+public class UpdateAllScheduleRequestDto {
     private String title;
     private String detail;
     private LocalDate startDate;
@@ -20,7 +20,7 @@ public class UpdateScheduleRequestDto {
     private LocalDate repeatEndDate;
 
     @Builder
-    public UpdateScheduleRequestDto(String title, String detail, LocalDate startDate, LocalTime startTime,
+    public UpdateAllScheduleRequestDto(String title, String detail, LocalDate startDate, LocalTime startTime,
                                     LocalTime endTime, boolean repeatFlag, String repeatPattern, String daysOfWeek,
                                     LocalDate repeatEndDate) {
         this.title = title;
