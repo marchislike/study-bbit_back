@@ -1,10 +1,17 @@
 package com.jungle.studybbitback.domain.room.controller;
 
+import com.jungle.studybbitback.domain.room.dto.banmember.BanRoomMemberRequestDto;
+import com.jungle.studybbitback.domain.room.dto.banmember.BanRoomMemberResponseDto;
+import com.jungle.studybbitback.domain.room.dto.banmember.GetBlacklistResponseDto;
 import com.jungle.studybbitback.domain.room.dto.roommember.JoinRoomMemberRequestDto;
 import com.jungle.studybbitback.domain.room.dto.roommember.JoinRoomMemberResponseDto;
 import com.jungle.studybbitback.domain.room.dto.roommember.*;
 import com.jungle.studybbitback.domain.room.service.RoomMemberService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -45,6 +52,32 @@ public class RoomMemberController {
     @DeleteMapping("/leave/{roomId}")
     public ResponseEntity<String> leaveRoom(@PathVariable Long roomId) {
         String response = roomMemberService.leaveRoom(roomId);
+        return ResponseEntity.ok(response);
+    }
+
+    // 방 멤버 강퇴
+    @PostMapping("/ban")
+    public ResponseEntity<BanRoomMemberResponseDto> banRoomMember(
+            @RequestBody BanRoomMemberRequestDto request) {
+        BanRoomMemberResponseDto response = roomMemberService.banRoomMember(request);
+        return ResponseEntity.ok(response);
+    }
+    
+    // 방 멤버 강퇴 취소
+    @DeleteMapping("/ban")
+    public ResponseEntity<BanRoomMemberResponseDto> unbanRoomMember(
+            @RequestBody BanRoomMemberRequestDto request) {
+        BanRoomMemberResponseDto response = roomMemberService.unbanRoomMember(request);
+        return ResponseEntity.ok(response);
+    }
+
+    // 블랙리스트 조회
+    @GetMapping("/ban/{roomId}")
+    public ResponseEntity<Page<GetBlacklistResponseDto>> getBlacklist(
+            @PathVariable("roomId") Long roomId,
+            @PageableDefault(size = 5, sort = "createdAt", direction = Sort.Direction.DESC)
+            Pageable pageable) {
+        Page<GetBlacklistResponseDto> response = roomMemberService.getBlacklist(roomId, pageable);
         return ResponseEntity.ok(response);
     }
 }

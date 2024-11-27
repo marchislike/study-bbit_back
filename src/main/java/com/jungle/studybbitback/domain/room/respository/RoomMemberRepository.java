@@ -31,4 +31,6 @@ public interface RoomMemberRepository extends JpaRepository<RoomMember, Long> {
 
     // 특정 Member에 속한 RoomMember를 페이지로 조회
     Page<RoomMember> findByMemberId(Long memberId, Pageable pageable);
+
+    void deleteByRoomIdAndMemberId(Long roomId, Long banMemberId);
 }
