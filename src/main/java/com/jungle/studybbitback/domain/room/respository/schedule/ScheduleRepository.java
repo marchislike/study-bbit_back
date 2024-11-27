@@ -26,4 +26,8 @@ public interface ScheduleRepository extends JpaRepository<Schedule, Long> {
                 .orElseThrow(() -> new IllegalArgumentException("해당 일정이 존재하지 않습니다."));
     }
 
+    Page<Schedule> findByScheduleCycleId(Long scheduleCycleId, Pageable pageable);
+
+    void deleteByScheduleCycleId(Long scheduleCycleId);
+
 }

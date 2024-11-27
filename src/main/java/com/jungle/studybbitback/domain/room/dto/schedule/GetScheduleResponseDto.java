@@ -23,6 +23,7 @@ public class GetScheduleResponseDto {
     private String repeatPattern; // 반복 패턴
     private String daysOfWeek; // 반복 요일
     private String repeatEndDate; // 반복 종료 날짜
+    private Long scheduleCycleId;
 
     public static GetScheduleResponseDto from(Schedule schedule) {
         return GetScheduleResponseDto.builder()
@@ -38,6 +39,7 @@ public class GetScheduleResponseDto {
                 .repeatPattern(schedule.getRepeatPattern())
                 .daysOfWeek(schedule.getDaysOfWeek())
                 .repeatEndDate(schedule.getRepeatEndDate() != null ? schedule.getRepeatEndDate().toString() : null)
+                .scheduleCycleId(schedule.getScheduleCycleId())
                 .build();
     }
 }

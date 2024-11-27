@@ -56,6 +56,13 @@ public class Schedule extends ModifiedTimeEntity {
     private String daysOfWeek; // 반복 요일
     private LocalDate repeatEndDate; // 반복 종료 날짜
 
+    @Column(nullable = true) // 반복일정에서 하루만 변경 시 scheduleCylcleId = null
+    private Long scheduleCycleId; // 반복일정 라벨
+
+    public void setScheduleCycleId(Long scheduleCycleId) {
+        this.scheduleCycleId = scheduleCycleId;
+    }
+
     public void setStartDateTime(LocalDateTime startDateTime) {
         this.startDateTime = startDateTime;
         this.startDate = startDateTime.toLocalDate(); // 시작 날짜 설정

@@ -3,6 +3,7 @@ package com.jungle.studybbitback.domain.room.service.schedule;
 import com.jungle.studybbitback.common.utils.DateUtils;
 import com.jungle.studybbitback.domain.member.entity.Member;
 import com.jungle.studybbitback.domain.member.repository.MemberRepository;
+import com.jungle.studybbitback.domain.room.controller.schedule.ScheduleCycleIdGenerator;
 import com.jungle.studybbitback.domain.room.dto.schedule.CreateScheduleRequestDto;
 import com.jungle.studybbitback.domain.room.dto.schedule.CreateScheduleResponseDto;
 import com.jungle.studybbitback.domain.room.dto.schedule.GetScheduleDetailResponseDto;
@@ -25,7 +26,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.YearMonth;
 import java.util.List;
 
 @Service
@@ -37,7 +37,15 @@ public class ScheduleService {
     private final RoomRepository roomRepository;
     private final MemberRepository memberRepository;
     private final RoomMemberRepository roomMemberRepository;
+    private final ScheduleCycleIdGenerator scheduleCycleIdGenerator;
 
+    private void validateRoomMembership(Long roomId, Long memberId) {
+        if (roomMemberRepository.findByRoomIdAndMemberId(roomId, memberId).isEmpty()) {
+            throw new AccessDeniedException("해당 스터디룸에 가입된 사용자만 접근할 수 있습니다.");
+        }
+    }
+
+    // 일정 생성
     @Transactional
     public CreateScheduleResponseDto createSchedule(CreateScheduleRequestDto requestDto) {
         // 인증된 사용자 정보 가져오기
@@ -76,6 +84,14 @@ public class ScheduleService {
             throw new IllegalArgumentException("주간 반복 스터디는 종료 날짜를 반드시 입력해야 합니다.");
         }
 
+        Long scheduleCycleId = null;
+
+        // 반복 플래그가 true인 경우 scheduleCycleId 설정
+        if (requestDto.isRepeatFlag()) {
+            scheduleCycleId = scheduleCycleIdGenerator.generate();
+            log.info("부여된 반복태그 scheduleCycleId: {}", scheduleCycleId);
+        }
+
         Schedule savedSchedule = null;
 
         // 반복 플래그가 true인 경우 시작 날짜가 반복 요일에 포함되는지 확인
@@ -91,6 +107,7 @@ public class ScheduleService {
             Schedule schedule = Schedule.from(requestDto, room, member);
             schedule.setStartDateTime(startDateTime);
             schedule.setEndDateTime(endDateTime);
+            schedule.setScheduleCycleId(scheduleCycleId);
             log.info("스터디 일정이 등록되었습니다: {}", schedule);
 
             // 일정 저장
@@ -100,7 +117,7 @@ public class ScheduleService {
         // 반복 일정 처리
         if (requestDto.isRepeatFlag()) {
             log.info("반복 일정 생성 시작");
-            Schedule firstRecurringSchedule = createRecurringSchedules(savedSchedule, requestDto, startDateTime, endDateTime, room, member);
+            Schedule firstRecurringSchedule = createRecurringSchedules(savedSchedule, requestDto, startDateTime, endDateTime, room, member, scheduleCycleId);
             if (savedSchedule == null && firstRecurringSchedule != null) {
                 savedSchedule = firstRecurringSchedule;
             }
@@ -114,10 +131,11 @@ public class ScheduleService {
             throw new IllegalStateException("일정 생성에 실패하였습니다.");
         }
     }
+    // isRepeatFlag = True이면 주간반복 일정 생성
 
     private Schedule createRecurringSchedules(Schedule initialSchedule, CreateScheduleRequestDto requestDto,
                                               LocalDateTime startDateTime, LocalDateTime endDateTime,
-                                              Room room, Member member) {
+                                              Room room, Member member, Long scheduleCycleId) {
         LocalDate startDate = startDateTime.toLocalDate(); // 시작 날짜
         LocalDate repeatEndDate = requestDto.getRepeatEndDate(); // 반복 종료 날짜
         List<DayOfWeek> repeatDays = DateUtils.parseDaysOfWeek(requestDto.getDaysOfWeek()); // 반복할 요일 리스트
@@ -169,8 +187,12 @@ public class ScheduleService {
                         member
                 );
 
+                recurringSchedule.setStartDateTime(currentStartDateTime);
+                recurringSchedule.setEndDateTime(currentEndDateTime);
+                recurringSchedule.setScheduleCycleId(scheduleCycleId); // 동일한 scheduleCycleId 할당
+
                 // 반복 일정 저장
-                scheduleRepository.save(recurringSchedule);
+                recurringSchedule = scheduleRepository.save(recurringSchedule);
                 log.info("저장된 반복 일정: {}", recurringSchedule);
 
                 // 첫 번째 반복 일정 저장
@@ -230,13 +252,10 @@ public class ScheduleService {
                 .repeatPattern(schedule.getRepeatPattern())
                 .daysOfWeek(schedule.getDaysOfWeek())
                 .repeatEndDate(schedule.getRepeatEndDate() != null ? schedule.getRepeatEndDate().toString() : null)
+                .scheduleCycleId(schedule.getScheduleCycleId())
                 .build();
     }
 
-    private void validateRoomMembership(Long roomId, Long memberId) {
-        if (roomMemberRepository.findByRoomIdAndMemberId(roomId, memberId).isEmpty()) {
-            throw new AccessDeniedException("해당 스터디룸에 가입된 사용자만 접근할 수 있습니다.");
-        }
-    }
+
 
 }

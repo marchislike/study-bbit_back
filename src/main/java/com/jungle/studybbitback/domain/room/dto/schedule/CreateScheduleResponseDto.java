@@ -23,6 +23,7 @@ public class CreateScheduleResponseDto {
     private String repeatPattern; // 반복 패턴
     private String daysOfWeek; // 반복 요일
     private String repeatEndDate; // 반복 종료 날짜 (String 형식으로 변환)
+    private Long scheduleCycleId;
 
     public static CreateScheduleResponseDto from(Schedule schedule) {
         return CreateScheduleResponseDto.builder()
@@ -38,6 +39,7 @@ public class CreateScheduleResponseDto {
                 .repeatPattern(schedule.getRepeatPattern())
                 .daysOfWeek(schedule.getDaysOfWeek())
                 .repeatEndDate(schedule.getRepeatEndDate() != null ? schedule.getRepeatEndDate().toString() : null)
+                .scheduleCycleId(schedule.getScheduleCycleId())
                 .build();
     }
 }
