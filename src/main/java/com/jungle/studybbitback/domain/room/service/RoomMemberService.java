@@ -18,6 +18,7 @@ import com.jungle.studybbitback.domain.room.respository.RoomBlacklistRepository;
 import com.jungle.studybbitback.domain.room.respository.RoomMemberRepository;
 import com.jungle.studybbitback.domain.room.respository.RoomRepository;
 import com.jungle.studybbitback.jwt.dto.CustomUserDetails;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -26,6 +27,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.nio.file.AccessDeniedException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -105,7 +107,7 @@ public class RoomMemberService {
         room.increaseParticipants();
 
         int participantCount = roomMemberRepository.countByRoom(room);
-        return new JoinRoomMemberResponseDto(roomId, memberId, participantCount, "귀여운 '" + member.getNickname() +"님이 방에 참여했습니다.");
+        return new JoinRoomMemberResponseDto(roomId, memberId, participantCount, "귀여운 " + member.getNickname() +"님이 방에 참여했습니다.");
     }
 
     @Transactional
@@ -176,7 +178,7 @@ public class RoomMemberService {
     }
 
     @Transactional
-	public BanRoomMemberResponseDto banRoomMember(BanRoomMemberRequestDto request) {
+	public BanRoomMemberResponseDto banRoomMember(BanRoomMemberRequestDto request) throws AccessDeniedException {
         CustomUserDetails userDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         Long loginMemberId = userDetails.getMemberId();
 
@@ -184,11 +186,15 @@ public class RoomMemberService {
         Long roomId = request.getRoomId();
 
         RoomMember roomMember = roomMemberRepository.findByRoomIdAndMemberId(roomId, banMemberId)
-                .orElseThrow(() -> new IllegalArgumentException("방 가입 회원이 아닙니다."));
+                .orElseThrow(() -> new EntityNotFoundException("방 가입 회원이 아닙니다."));
 
-        if(loginMemberId != roomMember.getRoom().getLeaderId()) {
-            throw new IllegalStateException("방장만이 강퇴할 수 있습니다.");
+        Room room = roomMember.getRoom();
+
+        if(loginMemberId != room.getLeaderId()) {
+            throw new AccessDeniedException("방장만이 강퇴할 수 있습니다.");
         }
+
+        room.decreaseParticipants();
 
         roomMemberRepository.deleteByRoomIdAndMemberId(roomId, banMemberId);
 
@@ -199,7 +205,7 @@ public class RoomMemberService {
 	}
 
     @Transactional
-    public BanRoomMemberResponseDto unbanRoomMember(BanRoomMemberRequestDto request) {
+    public BanRoomMemberResponseDto unbanRoomMember(BanRoomMemberRequestDto request) throws AccessDeniedException {
         CustomUserDetails userDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         Long loginMemberId = userDetails.getMemberId();
 
@@ -207,10 +213,10 @@ public class RoomMemberService {
         Long banMemberId = request.getBanMemberId();
 
         RoomBlacklist roomBlacklist = roomBlacklistRepository.findByRoomIdAndMemberId(roomId, banMemberId)
-                .orElseThrow(() -> new IllegalArgumentException("블랙리스트에 없습니다."));
+                .orElseThrow(() -> new EntityNotFoundException("블랙리스트에 없습니다."));
 
         if(loginMemberId != roomBlacklist.getRoom().getLeaderId()) {
-            throw new IllegalStateException("방장만이 강퇴해제할 수 있습니다.");
+            throw new AccessDeniedException("방장만이 강퇴해제할 수 있습니다.");
         }
 
         roomBlacklistRepository.deleteByRoomIdAndMemberId(roomId, banMemberId);
@@ -218,16 +224,16 @@ public class RoomMemberService {
         return new BanRoomMemberResponseDto(roomBlacklist);
     }
 
-    public Page<GetBlacklistResponseDto> getBlacklist(Long roomId, Pageable pageable) {
+    public Page<GetBlacklistResponseDto> getBlacklist(Long roomId, Pageable pageable) throws AccessDeniedException {
         
         Room room = roomRepository.findById(roomId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 방입니다."));
+                .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 방입니다."));
 
         CustomUserDetails userDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         Long loginMemberId = userDetails.getMemberId();
 
         if(loginMemberId != room.getLeaderId()) {
-            throw new IllegalStateException("방장만이 조회할 수 있습니다.");
+            throw new AccessDeniedException("방장만이 조회할 수 있습니다.");
         }
 
         return roomBlacklistRepository.findByRoomId(roomId, pageable).map(GetBlacklistResponseDto::new);
