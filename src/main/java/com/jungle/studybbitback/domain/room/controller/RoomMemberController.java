@@ -15,6 +15,7 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.nio.file.AccessDeniedException;
 import java.util.List;
 
 @RestController
@@ -58,7 +59,7 @@ public class RoomMemberController {
     // 방 멤버 강퇴
     @PostMapping("/ban")
     public ResponseEntity<BanRoomMemberResponseDto> banRoomMember(
-            @RequestBody BanRoomMemberRequestDto request) {
+            @RequestBody BanRoomMemberRequestDto request) throws AccessDeniedException {
         BanRoomMemberResponseDto response = roomMemberService.banRoomMember(request);
         return ResponseEntity.ok(response);
     }
@@ -66,7 +67,7 @@ public class RoomMemberController {
     // 방 멤버 강퇴 취소
     @DeleteMapping("/ban")
     public ResponseEntity<BanRoomMemberResponseDto> unbanRoomMember(
-            @RequestBody BanRoomMemberRequestDto request) {
+            @RequestBody BanRoomMemberRequestDto request) throws AccessDeniedException {
         BanRoomMemberResponseDto response = roomMemberService.unbanRoomMember(request);
         return ResponseEntity.ok(response);
     }
@@ -76,7 +77,7 @@ public class RoomMemberController {
     public ResponseEntity<Page<GetBlacklistResponseDto>> getBlacklist(
             @PathVariable("roomId") Long roomId,
             @PageableDefault(size = 5, sort = "createdAt", direction = Sort.Direction.DESC)
-            Pageable pageable) {
+            Pageable pageable) throws AccessDeniedException {
         Page<GetBlacklistResponseDto> response = roomMemberService.getBlacklist(roomId, pageable);
         return ResponseEntity.ok(response);
     }
