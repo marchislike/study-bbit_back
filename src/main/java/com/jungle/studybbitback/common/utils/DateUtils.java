@@ -4,8 +4,10 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.format.TextStyle;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -21,6 +23,11 @@ public class DateUtils {
             "토", DayOfWeek.SATURDAY,
             "일", DayOfWeek.SUNDAY
     );
+
+    // 요일 한국어 표기 단일단위
+    public static String getDayInKorean(DayOfWeek day) {
+        return day.getDisplayName(TextStyle.FULL, Locale.KOREAN);
+    }
 
     /**
      * 한국어 요일 문자열을 DayOfWeek 리스트로 변환.
