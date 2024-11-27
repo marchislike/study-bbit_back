@@ -11,6 +11,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.nio.file.AccessDeniedException;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("api/file")
@@ -32,7 +34,7 @@ public class FileController {
     }
 
     @DeleteMapping()
-    public ResponseEntity<String> deleteFile(@RequestParam("fileUrl") String fileUrl) {
+    public ResponseEntity<String> deleteFile(@RequestParam("fileUrl") String fileUrl) throws AccessDeniedException {
 
         return ResponseEntity.ok(fileService.deleteUserFile(fileUrl));
     }
