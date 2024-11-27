@@ -23,6 +23,7 @@ import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.*;
 
+import java.nio.file.AccessDeniedException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -161,7 +162,6 @@ public class FileService {
 
     @Transactional(readOnly = true)
     public Page<GetRoomFileResponseDto> getRoomFile(Pageable pageable, Long roomId) {
-        //return fileRepository.findByRoomId(roomId, pageable).map(GetRoomFileResponseDto::new);
         // 파일 데이터를 페이징으로 가져옴.
         Page<UserFile> userFiles = fileRepository.findByRoomId(roomId, pageable);
 
@@ -183,7 +183,7 @@ public class FileService {
     }
 
     @Transactional
-    public String deleteUserFile(String fileUrl) {
+    public String deleteUserFile(String fileUrl) throws AccessDeniedException {
 
         UserFile file = fileRepository.findByFileUploadPath(fileUrl)
                 .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 파일입니다."));
@@ -191,7 +191,7 @@ public class FileService {
         CustomUserDetails userDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
         if(userDetails.getMemberId() != file.getCreatedBy()) {
-            throw new IllegalArgumentException("생성자만이 삭제 가능합니다.");
+            throw new AccessDeniedException("생성자만이 삭제 가능합니다.");
         }
 
         fileRepository.deleteByFileUploadPath(fileUrl);
