@@ -6,6 +6,7 @@ import com.jungle.studybbitback.domain.room.dto.schedule.CreateScheduleRequestDt
 import com.jungle.studybbitback.domain.room.entity.Room;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -19,6 +20,8 @@ import org.springframework.cglib.core.Local;
 @Entity
 @Getter
 @NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Schedule extends ModifiedTimeEntity {
 
     @Id
@@ -87,6 +90,29 @@ public class Schedule extends ModifiedTimeEntity {
         schedule.daysOfWeek = requestDto.getDaysOfWeek();
         schedule.repeatEndDate = requestDto.getRepeatEndDate();
         return schedule;
+    }
+
+    public void updateDetails(String title, String detail, LocalDate startDate, LocalDateTime startTime, LocalDateTime endTime,
+                              Boolean repeatFlag, String repeatPattern, String daysOfWeek, LocalDate repeatEndDate) {
+        if(title != null) this.title = title;
+        if(detail != null) this.detail = detail;
+        if(startDate != null){
+            this.startDate = startDate;
+            this.startDateTime = startTime;
+            // endDateTime이 null이면 기본값을 설정하거나 예외를 던질 수 있습니다
+            if (endTime != null) {
+                this.endDateTime = endTime;
+            } else {
+                // 기본값을 설정하거나 예외 처리
+                throw new IllegalArgumentException("종료시간은 필수로 입력되어야 합니다.");
+            }
+        }
+        if(repeatFlag != null){
+            this.repeatFlag = repeatFlag;
+            this.repeatPattern = repeatPattern;
+            this.daysOfWeek = daysOfWeek;
+            this.repeatEndDate = repeatEndDate;
+        }
     }
 
 }

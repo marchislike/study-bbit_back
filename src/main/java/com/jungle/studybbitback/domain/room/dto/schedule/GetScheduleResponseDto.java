@@ -1,11 +1,11 @@
 package com.jungle.studybbitback.domain.room.dto.schedule;
 
+import com.jungle.studybbitback.common.utils.DateUtils;
 import com.jungle.studybbitback.domain.room.entity.schedule.Schedule;
 import lombok.Builder;
 import lombok.Getter;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 @Getter
@@ -14,6 +14,7 @@ public class GetScheduleResponseDto {
     private Long scheduleId;
     private String title;
     private LocalDate startDate; // 시작 날짜
+    private String day;
     private LocalTime startTime;  // 시작 시간
     private LocalTime endTime;    // 종료 시간
     private String detail;
@@ -30,6 +31,7 @@ public class GetScheduleResponseDto {
                 .scheduleId(schedule.getId())
                 .title(schedule.getTitle())
                 .startDate(schedule.getStartDate())
+                .day(DateUtils.getDayInKorean(schedule.getStartDate().getDayOfWeek())) // 단일 일정 요일 추가
                 .startTime(schedule.getStartDateTime().toLocalTime())
                 .endTime(schedule.getEndDateTime().toLocalTime())
                 .detail(schedule.getDetail())
