@@ -6,7 +6,9 @@ import com.jungle.studybbitback.domain.room.entity.schedule.ScheduleMember;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -15,28 +17,34 @@ import java.util.stream.Collectors;
 public class GetScheduleDetailResponseDto {
     private Long scheduleId;
     private String title;
-    private LocalDateTime startDateTime;
-    private LocalDateTime endDateTime;
+    private LocalDate startDate; // 시작 날짜
+    private LocalTime startTime;  // 시작 시간
+    private LocalTime endTime;    // 종료 시간
     private String detail;
     private Long roomId;
     private String creatorName;
-    private List<GetScheduleMemberResponseDto> participantStatuses;
+    private boolean repeatFlag; // 반복 여부
+    private String repeatPattern; // 반복 패턴
+    private String daysOfWeek; // 반복 요일
+    private String repeatEndDate; // 반복 종료 날짜
+    private Long scheduleCycleId;
 
-    public static GetScheduleDetailResponseDto from(Schedule schedule, List<ScheduleMember> scheduleMembers) {
-        // ScheduleMember 목록을 GetScheduleMemberResponseDto 목록으로 변환
-        List<GetScheduleMemberResponseDto> participantStatuses = scheduleMembers.stream()
-                .map(GetScheduleMemberResponseDto::from)
-                .collect(Collectors.toList());
+    public static GetScheduleDetailResponseDto from(Schedule schedule) {
 
         return GetScheduleDetailResponseDto.builder()
                 .scheduleId(schedule.getId())
                 .title(schedule.getTitle())
-                .startDateTime(schedule.getStartDateTime())
-                .endDateTime(schedule.getEndDateTime())
+                .startDate(schedule.getStartDate())
+                .startTime(schedule.getStartDateTime().toLocalTime())
+                .endTime(schedule.getEndDateTime().toLocalTime())
                 .detail(schedule.getDetail())
                 .roomId(schedule.getRoom().getId())
                 .creatorName(schedule.getCreatedBy().getNickname())
-                .participantStatuses(participantStatuses)  // 참석 상태 목록
+                .repeatFlag(schedule.isRepeatFlag())
+                .repeatPattern(schedule.getRepeatPattern())
+                .daysOfWeek(schedule.getDaysOfWeek())
+                .repeatEndDate(schedule.getRepeatEndDate() != null ? schedule.getRepeatEndDate().toString() : null)
+                .scheduleCycleId(schedule.getScheduleCycleId())
                 .build();
     }
 
