@@ -349,4 +349,20 @@ public class ScheduleService {
                 .map(UpdateAllScheduleResponseDto::new)
                 .collect(Collectors.toList());
     }
+
+    // 단일 일정 삭제
+    @Transactional
+    public void deleteSingleSchedule(Long scheduleId){
+        Schedule schedule = scheduleRepository.findById(scheduleId)
+                .orElseThrow(()-> new IllegalArgumentException("해당 일정은 존재하지 않습니다."));
+
+        // 단일 일정 삭제
+        scheduleRepository.delete(schedule);
+    }
+
+    // 반복 일정 일괄 삭제 (단일로 된 일정을 일괄로 삭제하는 게 아님!)
+    @Transactional
+    public  void deleteAllSchedule(Long scheduleCycleId){
+        scheduleRepository.deleteByScheduleCycleId(scheduleCycleId);
+    }
 }

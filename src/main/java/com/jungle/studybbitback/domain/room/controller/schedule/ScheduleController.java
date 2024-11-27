@@ -66,4 +66,18 @@ public class ScheduleController {
         return ResponseEntity.ok(responseDto);
     }
 
+    // 단일 일정 삭제
+    @DeleteMapping("/single/{scheduleId}")
+    public ResponseEntity<String> deleteSingleSchedule(@PathVariable Long scheduleId) {
+        scheduleService.deleteSingleSchedule(scheduleId);
+        return ResponseEntity.ok("해당 날짜의 일정이 삭제되었습니다.");
+    }
+
+    // 반복 일정 전체 삭제
+    @DeleteMapping("/all/{scheduleCycleId}")
+    public ResponseEntity<String> deleteAllSchedule(@PathVariable Long scheduleCycleId) {
+        scheduleService.deleteAllSchedule(scheduleCycleId);
+        return ResponseEntity.ok("주간 반복 일정 전체가 삭제되었습니다.");
+    }
+
 }
