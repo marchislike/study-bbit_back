@@ -1,20 +1,27 @@
 package com.jungle.studybbitback.domain.room.service;
 
+import com.jungle.studybbitback.domain.dm.dto.GetDmResponseDto;
 import com.jungle.studybbitback.domain.member.entity.Member;
 import com.jungle.studybbitback.domain.member.repository.MemberRepository;
+import com.jungle.studybbitback.domain.room.dto.banmember.BanRoomMemberRequestDto;
+import com.jungle.studybbitback.domain.room.dto.banmember.BanRoomMemberResponseDto;
+import com.jungle.studybbitback.domain.room.dto.banmember.GetBlacklistResponseDto;
 import com.jungle.studybbitback.domain.room.dto.roommember.JoinRoomMemberRequestDto;
 import com.jungle.studybbitback.domain.room.dto.roommember.JoinRoomMemberResponseDto;
 import com.jungle.studybbitback.domain.room.dto.roommember.InviteRoomMemberRequestDto;
 import com.jungle.studybbitback.domain.room.dto.roommember.InviteRoomMemberResponseDto;
-import com.jungle.studybbitback.domain.room.dto.roommember.LeaveRoomMemberRequestDto;
 import com.jungle.studybbitback.domain.room.dto.roommember.GetRoomMemberResponseDto;
 import com.jungle.studybbitback.domain.room.entity.Room;
+import com.jungle.studybbitback.domain.room.entity.RoomBlacklist;
 import com.jungle.studybbitback.domain.room.entity.RoomMember;
+import com.jungle.studybbitback.domain.room.respository.RoomBlacklistRepository;
 import com.jungle.studybbitback.domain.room.respository.RoomMemberRepository;
 import com.jungle.studybbitback.domain.room.respository.RoomRepository;
 import com.jungle.studybbitback.jwt.dto.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,6 +38,7 @@ public class RoomMemberService {
     private final RoomMemberRepository roomMemberRepository;
     private final RoomRepository roomRepository;
     private final MemberRepository memberRepository;
+    private final RoomBlacklistRepository roomBlacklistRepository;
 
     //스터디룸 전체 멤버 조회
     public List<GetRoomMemberResponseDto> getRoomMembers(Long roomId) {
@@ -165,6 +173,64 @@ public class RoomMemberService {
         // 참여자 수 감소
         room.decreaseParticipants();
         return "스터디룸을 떠납니다.";
+    }
+
+    @Transactional
+	public BanRoomMemberResponseDto banRoomMember(BanRoomMemberRequestDto request) {
+        CustomUserDetails userDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Long loginMemberId = userDetails.getMemberId();
+
+        Long banMemberId = request.getBanMemberId();
+        Long roomId = request.getRoomId();
+
+        RoomMember roomMember = roomMemberRepository.findByRoomIdAndMemberId(roomId, banMemberId)
+                .orElseThrow(() -> new IllegalArgumentException("방 가입 회원이 아닙니다."));
+
+        if(loginMemberId != roomMember.getRoom().getLeaderId()) {
+            throw new IllegalStateException("방장만이 강퇴할 수 있습니다.");
+        }
+
+        roomMemberRepository.deleteByRoomIdAndMemberId(roomId, banMemberId);
+
+        RoomBlacklist roomBlacklist = new RoomBlacklist(roomMember.getRoom(), roomMember.getMember(), request.getDetail());
+        RoomBlacklist savedRoomBlacklist = roomBlacklistRepository.saveAndFlush(roomBlacklist);
+
+        return new BanRoomMemberResponseDto(savedRoomBlacklist);
+	}
+
+    @Transactional
+    public BanRoomMemberResponseDto unbanRoomMember(BanRoomMemberRequestDto request) {
+        CustomUserDetails userDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Long loginMemberId = userDetails.getMemberId();
+
+        Long roomId = request.getRoomId();
+        Long banMemberId = request.getBanMemberId();
+
+        RoomBlacklist roomBlacklist = roomBlacklistRepository.findByRoomIdAndMemberId(roomId, banMemberId)
+                .orElseThrow(() -> new IllegalArgumentException("블랙리스트에 없습니다."));
+
+        if(loginMemberId != roomBlacklist.getRoom().getLeaderId()) {
+            throw new IllegalStateException("방장만이 강퇴해제할 수 있습니다.");
+        }
+
+        roomBlacklistRepository.deleteByRoomIdAndMemberId(roomId, banMemberId);
+
+        return new BanRoomMemberResponseDto(roomBlacklist);
+    }
+
+    public Page<GetBlacklistResponseDto> getBlacklist(Long roomId, Pageable pageable) {
+        
+        Room room = roomRepository.findById(roomId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 방입니다."));
+
+        CustomUserDetails userDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Long loginMemberId = userDetails.getMemberId();
+
+        if(loginMemberId != room.getLeaderId()) {
+            throw new IllegalStateException("방장만이 조회할 수 있습니다.");
+        }
+
+        return roomBlacklistRepository.findByRoomId(roomId, pageable).map(GetBlacklistResponseDto::new);
     }
 }
 
