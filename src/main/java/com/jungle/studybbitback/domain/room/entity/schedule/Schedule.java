@@ -3,6 +3,7 @@ package com.jungle.studybbitback.domain.room.entity.schedule;
 import com.jungle.studybbitback.common.entity.ModifiedTimeEntity;
 import com.jungle.studybbitback.domain.member.entity.Member;
 import com.jungle.studybbitback.domain.room.dto.schedule.CreateScheduleRequestDto;
+import com.jungle.studybbitback.domain.room.dto.schedule.UpdateUpcomingScheduleRequestDto;
 import com.jungle.studybbitback.domain.room.entity.Room;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -92,6 +93,24 @@ public class Schedule extends ModifiedTimeEntity {
         return schedule;
     }
 
+    // 새로운: UpdateUpcomingScheduleRequestDto를 사용하여 일정 수정
+    public static Schedule from(UpdateUpcomingScheduleRequestDto requestDto, Room room, Member createdBy) {
+        Schedule schedule = new Schedule();
+        schedule.title = requestDto.getTitle();
+        schedule.startDate = requestDto.getStartDate();
+        schedule.startDateTime = requestDto.getStartDate().atTime(requestDto.getStartTime());
+        schedule.endDateTime = requestDto.getStartDate().atTime(requestDto.getEndTime());
+        schedule.detail = requestDto.getDetail();
+        schedule.room = room;
+        schedule.createdBy = createdBy;
+        schedule.repeatFlag = requestDto.isRepeatFlag();
+        schedule.repeatPattern = requestDto.getRepeatPattern();
+        schedule.daysOfWeek = requestDto.getDaysOfWeek();
+        schedule.repeatEndDate = requestDto.getRepeatEndDate();
+        return schedule;
+    }
+
+    // 일저 세부사항 수정
     public void updateDetails(String title, String detail, LocalDate startDate, LocalDateTime startTime, LocalDateTime endTime,
                               Boolean repeatFlag, String repeatPattern, String daysOfWeek, LocalDate repeatEndDate) {
         if(title != null) this.title = title;
@@ -111,8 +130,12 @@ public class Schedule extends ModifiedTimeEntity {
             this.repeatFlag = repeatFlag;
             this.repeatPattern = repeatPattern;
             this.daysOfWeek = daysOfWeek;
-            this.repeatEndDate = repeatEndDate;
+            if (repeatFlag) { // 반복 일정일 경우에만 repeatEndDate를 설정
+                this.repeatEndDate = repeatEndDate;
+            }
         }
     }
+
+
 
 }

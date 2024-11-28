@@ -23,12 +23,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
-
-import static com.jungle.studybbitback.domain.room.entity.QRoom.room;
 
 @Service
 @RequiredArgsConstructor
@@ -45,6 +41,11 @@ public class ScheduleService {
         if (roomMemberRepository.findByRoomIdAndMemberId(roomId, memberId).isEmpty()) {
             throw new AccessDeniedException("해당 스터디룸에 가입된 사용자만 접근할 수 있습니다.");
         }
+    }
+
+    // scheduleCycleId를 새로 생성
+    private Long generateNewScheduleCycleId() {
+        return scheduleRepository.findMaxScheduleCycleId().orElse(0L) + 1;
     }
 
     // 일정 생성
@@ -348,6 +349,102 @@ public class ScheduleService {
         return newSchedules.stream()
                 .map(UpdateAllScheduleResponseDto::new)
                 .collect(Collectors.toList());
+    }
+
+    // 이후 일정 전체 수정
+    @Transactional
+    public List<UpdateUpcomingScheduleResponseDto> updateUpcomingSchedules(Long scheduleCycleId, UpdateUpcomingScheduleRequestDto requestDto) {
+        CustomUserDetails userDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Long memberId = userDetails.getMemberId();
+
+        // 스터디룸 멤버 검증을 위한 기존 일정 조회
+        Page<Schedule> existingSchedules = scheduleRepository.findByScheduleCycleId(scheduleCycleId, Pageable.unpaged());
+        if (existingSchedules.isEmpty()) {
+            log.info("해당 반복 일정은 존재하지 않습니다. scheduleCycleId: {}", scheduleCycleId);
+            throw new IllegalArgumentException("해당 반복 일정이 존재하지 않습니다.");
+        }
+
+        // 첫 번째 일정에서 필요한 정보 추출
+        Schedule firstSchedule = existingSchedules.getContent().get(0);
+        Room room = firstSchedule.getRoom();
+        Member member = firstSchedule.getCreatedBy();
+
+        // 스터디룸 멤버 검증
+        validateRoomMembership(room.getId(), memberId);
+
+        // 수정 시작 시점 설정
+        LocalDateTime modificationStartDateTime = requestDto.getStartDate().atTime(requestDto.getStartTime());
+
+        // 기준날짜 포함 이후 일정들만 필터링하여 삭제
+        List<Schedule> schedulesToDelete = existingSchedules.stream()
+                .filter(schedule -> !schedule.getStartDateTime().isBefore(modificationStartDateTime))
+                .collect(Collectors.toList());
+
+        if (!schedulesToDelete.isEmpty()) {
+            log.info("수정 시작일({}) 이후의 일정 {}개를 삭제합니다.",
+                    requestDto.getStartDate(), schedulesToDelete.size());
+            scheduleRepository.deleteAll(schedulesToDelete);
+        }
+
+        // 새로운 반복 일정들을 담을 리스트
+        List<UpdateUpcomingScheduleResponseDto> updatedSchedules = new ArrayList<>();
+
+        // 새로운 scheduleCycleId 생성
+        Long newScheduleCycleId = generateNewScheduleCycleId();
+        log.info("새로운 scheduleCycleId 생성: {}", newScheduleCycleId);
+
+        // 요일 파싱
+        List<DayOfWeek> repeatDays = DateUtils.parseDaysOfWeek(requestDto.getDaysOfWeek());
+        log.info("반복 요일: {}", repeatDays);
+
+        // 새로운 반복 일정 생성
+        LocalDate currentDate = requestDto.getStartDate();
+        LocalDate endDate = requestDto.getRepeatEndDate();
+
+        while (!currentDate.isAfter(endDate)) {
+            if (repeatDays.contains(currentDate.getDayOfWeek())) {
+                LocalDateTime startDateTime = currentDate.atTime(requestDto.getStartTime());
+                LocalDateTime endDateTime = currentDate.atTime(requestDto.getEndTime());
+
+                // 일정 생성을 위한 DTO 구성
+                CreateScheduleRequestDto createDto = CreateScheduleRequestDto.builder()
+                        .title(requestDto.getTitle())
+                        .detail(requestDto.getDetail())
+                        .startDate(currentDate)
+                        .startTime(requestDto.getStartTime())
+                        .endTime(requestDto.getEndTime())
+                        .roomId(room.getId())
+                        .repeatFlag(true)
+                        .repeatPattern(requestDto.getRepeatPattern())
+                        .daysOfWeek(requestDto.getDaysOfWeek())
+                        .repeatEndDate(requestDto.getRepeatEndDate())
+                        .build();
+
+                // 새로운 일정 생성
+                Schedule newSchedule = Schedule.from(createDto, room, member);
+                newSchedule.setStartDateTime(startDateTime);
+                newSchedule.setEndDateTime(endDateTime);
+                newSchedule.setScheduleCycleId(newScheduleCycleId);
+
+                // 일정 저장
+                Schedule savedSchedule = scheduleRepository.save(newSchedule);
+                log.info("새로운 일정 생성 완료 - ID: {}, 날짜: {}",
+                        savedSchedule.getId(), currentDate);
+
+                // 응답 DTO 추가
+                updatedSchedules.add(new UpdateUpcomingScheduleResponseDto(
+                        savedSchedule.getId(),
+                        savedSchedule.getTitle(),
+                        savedSchedule.getStartDate(),
+                        savedSchedule.getStartDateTime().toLocalTime(),
+                        savedSchedule.getEndDateTime().toLocalTime()
+                ));
+            }
+            currentDate = currentDate.plusDays(1);
+        }
+
+        log.info("수정된 반복 일정 생성 완료. 생성된 일정 수: {}", updatedSchedules.size());
+        return updatedSchedules;
     }
 
     // 단일 일정 삭제
