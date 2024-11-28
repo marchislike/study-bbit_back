@@ -35,7 +35,7 @@ public class RoomMemberController {
 
     // 방에 참여하기 (사용자가 스스로 방에 들어감)
     @PostMapping("/join/{roomId}")
-    public ResponseEntity<JoinRoomMemberResponseDto> joinRoom(@PathVariable("roomId") Long roomId, @RequestBody JoinRoomMemberRequestDto requestDto) {
+    public ResponseEntity<JoinRoomMemberResponseDto> joinRoom(@PathVariable("roomId") Long roomId, @RequestBody JoinRoomMemberRequestDto requestDto) throws AccessDeniedException {
         JoinRoomMemberResponseDto response = roomMemberService.joinRoom(roomId, requestDto);
         return ResponseEntity.ok(response);
     }

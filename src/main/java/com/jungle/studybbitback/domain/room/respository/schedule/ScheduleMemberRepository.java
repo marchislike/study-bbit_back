@@ -1,6 +1,9 @@
 package com.jungle.studybbitback.domain.room.respository.schedule;
 
 import com.jungle.studybbitback.domain.room.entity.schedule.ScheduleMember;
+import com.querydsl.core.group.GroupBy;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
@@ -12,4 +15,6 @@ public interface ScheduleMemberRepository extends JpaRepository<ScheduleMember, 
 
     // scheduleId와 memberId로 특정 ScheduleMember 조회
     Optional<ScheduleMember> findByScheduleIdAndMemberId(Long scheduleId, Long memberId);
+
+	Page<ScheduleMember> findByScheduleId(Long scheduleId, Pageable pageable);
 }

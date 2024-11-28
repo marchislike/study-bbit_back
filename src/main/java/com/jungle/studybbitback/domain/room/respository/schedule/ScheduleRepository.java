@@ -23,10 +23,10 @@ public interface ScheduleRepository extends JpaRepository<Schedule, Long> {
             Pageable pageable
     );
 
-    default Schedule findByIdOrThrow(Long scheduleId) {
-        return findById(scheduleId)
-                .orElseThrow(() -> new IllegalArgumentException("해당 일정이 존재하지 않습니다."));
-    }
+//    default Schedule findByIdOrThrow(Long scheduleId) {
+//        return findById(scheduleId)
+//                .orElseThrow(() -> new IllegalArgumentException("해당 일정이 존재하지 않습니다."));
+//    }
 
     Page<Schedule> findByScheduleCycleId(Long scheduleCycleId, Pageable pageable);
 

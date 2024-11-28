@@ -42,7 +42,7 @@ spring:
   jpa:
     hibernate:
       dialect: org.hibernate.dialect.PostgreSQLDialect
-      ddl-auto: none #create update none
+      ddl-auto: none #update none
     properties:
       hibernate:
         # show_sql: true

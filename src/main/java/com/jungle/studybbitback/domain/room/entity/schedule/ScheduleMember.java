@@ -1,5 +1,6 @@
 package com.jungle.studybbitback.domain.room.entity.schedule;
 
+import com.jungle.studybbitback.common.entity.ModifiedTimeEntity;
 import com.jungle.studybbitback.domain.member.entity.Member;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -10,7 +11,7 @@ import org.hibernate.annotations.OnDeleteAction;
 @Entity
 @Getter
 @NoArgsConstructor
-public class ScheduleMember {
+public class ScheduleMember extends ModifiedTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -27,16 +28,22 @@ public class ScheduleMember {
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Member member;
 
-    @Column(nullable = false)
-    private Boolean isParticipated; // boolean 대신 Boolean으로 참/불참 외 null(무응답)도 넘길 수 있게 설정
+    //@Column(nullable = false)
+    @Enumerated(value = EnumType.STRING)
+    private ParticipateStatusEnum participateStatus;
 
-    public ScheduleMember(Schedule schedule, Member member, Boolean isParticipated) {
+    private String notedDetail;
+
+    public ScheduleMember(Schedule schedule, Member member, ParticipateStatusEnum status, String detail) {
         this.schedule = schedule;
         this.member = member;
-        this.isParticipated = isParticipated;
+        this.participateStatus = status;
+        this.notedDetail = detail;
     }
-    // isParticipated 상태를 설정
-    public void setIsParticipated(Boolean isParticipated) {
-        this.isParticipated = isParticipated;
+
+    public ScheduleMember(Schedule schedule, Member member, ParticipateStatusEnum status) {
+        this.schedule = schedule;
+        this.member = member;
+        this.participateStatus = status;
     }
 }

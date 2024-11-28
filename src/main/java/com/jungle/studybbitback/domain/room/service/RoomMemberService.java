@@ -72,7 +72,7 @@ public class RoomMemberService {
 
     //스터디룸 참여(가입)
     @Transactional
-    public JoinRoomMemberResponseDto joinRoom(Long roomId, JoinRoomMemberRequestDto requestDto) {
+    public JoinRoomMemberResponseDto joinRoom(Long roomId, JoinRoomMemberRequestDto requestDto) throws AccessDeniedException {
 
         // 로그인한 사용자 정보 가져오기
         CustomUserDetails userDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -83,6 +83,11 @@ public class RoomMemberService {
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 방입니다."));
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
+        
+        // 블랙리스트 거르기
+        if (roomBlacklistRepository.existsByRoomAndMember(room, member)) {
+            throw new AccessDeniedException("You shall not pass!!!!!!!!!!");
+        }
 
         // 해당 방의 멤버라면 바로 입장 처리
         if (roomMemberRepository.existsByRoomAndMember(room, member)) {
