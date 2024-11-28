@@ -1,9 +1,11 @@
 package com.jungle.studybbitback.domain.room.dto.schedule;
 
 import com.jungle.studybbitback.common.utils.DateUtils;
+import com.jungle.studybbitback.domain.room.dto.schedulecomment.GetScheduleCommentResponseDto;
 import com.jungle.studybbitback.domain.room.entity.schedule.Schedule;
 import lombok.Builder;
 import lombok.Getter;
+import org.springframework.data.domain.Page;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -26,7 +28,9 @@ public class GetScheduleDetailResponseDto {
     private String repeatEndDate; // 반복 종료 날짜
     private Long scheduleCycleId;
 
-    public static GetScheduleDetailResponseDto from(Schedule schedule) {
+    private Page<GetScheduleCommentResponseDto> comments;
+
+    public static GetScheduleDetailResponseDto from(Schedule schedule, Page<GetScheduleCommentResponseDto> comments) {
 
         return GetScheduleDetailResponseDto.builder()
                 .scheduleId(schedule.getId())
@@ -43,6 +47,7 @@ public class GetScheduleDetailResponseDto {
                 .daysOfWeek(schedule.getDaysOfWeek())
                 .repeatEndDate(schedule.getRepeatEndDate() != null ? schedule.getRepeatEndDate().toString() : null)
                 .scheduleCycleId(schedule.getScheduleCycleId())
+                .comments(comments)
                 .build();
     }
 

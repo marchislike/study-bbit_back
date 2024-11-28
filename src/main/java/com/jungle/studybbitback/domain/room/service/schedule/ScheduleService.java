@@ -5,10 +5,12 @@ import com.jungle.studybbitback.domain.member.entity.Member;
 import com.jungle.studybbitback.domain.member.repository.MemberRepository;
 import com.jungle.studybbitback.domain.room.controller.schedule.ScheduleCycleIdGenerator;
 import com.jungle.studybbitback.domain.room.dto.schedule.*;
+import com.jungle.studybbitback.domain.room.dto.schedulecomment.GetScheduleCommentResponseDto;
 import com.jungle.studybbitback.domain.room.entity.Room;
 import com.jungle.studybbitback.domain.room.entity.schedule.Schedule;
 import com.jungle.studybbitback.domain.room.respository.RoomMemberRepository;
 import com.jungle.studybbitback.domain.room.respository.RoomRepository;
+import com.jungle.studybbitback.domain.room.respository.schedule.ScheduleCommentRepository;
 import com.jungle.studybbitback.domain.room.respository.schedule.ScheduleRepository;
 import com.jungle.studybbitback.jwt.dto.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
@@ -36,6 +38,7 @@ public class ScheduleService {
     private final MemberRepository memberRepository;
     private final RoomMemberRepository roomMemberRepository;
     private final ScheduleCycleIdGenerator scheduleCycleIdGenerator;
+    private final ScheduleCommentRepository scheduleCommentRepository;
 
     private void validateRoomMembership(Long roomId, Long memberId) {
         if (roomMemberRepository.findByRoomIdAndMemberId(roomId, memberId).isEmpty()) {
@@ -211,6 +214,22 @@ public class ScheduleService {
         return firstRecurringSchedule;
     }
 
+    // 일정 댓글용 조회 메서드
+    @Transactional(readOnly = true)
+    public Schedule getSchedule(Long scheduleId) {
+        CustomUserDetails userDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Long memberId = userDetails.getMemberId();
+
+        Schedule schedule = scheduleRepository.findById(scheduleId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 일정이 존재하지 않습니다."));
+
+        // 방 멤버 여부 검증
+        Long roomId = schedule.getRoom().getId();
+        validateRoomMembership(roomId, memberId);
+
+        return schedule;
+    }
+
     // 일정 전체 조회
     @Transactional
     public Page<GetScheduleResponseDto> getAllSchedules(Long roomId, Pageable pageable) {
@@ -238,13 +257,12 @@ public class ScheduleService {
         Long roomId = schedule.getRoom().getId();
         validateRoomMembership(roomId, memberId);
 
-        // 댓글 목록 조회 (댓글 기능 구현 시 주석 해제)
-        // Page<Comment> comments = commentRepository.findByScheduleId(scheduleId, commentPageable);
-        // List<CommentDto> commentDtos = comments.map(CommentDto::from).getContent();
+        // 댓글 목록 조회
+        Page<GetScheduleCommentResponseDto> comments = scheduleCommentRepository
+                .findByScheduleOrderByCreatedAtDesc(schedule, commentPageable)
+                .map(GetScheduleCommentResponseDto::from);
 
-        // TODO: 출석부 로직 추가
-
-        return GetScheduleDetailResponseDto.from(schedule);
+        return GetScheduleDetailResponseDto.from(schedule, comments);
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
