@@ -40,7 +40,8 @@ public class ScheduleMemberService {
     // 결석 등록
     @Transactional
     public ApplyNotedScheduleMemberResponseDto applyPreAbsenceScheduleMember(ApplyNotedScheduleMemberRequestDto requestDto) {
-        Schedule schedule = scheduleRepository.findByIdOrThrow(requestDto.getScheduleId());
+        Schedule schedule = scheduleRepository.findById(requestDto.getScheduleId())
+                .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 일정입니다."));
         Member member = getAuthenticatedMember();
 
         ScheduleMember scheduleMember = new ScheduleMember(schedule, member, ParticipateStatusEnum.NOTED, requestDto.getPreAbsenceDetail());
@@ -74,11 +75,13 @@ public class ScheduleMemberService {
     // 출석부 등록
     @Transactional
     public List<ApplyScheduleMembersResponseDto> applyScheduleMembers(ApplyScheduleMembersRequestDto requestDto) {
-        Schedule schedule = scheduleRepository.findByIdOrThrow(requestDto.getScheduleId());
+        Schedule schedule = scheduleRepository.findById(requestDto.getScheduleId())
+                .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 일정입니다."));
 
         List<ScheduleMember> scheduleMembers = requestDto.getMembers().stream()
                 .map(memberStatus -> {
-                    Member member = memberRepository.findByIdOrThrow(memberStatus.getMemberId());
+                    Member member = memberRepository.findById(memberStatus.getMemberId())
+                            .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 회원입니다."));
                     ParticipateStatusEnum status = ParticipateStatusEnum.valueOf(memberStatus.getStatus());
                     // 매너온도 감소 로직 구현필요
                     return new ScheduleMember(schedule, member, status);

@@ -18,4 +18,6 @@ public interface RoomBlacklistRepository extends JpaRepository<RoomBlacklist, Lo
 	Optional<RoomBlacklist> findByRoomIdAndMemberId(Long roomId, Long banMemberId);
 
 	Page<RoomBlacklist> findByRoomId(Long roomId, Pageable pageable);
+
+	boolean existsByRoomAndMember(Room room, Member member);
 }
