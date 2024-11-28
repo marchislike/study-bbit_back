@@ -1,8 +1,9 @@
 package com.jungle.studybbitback.domain.room.dto.schedule;
 
-
-
-import lombok.*;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -10,7 +11,8 @@ import java.time.LocalTime;
 
 @Getter
 @ToString
-public class UpdateScheduleRequestDto {
+@NoArgsConstructor
+public class UpdateUpcomingScheduleRequestDto {
     private String title;
     private String detail;
     private LocalDate startDate;
@@ -23,9 +25,9 @@ public class UpdateScheduleRequestDto {
     private LocalDate repeatEndDate;
 
     @Builder
-    public UpdateScheduleRequestDto(String title, String detail, LocalDate startDate, String day, LocalTime startTime,
-                                    LocalTime endTime, boolean repeatFlag, String repeatPattern, String daysOfWeek,
-                                    LocalDate repeatEndDate) {
+    public UpdateUpcomingScheduleRequestDto(String title, String detail, LocalDate startDate, String day, LocalTime startTime,
+                                            LocalTime endTime, boolean repeatFlag, String repeatPattern, String daysOfWeek,
+                                            LocalDate repeatEndDate) {
         this.title = title;
         this.detail = detail;
         this.startDate = startDate;

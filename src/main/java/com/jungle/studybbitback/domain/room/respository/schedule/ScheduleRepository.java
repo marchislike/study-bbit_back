@@ -5,8 +5,10 @@ import com.jungle.studybbitback.domain.room.entity.schedule.Schedule;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 public interface ScheduleRepository extends JpaRepository<Schedule, Long> {
 
@@ -30,4 +32,7 @@ public interface ScheduleRepository extends JpaRepository<Schedule, Long> {
 
     void deleteByScheduleCycleId(Long scheduleCycleId);
 
+    @Query("SELECT COALESCE(MAX(s.scheduleCycleId), 0) FROM Schedule s")
+    Optional<Long> findMaxScheduleCycleId();
 }
+

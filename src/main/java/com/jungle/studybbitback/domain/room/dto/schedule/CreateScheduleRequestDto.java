@@ -14,6 +14,7 @@ public class CreateScheduleRequestDto {
     private Long roomId;
     private String title;
     private LocalDate startDate; // 시작 날짜
+    private String day;
     private LocalTime startTime;  // 시작 시간
     private LocalTime endTime;    // 종료 시간
     private String detail;
@@ -25,11 +26,12 @@ public class CreateScheduleRequestDto {
 
 
     @Builder
-    public CreateScheduleRequestDto(Long roomId, String title, LocalDate startDate, LocalTime startTime, LocalTime endTime, String detail,
+    public CreateScheduleRequestDto(Long roomId, String title, LocalDate startDate, String day, LocalTime startTime, LocalTime endTime, String detail,
                                     boolean repeatFlag, String repeatPattern, String daysOfWeek, LocalDate repeatEndDate, Long scheduleCycleId) {
         this.roomId = roomId;
         this.title = title;
         this.startDate = startDate;
+        this.day = day;
         this.startTime = (startTime != null) ? startTime : LocalTime.of(0,0);
         this.endTime = (endTime != null) ? endTime : LocalTime.of(23,59);
         this.detail = detail;
