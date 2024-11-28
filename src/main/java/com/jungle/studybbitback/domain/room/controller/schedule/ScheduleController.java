@@ -6,6 +6,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -40,7 +42,7 @@ public class ScheduleController {
     @GetMapping("/detail/{scheduleId}")
     public ResponseEntity<GetScheduleDetailResponseDto> getScheduleDetail(
             @PathVariable Long scheduleId,
-            Pageable commentPageable
+            @PageableDefault(size = 3, sort = "createdAt", direction = Sort.Direction.ASC) Pageable commentPageable
     ) {
         GetScheduleDetailResponseDto scheduleDetail = scheduleService.getScheduleDetail(scheduleId, commentPageable);
         return ResponseEntity.ok(scheduleDetail);

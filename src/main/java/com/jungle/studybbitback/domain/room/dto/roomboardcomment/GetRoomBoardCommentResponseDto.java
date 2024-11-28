@@ -1,6 +1,5 @@
 package com.jungle.studybbitback.domain.room.dto.roomboardcomment;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
