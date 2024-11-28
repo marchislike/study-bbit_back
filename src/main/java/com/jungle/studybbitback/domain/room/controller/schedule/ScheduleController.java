@@ -89,6 +89,15 @@ public class ScheduleController {
         return ResponseEntity.ok("주간 반복 일정 전체가 삭제되었습니다.");
     }
 
+    // 특정 시점 이후의 일정들만 삭제
+    @DeleteMapping("/upcoming/{scheduleCycleId}")
+    public ResponseEntity<String> deleteUpcomingSchedulesAfterDate(
+            @PathVariable Long scheduleCycleId,
+            @RequestBody UpdateUpcomingScheduleRequestDto requestDto) {
+        scheduleService.deleteUpcomingSchedules(scheduleCycleId, requestDto);
+        return ResponseEntity.ok("삭제 시작일 이후의 일정들이 삭제되었습니다.");
+    }
+
 
 
 }

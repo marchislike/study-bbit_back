@@ -462,4 +462,30 @@ public class ScheduleService {
     public  void deleteAllSchedule(Long scheduleCycleId){
         scheduleRepository.deleteByScheduleCycleId(scheduleCycleId);
     }
+
+    // 반복 일정 중 특정 일자 기준으로 이후 일정 전체 삭제
+    @Transactional
+    public void deleteUpcomingSchedules(Long scheduleCycleId, UpdateUpcomingScheduleRequestDto requestDto) {    // 반복 일정 조회 (Page 형태로 받아옴)
+        Page<Schedule> existingSchedules = scheduleRepository.findByScheduleCycleId(scheduleCycleId, Pageable.unpaged());
+        if (existingSchedules.isEmpty()) {
+            log.info("해당 반복 일정은 존재하지 않습니다. scheduleCycleId: {}", scheduleCycleId);
+            throw new IllegalArgumentException("해당 반복 일정이 존재하지 않습니다.");
+        }
+
+        // 요청 받은 시작일을 LocalDateTime으로 변환 (기본 시작 시간 00:00으로 설정)
+        LocalDateTime modificationStartDateTime = requestDto.getStartDate().atStartOfDay();
+
+        // 기준 날짜 이후 일정들만 필터링하여 삭제
+        List<Schedule> schedulesToDelete = existingSchedules.getContent().stream()  // Page에서 List로 변환
+                .filter(schedule -> !schedule.getStartDateTime().isBefore(modificationStartDateTime))  // 날짜 비교
+                .collect(Collectors.toList());
+
+        if (!schedulesToDelete.isEmpty()) {
+            log.info("삭제 시작일({}) 이후의 일정 {}개를 삭제합니다.", requestDto.getStartDate(), schedulesToDelete.size());
+            scheduleRepository.deleteAll(schedulesToDelete);  // 해당 일정들 삭제
+        } else {
+            log.info("삭제 시작일 이후의 일정이 없습니다. 삭제할 일정이 없습니다.");
+        }
+    }
+
 }
