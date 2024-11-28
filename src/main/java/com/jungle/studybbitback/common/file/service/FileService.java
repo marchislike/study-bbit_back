@@ -194,7 +194,7 @@ public class FileService {
             throw new AccessDeniedException("생성자만이 삭제 가능합니다.");
         }
 
-        fileRepository.deleteByFileUploadPath(fileUrl);
+        fileRepository.delete(file);
 
         return deleteFile(fileUrl);
     }
