@@ -279,7 +279,6 @@ public class ScheduleService {
                 updateScheduleRequestDto.getTitle(),
                 updateScheduleRequestDto.getDetail(),
                 updateScheduleRequestDto.getStartDate(),
-                updateScheduleRequestDto.getDay(),
                 updateScheduleRequestDto.getStartDateTime(),
                 updateScheduleRequestDto.getEndDateTime(),
                 updateScheduleRequestDto.isRepeatFlag(),
@@ -328,21 +327,30 @@ public class ScheduleService {
                 LocalDateTime startDateTime = current.atTime(requestDto.getStartTime());
                 LocalDateTime endDateTime = current.atTime(requestDto.getEndTime());
 
-                Schedule newSchedule = Schedule.builder()
+                log.info("day 요일의 값이 제대로 안 들어오네요 = {}", requestDto.getDay());
+
+                // 일정 생성을 위한 DTO 구성
+                CreateScheduleRequestDto createDto = CreateScheduleRequestDto.builder()
                         .title(requestDto.getTitle())
                         .detail(requestDto.getDetail())
-                        .day(requestDto.getDay())
                         .startDate(current)
-                        .startDateTime(startDateTime)
-                        .endDateTime(endDateTime)
-                        .repeatFlag(requestDto.isRepeatFlag())
-                        .repeatPattern(requestDto.getRepeatPattern())
-                        .daysOfWeek(requestDto.getDaysOfWeek())
-                        .repeatEndDate(requestDto.getRepeatEndDate())
-                        .room(roomRepository.findById(roomId).orElseThrow())
-                        .createdBy(memberRepository.findById(memberId).orElseThrow())
-                        .scheduleCycleId(scheduleCycleId)
+                        .day(requestDto.getDay()) // 여기서 'day' 값도 사용
+                        .startTime(requestDto.getStartTime())
+                        .endTime(requestDto.getEndTime())
+                        .roomId(roomId) // roomId는 이미 확인되었으므로 그대로 사용
+                        .repeatFlag(requestDto.isRepeatFlag()) // 반복 여부
+                        .repeatPattern(requestDto.getRepeatPattern()) // 반복 패턴
+                        .daysOfWeek(requestDto.getDaysOfWeek()) // 반복 요일
+                        .repeatEndDate(requestDto.getRepeatEndDate()) // 반복 종료 날짜
                         .build();
+
+                // 새로운 일정 생성
+                Schedule newSchedule = Schedule.from(createDto, roomRepository.findById(roomId).orElseThrow(), memberRepository.findById(memberId).orElseThrow());
+                newSchedule.setStartDateTime(startDateTime);
+                newSchedule.setEndDateTime(endDateTime);
+                newSchedule.setScheduleCycleId(scheduleCycleId);
+
+                // 새로운 일정 저장
                 scheduleRepository.save(newSchedule);
                 newSchedules.add(newSchedule);
                 log.info("일괄 수정 : 새롭게 생성된 반복 일정 제목 :: {} 시작날짜 :{}", newSchedule.getTitle(), current);
@@ -350,6 +358,7 @@ public class ScheduleService {
             current = current.plusDays(1);
         }
 
+        // 응답 DTO로 변환
         return newSchedules.stream()
                 .map(UpdateAllScheduleResponseDto::new)
                 .collect(Collectors.toList());
