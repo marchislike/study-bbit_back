@@ -23,6 +23,8 @@ import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.*;
 
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.AccessDeniedException;
 import java.util.Arrays;
 import java.util.List;
@@ -96,17 +98,19 @@ public class FileService {
         return uploadedUrl;
     }
 
-
     public String deleteFile(String fileUrl) {
         // 파일 URL에서 버킷 이름과 객체 키(object key) 추출
         String[] urlParts = fileUrl.split("/");
         String fileBucket = urlParts[2].split("\\.")[0];
+        String rawObjectKey = String.join("/", Arrays.copyOfRange(urlParts, 3, urlParts.length));
+        String objectKey = URLDecoder.decode(rawObjectKey, StandardCharsets.UTF_8);
+
+        log.info("Extracted bucket name: {}", fileBucket);
+        log.info("Decoded object key: {}", objectKey);
 
         if (!fileBucket.equals(bucketName)) {
             throw new IllegalArgumentException("Invalid file bucket in URL: " + fileUrl);
         }
-
-        String objectKey = String.join("/", Arrays.copyOfRange(urlParts, 3, urlParts.length));
 
         // 삭제할 객체가 존재하는지 확인
         try {
@@ -114,11 +118,12 @@ public class FileService {
                     .bucket(bucketName)
                     .key(objectKey)
                     .build());
+            log.info("File exists: {}", fileUrl);
         } catch (NoSuchKeyException e) {
-            log.error("File does not exist: " + fileUrl);
+            log.error("File does not exist: {}", fileUrl);
             throw new IllegalArgumentException("File does not exist: " + fileUrl);
         } catch (S3Exception e) {
-            log.error("Error checking file existence: " + e.awsErrorDetails().errorMessage());
+            log.error("Error checking file existence: {}", e.awsErrorDetails().errorMessage());
             throw new RuntimeException("Failed to check file existence", e);
         }
 
@@ -128,13 +133,53 @@ public class FileService {
                     .bucket(bucketName)
                     .key(objectKey)
                     .build());
-            log.info("File delete complete: " + objectKey);
+            log.info("File delete complete: {}", objectKey);
         } catch (S3Exception e) {
-            log.error("File delete fail: " + e.awsErrorDetails().errorMessage());
+            log.error("File delete fail: {}", e.awsErrorDetails().errorMessage());
             throw new RuntimeException("Failed to delete file", e);
         }
+
         return "success";
     }
+
+//    public String deleteFile(String fileUrl) {
+//        // 파일 URL에서 버킷 이름과 객체 키(object key) 추출
+//        String[] urlParts = fileUrl.split("/");
+//        String fileBucket = urlParts[2].split("\\.")[0];
+//
+//        if (!fileBucket.equals(bucketName)) {
+//            throw new IllegalArgumentException("Invalid file bucket in URL: " + fileUrl);
+//        }
+//
+//        String objectKey = String.join("/", Arrays.copyOfRange(urlParts, 3, urlParts.length));
+//
+//        // 삭제할 객체가 존재하는지 확인
+//        try {
+//            s3Client.headObject(HeadObjectRequest.builder()
+//                    .bucket(bucketName)
+//                    .key(objectKey)
+//                    .build());
+//        } catch (NoSuchKeyException e) {
+//            log.error("File does not exist: " + fileUrl);
+//            throw new IllegalArgumentException("File does not exist: " + fileUrl);
+//        } catch (S3Exception e) {
+//            log.error("Error checking file existence: " + e.awsErrorDetails().errorMessage());
+//            throw new RuntimeException("Failed to check file existence", e);
+//        }
+//
+//        // 객체 삭제
+//        try {
+//            s3Client.deleteObject(DeleteObjectRequest.builder()
+//                    .bucket(bucketName)
+//                    .key(objectKey)
+//                    .build());
+//            log.info("File delete complete: " + objectKey);
+//        } catch (S3Exception e) {
+//            log.error("File delete fail: " + e.awsErrorDetails().errorMessage());
+//            throw new RuntimeException("Failed to delete file", e);
+//        }
+//        return "success";
+//    }
 
 
     public int deleteRoomFiles(Long roomId) {
