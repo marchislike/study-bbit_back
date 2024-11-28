@@ -12,14 +12,16 @@ public class GetScheduleMemberResponseDto {
     private Long memberId;
     private String memberNickname;
     private ParticipateStatusEnum participateStatus;
-    private String preAbsenceDetail;
+    private String notedDetail;
+    private Double flowTemperature;
 
     public static GetScheduleMemberResponseDto from(ScheduleMember scheduleMember) {
         return new GetScheduleMemberResponseDto(
                 scheduleMember.getMember().getId(),
                 scheduleMember.getMember().getNickname(),
                 scheduleMember.getParticipateStatus(),
-                scheduleMember.getPreAbsenceDetail()
+                scheduleMember.getNotedDetail(),
+                scheduleMember.getMember().getFlowTemperature()
         );
     }
 }

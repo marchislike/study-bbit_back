@@ -13,14 +13,14 @@ public class ApplyNotedScheduleMemberResponseDto {
     private Long memberId;
     private String memberNickname;
     private ParticipateStatusEnum participateStatus;
-    private String preAbsenceDetail;
+    private String notedDetail;
 
     public static ApplyNotedScheduleMemberResponseDto from(ScheduleMember scheduleMember) {
         return new ApplyNotedScheduleMemberResponseDto(
                 scheduleMember.getMember().getId(),
                 scheduleMember.getMember().getNickname(),
                 scheduleMember.getParticipateStatus(),
-                scheduleMember.getPreAbsenceDetail()
+                scheduleMember.getNotedDetail()
         );
     }
 }

@@ -5,5 +5,5 @@ import lombok.Getter;
 @Getter
 public class ApplyNotedScheduleMemberRequestDto {
     private Long scheduleId;
-    private String preAbsenceDetail;
+    private String notedDetail;
 }

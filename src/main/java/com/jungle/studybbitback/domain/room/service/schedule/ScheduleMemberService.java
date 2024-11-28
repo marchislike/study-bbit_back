@@ -39,15 +39,12 @@ public class ScheduleMemberService {
 
     // 결석 등록
     @Transactional
-    public ApplyNotedScheduleMemberResponseDto applyPreAbsenceScheduleMember(ApplyNotedScheduleMemberRequestDto requestDto) {
+    public ApplyNotedScheduleMemberResponseDto applyNotedScheduleMember(ApplyNotedScheduleMemberRequestDto requestDto) {
         Schedule schedule = scheduleRepository.findById(requestDto.getScheduleId())
                 .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 일정입니다."));
         Member member = getAuthenticatedMember();
 
-        ScheduleMember scheduleMember = new ScheduleMember(schedule, member, ParticipateStatusEnum.NOTED, requestDto.getPreAbsenceDetail());
-
-//        ScheduleMember scheduleMember = scheduleMemberRepository.findByScheduleIdAndMemberId(schedule.getId(), member.getId())
-//                .orElse(new ScheduleMember(schedule, member, requestDto.getIsParticipated()));
+        ScheduleMember scheduleMember = new ScheduleMember(schedule, member, ParticipateStatusEnum.NOTED, requestDto.getNotedDetail());
 
         scheduleMemberRepository.save(scheduleMember);
 
@@ -56,7 +53,7 @@ public class ScheduleMemberService {
     
     // 결석 등록 제거
     @Transactional
-    public String cancelPreAbsenceScheduleMember(Long scheduleId) {
+    public String cancelNotedScheduleMember(Long scheduleId) {
 
         // 로그인된 사용자 정보 가져오기
         Long memberId = getAuthenticatedMemberId();
@@ -74,16 +71,22 @@ public class ScheduleMemberService {
     
     // 출석부 등록
     @Transactional
-    public List<ApplyScheduleMembersResponseDto> applyScheduleMembers(ApplyScheduleMembersRequestDto requestDto) {
+    public List<ApplyScheduleMembersResponseDto> applyScheduleMembers(ApplyScheduleMembersRequestDto requestDto) throws AccessDeniedException {
         Schedule schedule = scheduleRepository.findById(requestDto.getScheduleId())
                 .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 일정입니다."));
+
+        Long memberId = getAuthenticatedMemberId();
+
+        if (schedule.getRoom().getLeaderId() != memberId) {
+            throw new AccessDeniedException("방장만 등록 가능합니다.");
+        }
 
         List<ScheduleMember> scheduleMembers = requestDto.getMembers().stream()
                 .map(memberStatus -> {
                     Member member = memberRepository.findById(memberStatus.getMemberId())
                             .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 회원입니다."));
                     ParticipateStatusEnum status = ParticipateStatusEnum.valueOf(memberStatus.getStatus());
-                    // 매너온도 감소 로직 구현필요
+                    member.updateFlowTemperature(status);
                     return new ScheduleMember(schedule, member, status);
                 })
                 .collect(Collectors.toList());

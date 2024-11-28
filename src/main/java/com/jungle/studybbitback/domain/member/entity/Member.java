@@ -5,6 +5,7 @@ import com.jungle.studybbitback.common.entity.ModifiedTimeEntity;
 import com.jungle.studybbitback.domain.member.dto.DailyGoalRequestDto;
 import com.jungle.studybbitback.domain.member.dto.UpdateMemberRequestDto;
 import com.jungle.studybbitback.domain.room.entity.RoomMember;
+import com.jungle.studybbitback.domain.room.entity.schedule.ParticipateStatusEnum;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -50,11 +51,14 @@ public class Member extends ModifiedTimeEntity {
     @ColumnTransformer(write = "CAST(? AS INTERVAL)") // 삽입 시 CAST 적용
     private Duration dailyGoal;
 
+    private Double flowTemperature;
+
     public Member(String email, String password, String nickname, MemberRoleEnum role) {
         this.email = email;
         this.password = password;
         this.nickname = nickname;
         this.role = role;
+        this.flowTemperature = 36.5;
     }
 
     public Member(Long memberId, String email, String password, String nickname, MemberRoleEnum role) {
@@ -79,5 +83,15 @@ public class Member extends ModifiedTimeEntity {
 
     public void updateDailyGoal(DailyGoalRequestDto request) {
         this.dailyGoal = request.getDailyGoal();
+    }
+
+    public void updateFlowTemperature(ParticipateStatusEnum statusEnum) {
+        if (statusEnum == ParticipateStatusEnum.ON_TIME && this.flowTemperature < 100) {
+            this.flowTemperature += 0.1;
+        } else if (statusEnum == ParticipateStatusEnum.LATE) {
+            this.flowTemperature -= 0.5;
+        } else if (statusEnum == ParticipateStatusEnum.ABSENCE) {
+            this.flowTemperature -= 2.5;
+        }
     }
 }

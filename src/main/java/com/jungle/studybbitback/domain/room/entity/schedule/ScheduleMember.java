@@ -1,5 +1,6 @@
 package com.jungle.studybbitback.domain.room.entity.schedule;
 
+import com.jungle.studybbitback.common.entity.ModifiedTimeEntity;
 import com.jungle.studybbitback.domain.member.entity.Member;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -10,7 +11,7 @@ import org.hibernate.annotations.OnDeleteAction;
 @Entity
 @Getter
 @NoArgsConstructor
-public class ScheduleMember {
+public class ScheduleMember extends ModifiedTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -28,15 +29,16 @@ public class ScheduleMember {
     private Member member;
 
     //@Column(nullable = false)
+    @Enumerated(value = EnumType.STRING)
     private ParticipateStatusEnum participateStatus;
 
-    private String preAbsenceDetail;
+    private String notedDetail;
 
     public ScheduleMember(Schedule schedule, Member member, ParticipateStatusEnum status, String detail) {
         this.schedule = schedule;
         this.member = member;
         this.participateStatus = status;
-        this.preAbsenceDetail = detail;
+        this.notedDetail = detail;
     }
 
     public ScheduleMember(Schedule schedule, Member member, ParticipateStatusEnum status) {
