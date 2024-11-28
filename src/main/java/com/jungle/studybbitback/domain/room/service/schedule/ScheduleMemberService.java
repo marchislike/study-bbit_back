@@ -15,6 +15,8 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -71,7 +73,7 @@ public class ScheduleMemberService {
     
     // 출석부 등록
     @Transactional
-    public List<ApplyScheduleMemberResponseDto> applyScheduleMembers(ApplyScheduleMembersRequestDto requestDto) {
+    public List<ApplyScheduleMembersResponseDto> applyScheduleMembers(ApplyScheduleMembersRequestDto requestDto) {
         Schedule schedule = scheduleRepository.findByIdOrThrow(requestDto.getScheduleId());
 
         List<ScheduleMember> scheduleMembers = requestDto.getMembers().stream()
@@ -86,69 +88,14 @@ public class ScheduleMemberService {
         scheduleMemberRepository.saveAll(scheduleMembers);
 
         return scheduleMembers.stream()
-                .map(ApplyScheduleMemberResponseDto::from)
+                .map(ApplyScheduleMembersResponseDto::from)
                 .collect(Collectors.toList());
     }
 
-
-
-
     // 일정 참석 명단 조회
-//    @Transactional(readOnly = true)
-//    public List<GetScheduleMemberResponseDto> getScheduleMembers(Long scheduleId) {
-//        log.info("일정 참석 명단 조회 요청 - scheduleId: {}", scheduleId);
-//
-//        List<ScheduleMember> members = scheduleMemberRepository.findByScheduleId(scheduleId);
-//        log.info("일정 참석 멤버 수: {}", members.size());
-//
-//        return members.stream()
-//                .map(GetScheduleMemberResponseDto::from)
-//                .toList();
-//    }
-
-    // 일정 참여의사 변경
-/*    @Transactional
-    public UpdateScheduleParticipationResponseDto updateParticipation(UpdateScheduleParticipationRequestDto requestDto) {
-
-        Member authenticatedMember = getAuthenticatedMember();
-        Long memberId = authenticatedMember.getId();
-
-        ScheduleMember scheduleMember = scheduleMemberRepository.findByScheduleIdAndMemberId(
-                requestDto.getScheduleId(), memberId
-        ).orElseThrow(() -> new IllegalArgumentException("일정 멤버 정보가 존재하지 않습니다."));
-
-        //참여 상태 변경
-        scheduleMember.setIsParticipated(requestDto.getIsParticipated());
-
-        // 수동 플러시
-        entityManager.flush();
-
-        // 변경된 scheduleMember를 다시 조회하여 최신 상태 확인
-        ScheduleMember updatedScheduleMember = scheduleMemberRepository.findById(scheduleMember.getId())
-                .orElseThrow(() -> new IllegalArgumentException("변경된 데이터 조회 실패"));
-
-        // 로그 출력
-        log.info("참여 상태 변경 완료: scheduleId={}, memberId={}, isParticipated={}",
-                requestDto.getScheduleId(), memberId, updatedScheduleMember.getIsParticipated());
-
-        return UpdateScheduleParticipationResponseDto.from(scheduleMember);
+    public Page<GetScheduleMemberResponseDto> getScheduleMembers(Long scheduleId, Pageable pageable) {
+        return scheduleMemberRepository.findByScheduleId(scheduleId, pageable).map(GetScheduleMemberResponseDto::from);
     }
-
-    // 일정 참여의사 삭제
-    @Transactional
-    public void deleteParticipation(Long scheduleId) {
-
-        // 로그인된 사용자 정보 가져오기
-        Member authenticatedMember = getAuthenticatedMember();
-        Long memberId = authenticatedMember.getId();
-
-        ScheduleMember scheduleMember = scheduleMemberRepository.findByScheduleIdAndMemberId(scheduleId, memberId)
-                .orElseThrow(() -> new IllegalArgumentException("일정 멤버 정보가 존재하지 않습니다."));
-
-        scheduleMemberRepository.delete(scheduleMember);
-        log.info("참여의사 삭제 완료: scheduleId={}, memberId={}", scheduleId, memberId);
-    }*/
-
 
     /* 편의용 코드 */
 

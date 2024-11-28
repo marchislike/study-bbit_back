@@ -9,13 +9,13 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class ApplyScheduleMemberResponseDto {
+public class ApplyScheduleMembersResponseDto {
     private Long memberId;
     private String memberNickname;
     private ParticipateStatusEnum participateStatus;
 
-    public static ApplyScheduleMemberResponseDto from(ScheduleMember scheduleMember) {
-        return new ApplyScheduleMemberResponseDto(
+    public static ApplyScheduleMembersResponseDto from(ScheduleMember scheduleMember) {
+        return new ApplyScheduleMembersResponseDto(
                 scheduleMember.getMember().getId(),
                 scheduleMember.getMember().getNickname(),
                 scheduleMember.getParticipateStatus()

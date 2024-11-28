@@ -1,6 +1,5 @@
 package com.jungle.studybbitback.domain.room.controller.schedule;
 
-import com.jungle.studybbitback.domain.dm.dto.GetDmResponseDto;
 import com.jungle.studybbitback.domain.room.dto.schedulemember.*;
 import com.jungle.studybbitback.domain.room.service.schedule.ScheduleMemberService;
 import lombok.RequiredArgsConstructor;
@@ -37,20 +36,21 @@ public class ScheduleMemberController {
 
     // 출석부 등록
     @PostMapping()
-    public ResponseEntity<List<ApplyScheduleMemberResponseDto>> applyScheduleMembers(
+    public ResponseEntity<List<ApplyScheduleMembersResponseDto>> applyScheduleMembers(
             @RequestBody ApplyScheduleMembersRequestDto requestDto) {
-        List<ApplyScheduleMemberResponseDto> responseDtoList = scheduleMemberService.applyScheduleMembers(requestDto);
+        List<ApplyScheduleMembersResponseDto> responseDtoList = scheduleMemberService.applyScheduleMembers(requestDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(responseDtoList);
     }
     
     // 일정 참여자 조회
         // -> 결석자 조회하거나
         // -> 출석부 등록 후 전체 멤버 조회
-    @GetMapping()
-    public ResponseEntity<Page<GetDmResponseDto>> getScheduleMembers(
-            @PageableDefault(size = 5, sort = "createdAt", direction = Sort.Direction.DESC)
+    @GetMapping("/{scheduleId}")
+    public ResponseEntity<Page<GetScheduleMemberResponseDto>> getScheduleMembers(
+            @PathVariable("scheduleId") Long scheduleId,
+            @PageableDefault(size = 4, sort = "createdAt", direction = Sort.Direction.DESC)
             Pageable pageable) {
-        Page<GetScheduleMemberResponseDto> responseDto = scheduleMemberService.getScheduleMembers(pageable);
+        Page<GetScheduleMemberResponseDto> responseDto = scheduleMemberService.getScheduleMembers(scheduleId, pageable);
         return ResponseEntity.status(HttpStatus.OK).body(responseDto);
     }
 
