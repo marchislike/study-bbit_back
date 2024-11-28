@@ -27,16 +27,21 @@ public class ScheduleMember {
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Member member;
 
-    @Column(nullable = false)
-    private Boolean isParticipated; // boolean 대신 Boolean으로 참/불참 외 null(무응답)도 넘길 수 있게 설정
+    //@Column(nullable = false)
+    private ParticipateStatusEnum participateStatus;
 
-    public ScheduleMember(Schedule schedule, Member member, Boolean isParticipated) {
+    private String preAbsenceDetail;
+
+    public ScheduleMember(Schedule schedule, Member member, ParticipateStatusEnum status, String detail) {
         this.schedule = schedule;
         this.member = member;
-        this.isParticipated = isParticipated;
+        this.participateStatus = status;
+        this.preAbsenceDetail = detail;
     }
-    // isParticipated 상태를 설정
-    public void setIsParticipated(Boolean isParticipated) {
-        this.isParticipated = isParticipated;
+
+    public ScheduleMember(Schedule schedule, Member member, ParticipateStatusEnum status) {
+        this.schedule = schedule;
+        this.member = member;
+        this.participateStatus = status;
     }
 }
