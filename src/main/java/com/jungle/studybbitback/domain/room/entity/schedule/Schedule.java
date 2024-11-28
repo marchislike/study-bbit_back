@@ -37,6 +37,9 @@ public class Schedule extends ModifiedTimeEntity {
     @Column(name = "start_date", nullable = false)
     private LocalDate startDate;  // 일정의 시작날짜(하루 단위 날짜)
 
+    @Column(nullable = false)
+    private String day;  // 요일 컬럼 (예: 월, 화, 수 등)
+
     @Column(name = "start_date_time", nullable = false)
     private LocalDateTime startDateTime;  // 시작 시간
 
@@ -81,6 +84,7 @@ public class Schedule extends ModifiedTimeEntity {
         Schedule schedule = new Schedule();
         schedule.title = requestDto.getTitle();
         schedule.startDate = requestDto.getStartDate();
+        schedule.day = requestDto.getStartDate().getDayOfWeek().getDisplayName(java.time.format.TextStyle.SHORT, java.util.Locale.KOREAN);
         schedule.startDateTime = requestDto.getStartDate().atTime(requestDto.getStartTime());
         schedule.endDateTime = requestDto.getStartDate().atTime(requestDto.getEndTime());
         schedule.detail = requestDto.getDetail();
@@ -98,6 +102,7 @@ public class Schedule extends ModifiedTimeEntity {
         Schedule schedule = new Schedule();
         schedule.title = requestDto.getTitle();
         schedule.startDate = requestDto.getStartDate();
+        schedule.day = requestDto.getStartDate().getDayOfWeek().getDisplayName(java.time.format.TextStyle.SHORT, java.util.Locale.KOREAN);
         schedule.startDateTime = requestDto.getStartDate().atTime(requestDto.getStartTime());
         schedule.endDateTime = requestDto.getStartDate().atTime(requestDto.getEndTime());
         schedule.detail = requestDto.getDetail();
@@ -110,13 +115,14 @@ public class Schedule extends ModifiedTimeEntity {
         return schedule;
     }
 
-    // 일저 세부사항 수정
-    public void updateDetails(String title, String detail, LocalDate startDate, LocalDateTime startTime, LocalDateTime endTime,
+    // 일정 세부사항 수정
+    public void updateDetails(String title, String detail, LocalDate startDate, String day, LocalDateTime startTime, LocalDateTime endTime,
                               Boolean repeatFlag, String repeatPattern, String daysOfWeek, LocalDate repeatEndDate) {
         if(title != null) this.title = title;
         if(detail != null) this.detail = detail;
         if(startDate != null){
             this.startDate = startDate;
+            this.day = startDate.getDayOfWeek().getDisplayName(java.time.format.TextStyle.SHORT, java.util.Locale.KOREAN);
             this.startDateTime = startTime;
             // endDateTime이 null이면 기본값을 설정하거나 예외를 던질 수 있습니다
             if (endTime != null) {
@@ -130,8 +136,11 @@ public class Schedule extends ModifiedTimeEntity {
             this.repeatFlag = repeatFlag;
             this.repeatPattern = repeatPattern;
             this.daysOfWeek = daysOfWeek;
-            if (repeatFlag) { // 반복 일정일 경우에만 repeatEndDate를 설정
+            // 반복 일정일 경우에만 repeatEndDate를 설정, 그렇지 않으면 null로 설정
+            if (repeatFlag) {
                 this.repeatEndDate = repeatEndDate;
+            } else {
+                this.repeatEndDate = null; // 단일 일정이므로 반복 종료일은 null
             }
         }
     }

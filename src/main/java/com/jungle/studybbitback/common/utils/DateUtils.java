@@ -26,7 +26,17 @@ public class DateUtils {
 
     // 요일 한국어 표기 단일단위
     public static String getDayInKorean(DayOfWeek day) {
-        return day.getDisplayName(TextStyle.FULL, Locale.KOREAN);
+        // 요일을 축약 형태로 반환
+        switch (day) {
+            case MONDAY: return "월";
+            case TUESDAY: return "화";
+            case WEDNESDAY: return "수";
+            case THURSDAY: return "목";
+            case FRIDAY: return "금";
+            case SATURDAY: return "토";
+            case SUNDAY: return "일";
+            default: throw new IllegalArgumentException("Invalid day of the week");
+        }
     }
 
     /**

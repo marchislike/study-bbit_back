@@ -177,6 +177,7 @@ public class ScheduleService {
                         CreateScheduleRequestDto.builder()
                                 .title(requestDto.getTitle())
                                 .startDate(currentDate)
+                                .day(requestDto.getDay())
                                 .startTime(currentStartDateTime.toLocalTime())
                                 .endTime(currentEndDateTime.toLocalTime())
                                 .detail(requestDto.getDetail())
@@ -278,6 +279,7 @@ public class ScheduleService {
                 updateScheduleRequestDto.getTitle(),
                 updateScheduleRequestDto.getDetail(),
                 updateScheduleRequestDto.getStartDate(),
+                updateScheduleRequestDto.getDay(),
                 updateScheduleRequestDto.getStartDateTime(),
                 updateScheduleRequestDto.getEndDateTime(),
                 updateScheduleRequestDto.isRepeatFlag(),
@@ -325,9 +327,11 @@ public class ScheduleService {
             if (newDaysOfWeek.contains(current.getDayOfWeek())) {
                 LocalDateTime startDateTime = current.atTime(requestDto.getStartTime());
                 LocalDateTime endDateTime = current.atTime(requestDto.getEndTime());
+
                 Schedule newSchedule = Schedule.builder()
                         .title(requestDto.getTitle())
                         .detail(requestDto.getDetail())
+                        .day(requestDto.getDay())
                         .startDate(current)
                         .startDateTime(startDateTime)
                         .endDateTime(endDateTime)
@@ -411,6 +415,7 @@ public class ScheduleService {
                         .title(requestDto.getTitle())
                         .detail(requestDto.getDetail())
                         .startDate(currentDate)
+                        .day(requestDto.getDay())
                         .startTime(requestDto.getStartTime())
                         .endTime(requestDto.getEndTime())
                         .roomId(room.getId())

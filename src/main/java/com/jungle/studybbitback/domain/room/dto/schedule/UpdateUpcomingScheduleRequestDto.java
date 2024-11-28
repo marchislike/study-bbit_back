@@ -16,6 +16,7 @@ public class UpdateUpcomingScheduleRequestDto {
     private String title;
     private String detail;
     private LocalDate startDate;
+    private String day;
     private LocalTime startTime;
     private LocalTime endTime;
     private boolean repeatFlag;
@@ -24,12 +25,13 @@ public class UpdateUpcomingScheduleRequestDto {
     private LocalDate repeatEndDate;
 
     @Builder
-    public UpdateUpcomingScheduleRequestDto(String title, String detail, LocalDate startDate, LocalTime startTime,
+    public UpdateUpcomingScheduleRequestDto(String title, String detail, LocalDate startDate, String day, LocalTime startTime,
                                             LocalTime endTime, boolean repeatFlag, String repeatPattern, String daysOfWeek,
                                             LocalDate repeatEndDate) {
         this.title = title;
         this.detail = detail;
         this.startDate = startDate;
+        this.day = day;
         this.startTime = (startTime != null) ? startTime : LocalTime.of(0, 0);
         this.endTime = (endTime != null) ? endTime : LocalTime.of(23, 59);
         this.repeatFlag = repeatFlag;
