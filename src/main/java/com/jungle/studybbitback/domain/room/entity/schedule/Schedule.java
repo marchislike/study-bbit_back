@@ -116,13 +116,13 @@ public class Schedule extends ModifiedTimeEntity {
     }
 
     // 일정 세부사항 수정
-    public void updateDetails(String title, String detail, LocalDate startDate, String day, LocalDateTime startTime, LocalDateTime endTime,
+    public void updateDetails(String title, String detail, LocalDate startDate, LocalDateTime startTime, LocalDateTime endTime,
                               Boolean repeatFlag, String repeatPattern, String daysOfWeek, LocalDate repeatEndDate) {
         if(title != null) this.title = title;
         if(detail != null) this.detail = detail;
         if(startDate != null){
             this.startDate = startDate;
-            this.day = startDate.getDayOfWeek().getDisplayName(java.time.format.TextStyle.SHORT, java.util.Locale.KOREAN);
+            this.day = startDate.getDayOfWeek().getDisplayName(java.time.format.TextStyle.SHORT, java.util.Locale.KOREAN);// startDate에 따라 day 자동 갱신
             this.startDateTime = startTime;
             // endDateTime이 null이면 기본값을 설정하거나 예외를 던질 수 있습니다
             if (endTime != null) {
@@ -144,7 +144,5 @@ public class Schedule extends ModifiedTimeEntity {
             }
         }
     }
-
-
 
 }
