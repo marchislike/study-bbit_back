@@ -66,6 +66,15 @@ public class ScheduleController {
         return ResponseEntity.ok(responseDto);
     }
 
+    // 반복 일정 수정 중 이후 일정들에 대해서만 수정 ***********************************
+    @PostMapping("/upcoming/{scheduleCycleId}")
+    public ResponseEntity<List<UpdateUpcomingScheduleResponseDto>> updateUpcomingSchedules(
+            @PathVariable Long scheduleCycleId,
+            @RequestBody UpdateUpcomingScheduleRequestDto requestDto) {
+        List<UpdateUpcomingScheduleResponseDto> responseDto = scheduleService.updateUpcomingSchedules(scheduleCycleId, requestDto);
+        return ResponseEntity.ok(responseDto);
+    }
+
     // 단일 일정 삭제
     @DeleteMapping("/single/{scheduleId}")
     public ResponseEntity<String> deleteSingleSchedule(@PathVariable Long scheduleId) {
@@ -79,5 +88,16 @@ public class ScheduleController {
         scheduleService.deleteAllSchedule(scheduleCycleId);
         return ResponseEntity.ok("주간 반복 일정 전체가 삭제되었습니다.");
     }
+
+    // 특정 시점 이후의 일정들만 삭제
+    @DeleteMapping("/upcoming/{scheduleCycleId}")
+    public ResponseEntity<String> deleteUpcomingSchedulesAfterDate(
+            @PathVariable Long scheduleCycleId,
+            @RequestBody UpdateUpcomingScheduleRequestDto requestDto) {
+        scheduleService.deleteUpcomingSchedules(scheduleCycleId, requestDto);
+        return ResponseEntity.ok("삭제 시작일 이후의 일정들이 삭제되었습니다.");
+    }
+
+
 
 }
