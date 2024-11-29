@@ -2,12 +2,14 @@ package com.jungle.studybbitback.notification.controller;
 
 import com.jungle.studybbitback.jwt.dto.CustomUserDetails;
 import com.jungle.studybbitback.notification.dto.GetNotificationResponseDto;
+import com.jungle.studybbitback.notification.dto.SendMmNotiRequestDto;
 import com.jungle.studybbitback.notification.service.NotificationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
@@ -30,6 +32,12 @@ public class NotificationController {
 		Long userId = userDetails.getMemberId();
 
 		return notificationService.subscribe(userId);
+	}
+
+	@PostMapping("/mm")
+	public ResponseEntity<String> sendMmNotification(@RequestBody SendMmNotiRequestDto requestDto) {
+		String response = notificationService.sendMmNotification(requestDto);
+		return ResponseEntity.status(HttpStatus.OK).body(response);
 	}
 
 	// 내가 받은 알림 조회
