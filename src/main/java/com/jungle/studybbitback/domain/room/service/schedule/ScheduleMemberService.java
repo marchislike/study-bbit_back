@@ -30,8 +30,6 @@ import java.util.stream.Collectors;
 @Transactional(readOnly = true)
 @Slf4j
 public class ScheduleMemberService {
-    private final EntityManager entityManager;
-
     private final ScheduleMemberRepository scheduleMemberRepository;
     private final ScheduleRepository scheduleRepository;
     private final RoomMemberRepository roomMemberRepository;
@@ -86,8 +84,22 @@ public class ScheduleMemberService {
                     Member member = memberRepository.findById(memberStatus.getMemberId())
                             .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 회원입니다."));
                     ParticipateStatusEnum status = ParticipateStatusEnum.valueOf(memberStatus.getStatus());
+
+                    ScheduleMember scheduleMember = scheduleMemberRepository
+                            .findByScheduleIdAndMemberId(schedule.getId(), member.getId())
+                            .orElse(null);
+
+                    if (scheduleMember != null) {
+                        // 기존 데이터 업데이트
+                        member.revertFlowTemperature(scheduleMember.getParticipateStatus());
+                        scheduleMember.updateStatus(status);
+                    } else {
+                        // 새로 추가
+                        scheduleMember = new ScheduleMember(schedule, member, status);
+                    }
+
                     member.updateFlowTemperature(status);
-                    return new ScheduleMember(schedule, member, status);
+                    return scheduleMember;
                 })
                 .collect(Collectors.toList());
 
@@ -100,6 +112,10 @@ public class ScheduleMemberService {
 
     // 일정 참석 명단 조회
     public Page<GetScheduleMemberResponseDto> getScheduleMembers(Long scheduleId, Pageable pageable) {
+        boolean exists = scheduleRepository.existsById(scheduleId);
+        if (!exists) {
+            throw new EntityNotFoundException("없는 일정입니다.");
+        }
         return scheduleMemberRepository.findByScheduleId(scheduleId, pageable).map(GetScheduleMemberResponseDto::from);
     }
 

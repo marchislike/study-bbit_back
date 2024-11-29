@@ -46,4 +46,11 @@ public class ScheduleMember extends ModifiedTimeEntity {
         this.member = member;
         this.participateStatus = status;
     }
+
+    public void updateStatus(ParticipateStatusEnum status) {
+        this.participateStatus = status;
+        if(status != ParticipateStatusEnum.NOTED) {
+            this.notedDetail = null;
+        }
+    }
 }

@@ -85,6 +85,18 @@ public class Member extends ModifiedTimeEntity {
         this.dailyGoal = request.getDailyGoal();
     }
 
+    public void revertFlowTemperature(ParticipateStatusEnum statusEnum) {
+        if (statusEnum == ParticipateStatusEnum.ON_TIME) {
+            this.flowTemperature -= 0.1;
+        } else if (this.flowTemperature < 100) {
+            if (statusEnum == ParticipateStatusEnum.LATE) {
+                this.flowTemperature += 0.5;
+            } else if (statusEnum == ParticipateStatusEnum.ABSENCE) {
+                this.flowTemperature += 2.5;
+            }
+        }
+    }
+
     public void updateFlowTemperature(ParticipateStatusEnum statusEnum) {
         if (statusEnum == ParticipateStatusEnum.ON_TIME && this.flowTemperature < 100) {
             this.flowTemperature += 0.1;
