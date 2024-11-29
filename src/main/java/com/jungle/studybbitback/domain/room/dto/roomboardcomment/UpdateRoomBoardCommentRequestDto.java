@@ -10,8 +10,4 @@ public class UpdateRoomBoardCommentRequestDto {
 
     private String content;
 
-    @Builder
-    public UpdateRoomBoardCommentRequestDto(String content) {
-        this.content = content;
-    }
 }

@@ -35,15 +35,4 @@ public class UpdateAllScheduleRequestDto {
         this.daysOfWeek = daysOfWeek;
         this.repeatEndDate = repeatEndDate;
     }
-
-    // startDate와 startTime을 합쳐서 LocalDateTime 반환
-    public LocalDateTime getStartDateTime() {
-        return this.startDate.atTime(this.startTime);
-    }
-
-    // startDate와 endTime을 합쳐서 LocalDateTime 반환
-    public LocalDateTime getEndDateTime() {
-        return this.startDate.atTime(this.endTime);
-    }
-
 }

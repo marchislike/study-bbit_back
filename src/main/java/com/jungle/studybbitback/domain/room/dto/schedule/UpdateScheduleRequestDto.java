@@ -1,7 +1,5 @@
 package com.jungle.studybbitback.domain.room.dto.schedule;
 
-
-
 import lombok.*;
 
 import java.time.LocalDate;

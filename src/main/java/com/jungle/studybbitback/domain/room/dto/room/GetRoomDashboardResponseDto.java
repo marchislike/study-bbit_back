@@ -1,7 +1,6 @@
 package com.jungle.studybbitback.domain.room.dto.room;
 
 import com.jungle.studybbitback.domain.room.entity.Room;
-import com.jungle.studybbitback.domain.room.entity.roomboard.RoomBoard;
 import lombok.Getter;
 
 @Getter

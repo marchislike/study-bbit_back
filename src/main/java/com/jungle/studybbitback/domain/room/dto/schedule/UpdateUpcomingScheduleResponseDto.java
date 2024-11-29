@@ -24,22 +24,6 @@ public class UpdateUpcomingScheduleResponseDto {
     private LocalDate repeatEndDate;
     private Long scheduleCycleId; // 단일일정은 null로 받음 & 반복 일정에서 하루만 수정하면 역시 null로 옴
 
-    // Schedule 엔터티를 기반으로 DTO를 생성하는 생성자
-    public UpdateUpcomingScheduleResponseDto(Schedule schedule) {
-        this.scheduleId = schedule.getId();
-        this.title = schedule.getTitle();
-        this.detail = schedule.getDetail();
-        this.startDate = schedule.getStartDate();
-        this.day = DateUtils.getDayInKorean(schedule.getStartDate().getDayOfWeek());
-        this.startTime = schedule.getStartDateTime().toLocalTime();
-        this.endTime = schedule.getEndDateTime().toLocalTime();
-        this.repeatFlag = schedule.isRepeatFlag();
-        this.repeatPattern = schedule.getRepeatPattern();
-        this.daysOfWeek = schedule.getDaysOfWeek();
-        this.repeatEndDate = schedule.getRepeatEndDate();
-        this.scheduleCycleId = schedule.getScheduleCycleId();
-    }
-
     // 추가 생성자: 전달받은 파라미터로 DTO 생성
     public UpdateUpcomingScheduleResponseDto(Long scheduleId, String title, LocalDate startDate,
                                              LocalTime startTime, LocalTime endTime) {
