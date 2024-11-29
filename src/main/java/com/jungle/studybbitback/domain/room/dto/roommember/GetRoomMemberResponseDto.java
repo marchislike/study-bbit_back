@@ -1,11 +1,7 @@
 package com.jungle.studybbitback.domain.room.dto.roommember;
 
-import com.jungle.studybbitback.domain.member.entity.Member;
-import com.jungle.studybbitback.domain.room.entity.Room;
 import com.jungle.studybbitback.domain.room.entity.RoomMember;
 import lombok.Getter;
-
-import java.time.LocalDateTime;
 
 @Getter
 public class GetRoomMemberResponseDto {
@@ -15,14 +11,14 @@ public class GetRoomMemberResponseDto {
     private String profileImageUrl;
     private Double flowTemperature;
 
-    // 기본 생성자
-    public GetRoomMemberResponseDto(RoomMember roomMember) {
-        this.memberId = roomMember.getMember().getId();
-        this.nickname = roomMember.getMember().getNickname();
-        this.leaderLabel = ""; // 기본값
-        this.profileImageUrl = "";
-        this.flowTemperature = roomMember.getMember().getFlowTemperature();
-    }
+//    // 기본 생성자
+//    public GetRoomMemberResponseDto(RoomMember roomMember) {
+//        this.memberId = roomMember.getMember().getId();
+//        this.nickname = roomMember.getMember().getNickname();
+//        this.leaderLabel = ""; // 기본값
+//        this.profileImageUrl = "";
+//        this.flowTemperature = roomMember.getMember().getFlowTemperature();
+//    }
 
     // 새로운 생성자 추가 (RoomMember와 leaderId를 매개변수로 받음)
     public GetRoomMemberResponseDto(RoomMember roomMember, Long leaderId) {

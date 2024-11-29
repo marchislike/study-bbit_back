@@ -7,15 +7,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/room")
@@ -109,6 +105,5 @@ public class RoomController {
         String response = roomService.deleteRoom(id);
         return ResponseEntity.ok(response);
     }
-    
-    //화상회의 시작, 종료, 참여 아래로 구현 예정
+
 }
