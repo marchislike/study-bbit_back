@@ -1,12 +1,17 @@
 package com.jungle.studybbitback.notification.service;
 
 import com.jungle.studybbitback.domain.member.entity.Member;
+import com.jungle.studybbitback.domain.room.entity.Room;
+import com.jungle.studybbitback.domain.room.entity.RoomMember;
+import com.jungle.studybbitback.domain.room.respository.RoomRepository;
 import com.jungle.studybbitback.jwt.dto.CustomUserDetails;
 import com.jungle.studybbitback.notification.controller.NotificationController;
-import com.jungle.studybbitback.notification.dto.DmNotificationDto;
+import com.jungle.studybbitback.notification.dto.notificationDto;
 import com.jungle.studybbitback.notification.dto.GetNotificationResponseDto;
+import com.jungle.studybbitback.notification.dto.SendMmNotiRequestDto;
 import com.jungle.studybbitback.notification.entity.Notification;
 import com.jungle.studybbitback.notification.repository.NotificationRepository;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -17,12 +22,16 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class NotificationService {
 	private final NotificationRepository notificationRepository;
+	private final RoomRepository roomRepository;
 /*	private static Map<Long, Integer> notificationCounts = new HashMap<>();     // 알림 개수 저장*/
 
 	// 연결하기
@@ -60,11 +69,6 @@ public class NotificationService {
 
 	// 쪽지 알림 - receiver 에게
 	public void notifyDm(Long receiverId, Member sender, Member receiver) {
-		SseEmitter sseEmitter = NotificationController.sseEmitters.get(receiverId);
-		if (sseEmitter == null) {
-			log.warn("SSE 연결이 존재하지 않음 - receiverId: {}", receiverId);
-			return;
-		}
 
 		String content = sender.getNickname() + "(으)로부터 쪽지가 왔습니다.";
 		String url = "/test-url";
@@ -80,14 +84,22 @@ public class NotificationService {
 			return;
 		}
 
+		SseEmitter sseEmitter = NotificationController.sseEmitters.get(receiverId);
+		if (sseEmitter == null) {
+			log.warn("SSE 연결이 존재하지 않음 - receiverId: {}", receiverId);
+			return;
+		}
+
 		// SSE 이벤트 전송
-		try {
-			DmNotificationDto dto = new DmNotificationDto(content, url, notification.getCreatedAt());
-			sseEmitter.send(SseEmitter.event().name("sendDm").data(dto));
-			log.info("dm 알림 전송 완료 - receiverId: {}", receiverId);
-		} catch (IOException e) {
-			log.error("dm 알림 전송 실패 - receiverId: {}, 에러: {}", receiverId, e.getMessage(), e);
-			// NotificationController.sseEmitters.remove(receiverId);
+		synchronized (sseEmitter) {
+			try {
+				notificationDto dto = new notificationDto(content, url, notification.getCreatedAt());
+				sseEmitter.send(SseEmitter.event().name("sendDm").data(dto));
+				log.info("dm 알림 전송 완료 - receiverId: {}", receiverId);
+			} catch (IOException e) {
+				log.error("dm 알림 전송 실패 - receiverId: {}, 에러: {}", receiverId, e.getMessage(), e);
+				NotificationController.sseEmitters.remove(receiverId);
+			}
 		}
 	}
 	// 내 알림 조회
@@ -107,20 +119,67 @@ public class NotificationService {
 
 		notificationRepository.delete(notification);
 
-/*		Long userId = notification.getPost().getUser().getId();
-		// 알림 개수 감소
-		if (notificationCounts.containsKey(userId)) {
-			int currentCount = notificationCounts.get(userId);
-			if (currentCount > 0) {
-				notificationCounts.put(userId, currentCount - 1);
-			}
-		}
-		// 현재 알림 개수 전송
-		SseEmitter sseEmitter = NotificationController.sseEmitters.get(userId);
-		sseEmitter.send(SseEmitter.event().name("notificationCount").data(notificationCounts.get(userId)));*/
-
 		return id + "번 알림이 삭제되었습니다.";
 	}
 
+	public String sendMmNotification(SendMmNotiRequestDto requestDto) {
+		
+		Room room = roomRepository.findById(requestDto.getRoomId()).orElseThrow(
+				() -> new EntityNotFoundException("해당 방이 존재하지 않습니다.")
+		);
 
+		Set<RoomMember> roomMembers = room.getRoomMembers();
+
+		String content = "회의록이 생성되었습니다.";
+		String url = requestDto.getFileUrl();
+
+		List<Long> failedReceivers = new ArrayList<>();
+
+		roomMembers.forEach(roomMember -> {
+			try {
+				sendNotificationToMember(roomMember, content, url);
+			} catch (Exception ex) {
+				failedReceivers.add(roomMember.getMember().getId());
+				log.error("알림 전송 실패 - receiverId: {}", roomMember.getMember().getId(), ex);
+			}
+		});
+
+		if (!failedReceivers.isEmpty()) {
+			log.warn("알림 전송 실패한 사용자: {}", failedReceivers);
+			return "일부 사용자에게 알림 전송 실패";
+		}
+
+		return "회의록 알림이 전송되었습니다.";
+	}
+
+	private void sendNotificationToMember(RoomMember roomMember, String content, String url) {
+		Member receiver = roomMember.getMember();
+		Long receiverId = receiver.getId();
+
+		Notification notification;
+		try {
+			notification = new Notification(receiver, content, url);
+			Notification savedNoti = notificationRepository.saveAndFlush(notification);
+			log.info("알림 저장 완료 - notificationId: {}", savedNoti.getId());
+		} catch (Exception ex) {
+			log.error("알림 저장 실패 - receiverId: {}, 에러: {}", receiverId, ex.getMessage(), ex);
+			return;
+		}
+
+		SseEmitter sseEmitter = NotificationController.sseEmitters.get(receiverId);
+		if (sseEmitter == null) {
+			log.warn("SSE 연결이 존재하지 않음 - receiverId: {}", receiverId);
+			return;
+		}
+		synchronized (sseEmitter) {
+			try {
+				notificationDto dto = new notificationDto(content, url, notification.getCreatedAt());
+				sseEmitter.send(SseEmitter.event().name("sendMm").data(dto));
+				log.info("회의록 알림 전송 완료 - receiverId: {}", receiverId);
+			} catch (IOException e) {
+				log.error("회의록 알림 전송 실패 - receiverId: {}, 에러: {}", receiverId, e.getMessage(), e);
+				NotificationController.sseEmitters.remove(receiverId);
+			}
+		}
+	}
 }
