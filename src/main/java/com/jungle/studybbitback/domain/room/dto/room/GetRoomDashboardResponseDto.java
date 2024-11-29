@@ -1,6 +1,7 @@
 package com.jungle.studybbitback.domain.room.dto.room;
 
 import com.jungle.studybbitback.domain.room.entity.Room;
+import com.jungle.studybbitback.domain.room.entity.roomboard.RoomBoard;
 import lombok.Getter;
 
 @Getter
@@ -12,8 +13,9 @@ public class GetRoomDashboardResponseDto {
     private Integer maxParticipants;
     private Boolean isMeetingActive;
     private Long leaderId;
+    private String noticeContent;
 
-    public GetRoomDashboardResponseDto(Room room) {
+    public GetRoomDashboardResponseDto(Room room, String noticeContent) {
         this.id = room.getId();
         this.name = room.getName();
         this.detail = room.getDetail();
@@ -21,5 +23,6 @@ public class GetRoomDashboardResponseDto {
         this.maxParticipants = room.getMaxParticipants();
         this.isMeetingActive = room.getMeetingId() != null;
         this.leaderId = room.getLeaderId();
+        this.noticeContent = noticeContent;
     }
 }

@@ -8,6 +8,7 @@ import com.jungle.studybbitback.domain.room.entity.Room;
 import com.jungle.studybbitback.domain.room.entity.RoomMember;
 import com.jungle.studybbitback.domain.room.respository.RoomMemberRepository;
 import com.jungle.studybbitback.domain.room.respository.RoomRepository;
+import com.jungle.studybbitback.domain.room.respository.roomboard.RoomBoardRepository;
 import com.jungle.studybbitback.jwt.dto.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -39,6 +40,7 @@ public class RoomService {
     private final RoomMemberRepository roomMemberRepository;
     private final MemberRepository memberRepository;
     private final FileService fileService;
+    private final RoomBoardRepository roomBoardRepository;
 
     @Transactional
     public CreateRoomResponseDto createRoom(CreateRoomRequestDto requestDto, MultipartFile roomImage) {
@@ -150,7 +152,13 @@ public class RoomService {
             throw new AccessDeniedException("해당 스터디룸에 가입된 사용자만 접근할 수 있습니다.");
         }
 
-        return new GetRoomDashboardResponseDto(room);
+        String noticeContent = roomBoardRepository.findFirstByRoomIdAndIsNoticeTrue(roomId)
+                .map(notice -> notice.getContent().length() > 50 ?
+                        notice.getContent().substring(0, 47) + "..." :
+                        notice.getContent())
+                .orElse(null);
+
+        return new GetRoomDashboardResponseDto(room, noticeContent);
     }
 
     @Transactional
