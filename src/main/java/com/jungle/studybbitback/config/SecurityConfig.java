@@ -1,6 +1,5 @@
 package com.jungle.studybbitback.config;
 
-import com.jungle.studybbitback.jwt.fiilter.CustomAuthenticationEntryPoint;
 import com.jungle.studybbitback.jwt.fiilter.JWTFilter;
 import com.jungle.studybbitback.jwt.JWTUtil;
 import com.jungle.studybbitback.jwt.fiilter.LoginFilter;
@@ -30,7 +29,6 @@ public class SecurityConfig {
 
     private final AuthenticationConfiguration authenticationConfiguration;
     private final JWTUtil jwtUtil;
-    private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
 
     // 밑의 LoginFilter에서 쓰기 위해서 AuthenticationManager bean을 등록한다.
     @Bean
@@ -91,14 +89,10 @@ public class SecurityConfig {
         // 경로별 인가 작업
         http
                 .authorizeHttpRequests((auth) -> auth
-                        .requestMatchers( "/api/member/login").permitAll() // 로그임
-                        .requestMatchers( "/api/member/signup").permitAll() // 회원가입
-                        .requestMatchers( "/api/member/isExist/{nickname}").permitAll() // 닉네임 중복 체크
-                        .requestMatchers(HttpMethod.GET, "/api/room/**").permitAll() // 방 조회 등등등
-                        .anyRequest().authenticated()
-                )
-                .exceptionHandling(ex -> ex
-                        .authenticationEntryPoint(customAuthenticationEntryPoint) // 커스텀 AuthenticationEntryPoint 등록
+                                .requestMatchers(HttpMethod.POST, "/posting", "/posting/{id}").authenticated()
+                                .requestMatchers(HttpMethod.DELETE, "/posting/{id}").authenticated()
+                                .requestMatchers("/comment/**").authenticated()
+                                .anyRequest().permitAll()
                 );
 
         //// 로그인 필터를 등록해준다.
@@ -107,6 +101,7 @@ public class SecurityConfig {
 
         http
                 .addFilterAt(loginFilter, UsernamePasswordAuthenticationFilter.class)
+                //// jwt 필터를 등록해준다.
                 .addFilterAfter(new JWTFilter(jwtUtil), LoginFilter.class);
 
         // 세션설정 : stateless하게
