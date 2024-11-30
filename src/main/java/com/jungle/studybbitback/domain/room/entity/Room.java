@@ -45,9 +45,6 @@ public class Room extends ModifiedTimeEntity {
     @Column(nullable = false, name = "leader_id")
     private Long leaderId;
 
-
-
-
     // Room과 연결된 RoomMember를 통해 참여한 Member들을 조회
     @OneToMany(mappedBy = "room")
     private Set<RoomMember> roomMembers = new HashSet<>();
