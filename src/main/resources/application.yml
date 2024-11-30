@@ -1,5 +1,8 @@
 server:
   port: ${PORT:8000}
+  error:
+    whitelabel:
+      enabled: false
 
 spring:
   # .env import

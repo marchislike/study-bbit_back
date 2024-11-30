@@ -28,8 +28,7 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
 		errorResponse.put("timestamp", LocalDateTime.now().toString());
 		errorResponse.put("status", HttpServletResponse.SC_UNAUTHORIZED);
 		errorResponse.put("error", "Unauthorized");
-		errorResponse.put("message", "로그인이 필요합니다.");
-//		errorResponse.put("message", authException.getMessage());
+		errorResponse.put("message", authException.getMessage());
 		errorResponse.put("path", request.getServletPath());
 
 		// JSON 응답 전송
