@@ -10,7 +10,6 @@ public class GetRoomDashboardResponseDto {
     private String detail;
     private Integer participants;
     private Integer maxParticipants;
-    private Boolean isMeetingActive;
     private Long leaderId;
     private String noticeContent;
 
@@ -20,7 +19,6 @@ public class GetRoomDashboardResponseDto {
         this.detail = room.getDetail();
         this.participants = room.getParticipants();
         this.maxParticipants = room.getMaxParticipants();
-        this.isMeetingActive = room.getMeetingId() != null;
         this.leaderId = room.getLeaderId();
         this.noticeContent = noticeContent;
     }

@@ -53,18 +53,13 @@ public class RoomService {
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
 
         // 비공개 방일 경우 비밀번호가 필수
-        String password = null;
-        if (requestDto.isPrivate()) { //true
-            // 비공개 방에서 비밀번호를 입력하지 않으면 예외 처리
-            if (!StringUtils.hasText(requestDto.getPassword())) {
-                throw new IllegalArgumentException("비공개 방은 비밀번호를 설정해야 합니다.");
-            }
-            password = requestDto.getPassword();  // 비밀번호 설정
+        if (requestDto.isPrivate() && !StringUtils.hasText(requestDto.getPassword())) {
+            throw new IllegalArgumentException("비공개 방은 비밀번호를 설정해야 합니다.");
         }
 
         String roomImageUrl = null;
         if (roomImage != null && !roomImage.isEmpty()) {
-            roomImageUrl = fileService.uploadFile(roomImage, "images", memberId);
+            roomImageUrl = fileService.uploadFile(roomImage, "image", memberId);
         }
 
         //방 생성
@@ -183,7 +178,7 @@ public class RoomService {
                 fileService.deleteFile(roomImageUrl);
             }
             // 새 이미지 업로드
-            roomImageUrl = fileService.uploadFile(requestDto.getRoomImage(), "images", room.getId());
+            roomImageUrl = fileService.uploadFile(requestDto.getRoomImage(), "image", room.getId());
 
         }
 

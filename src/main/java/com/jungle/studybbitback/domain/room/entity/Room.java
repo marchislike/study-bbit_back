@@ -45,8 +45,6 @@ public class Room extends ModifiedTimeEntity {
     @Column(nullable = false, name = "leader_id")
     private Long leaderId;
 
-    @Column(name = "meeting_id", columnDefinition = "UUID", unique = true)
-    private UUID meetingId;
 
 
 
@@ -91,13 +89,4 @@ public class Room extends ModifiedTimeEntity {
             this.participants -= 1;
         }
     }
-
-    public void startMeeting() {
-        this.meetingId = UUID.randomUUID(); //화상 회의 시작할 경우 화상회의id 생성
-    }
-
-    public void endMeeting() {
-        this.meetingId = null;
-    }
-    //이하 구현 예정
 }
