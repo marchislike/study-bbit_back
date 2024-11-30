@@ -29,8 +29,10 @@ public interface ScheduleRepository extends JpaRepository<Schedule, Long> {
 //    }
 
     Page<Schedule> findByScheduleCycleId(Long scheduleCycleId, Pageable pageable);
+    Optional<Schedule> findFirstByScheduleCycleId(Long scheduleCycleId);
 
     void deleteByScheduleCycleId(Long scheduleCycleId);
+
 
     @Query("SELECT COALESCE(MAX(s.scheduleCycleId), 0) FROM Schedule s")
     Optional<Long> findMaxScheduleCycleId();
