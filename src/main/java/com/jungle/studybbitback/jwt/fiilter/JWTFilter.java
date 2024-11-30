@@ -74,10 +74,11 @@ public class JWTFilter extends OncePerRequestFilter {
 
         } catch (AuthenticationException ex) {
             log.error("Authentication failed: {}", ex.getMessage());
+
+            // 인증 정보가 유효하지 않거나, 인증이 실패했을 때 남아 있는 컨텍스트 정보를 제거하여 잘못된 인증 정보를 계속 사용하는 것을 방지.
             SecurityContextHolder.clearContext();
-            // Spring Security의 EntryPoint로 예외 전달
-            new CustomAuthenticationEntryPoint().commence(request, response, ex);
-            return; // 필터 체인 진행 중단
+
+            request.setAttribute("authErrorMessage", ex.getMessage());
         }
 
         // 다음 필터로 요청을 전달

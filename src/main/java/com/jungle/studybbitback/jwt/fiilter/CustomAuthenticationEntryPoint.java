@@ -23,12 +23,18 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
 		response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 		response.setContentType("application/json;charset=UTF-8");
 
+		// 요청 속성에서 에러 메시지 가져오기 (JWTFilter에서 설정한 메시지)
+		String customMessage = (String) request.getAttribute("authErrorMessage");
+		if (customMessage == null) {
+			customMessage = authException.getMessage(); // 기본 메시지
+		}
+
 		// 응답 내용 작성
 		Map<String, Object> errorResponse = new HashMap<>();
 		errorResponse.put("timestamp", LocalDateTime.now().toString());
 		errorResponse.put("status", HttpServletResponse.SC_UNAUTHORIZED);
 		errorResponse.put("error", "Unauthorized");
-		errorResponse.put("message", authException.getMessage());
+		errorResponse.put("message", customMessage); // 커스텀 메시지
 		errorResponse.put("path", request.getServletPath());
 
 		// JSON 응답 전송

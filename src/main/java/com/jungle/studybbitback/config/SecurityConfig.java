@@ -106,7 +106,7 @@ public class SecurityConfig {
         loginFilter.setFilterProcessesUrl("/api/member/login");
 
         http
-                .addFilterAt(loginFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(loginFilter, UsernamePasswordAuthenticationFilter.class)
                 .addFilterAfter(new JWTFilter(jwtUtil), LoginFilter.class);
 
         // 세션설정 : stateless하게
