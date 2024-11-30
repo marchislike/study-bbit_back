@@ -59,7 +59,7 @@ public class RoomService {
 
         String roomImageUrl = null;
         if (roomImage != null && !roomImage.isEmpty()) {
-            roomImageUrl = fileService.uploadFile(roomImage, "image", memberId);
+            roomImageUrl = fileService.uploadFile(roomImage, "image", 0L);
         }
 
         //방 생성
