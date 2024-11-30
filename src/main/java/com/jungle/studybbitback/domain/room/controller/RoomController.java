@@ -29,19 +29,6 @@ public class RoomController {
             @RequestParam(value = "roomImage", required = false) MultipartFile roomImage // 이미지 필드를 선택적으로 설정
     ) {
         log.info("Room Image provided: {}", roomImage != null ? roomImage.getOriginalFilename() : "방 이미지가 없습니다.");
-
-        // 이미지가 없으면 null로 설정
-        String roomImageUrl = null;
-        if (roomImage != null && !roomImage.isEmpty()) {
-            // 이미지가 있으면 업로드 처리
-            roomImageUrl = fileService.uploadFile(roomImage, "image", 0L);
-        }
-
-        // 만약 roomImageUrl이 빈 문자열이라면 null로 처리
-        if (StringUtils.isEmpty(roomImageUrl)) {
-            roomImageUrl = null;
-        }
-
         CreateRoomResponseDto response = roomService.createRoom(requestDto, roomImage);
         return ResponseEntity.ok(response);
     }
