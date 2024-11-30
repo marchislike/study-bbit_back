@@ -93,6 +93,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests((auth) -> auth
                         .requestMatchers( "/api/member/login").permitAll() // 로그임
                         .requestMatchers( "/api/member/signup").permitAll() // 회원가입
+                        .requestMatchers(HttpMethod.GET,"/api/member/*").permitAll() // 회원정보 조회
                         .requestMatchers( "/api/member/isExist/{nickname}").permitAll() // 닉네임 중복 체크
                         .requestMatchers(HttpMethod.GET, "/api/room/**").permitAll() // 방 조회 등등등
                         .anyRequest().authenticated()
