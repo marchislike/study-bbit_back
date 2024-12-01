@@ -5,6 +5,8 @@ import com.jungle.studybbitback.domain.member.entity.Member;
 import lombok.Getter;
 
 import java.time.Duration;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Getter
 public class FindMemberResponseDto {
@@ -14,6 +16,7 @@ public class FindMemberResponseDto {
 	private String profileImageUrl;
 	private Double flowTemperature;
 	private Duration studyTime;
+	private LocalDateTime createdAt;
 
 	public FindMemberResponseDto(Member member, DailyStudy dailyStudy) {
 		this.id = member.getId();
@@ -26,5 +29,6 @@ public class FindMemberResponseDto {
 		} else {
 			this.studyTime = dailyStudy.getStudyTime();
 		}
+		this.createdAt = member.getCreatedAt();
 	}
 }
