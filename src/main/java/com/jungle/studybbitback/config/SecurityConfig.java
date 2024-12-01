@@ -91,7 +91,8 @@ public class SecurityConfig {
         // 경로별 인가 작업
         http
                 .authorizeHttpRequests((auth) -> auth
-                        .requestMatchers( "/api/member/login").permitAll() // 로그임
+                        .requestMatchers( "/api/member/login").permitAll() // 로그인
+                        .requestMatchers( "/api/member/logout").permitAll() // 로그아웃
                         .requestMatchers( "/api/member/signup").permitAll() // 회원가입
                         .requestMatchers(HttpMethod.GET,"/api/member/*").permitAll() // 회원정보 조회
                         .requestMatchers( "/api/member/isExist/{nickname}").permitAll() // 닉네임 중복 체크

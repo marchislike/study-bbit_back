@@ -3,6 +3,7 @@ package com.jungle.studybbitback.domain.member.controller;
 import com.jungle.studybbitback.domain.member.dto.*;
 import com.jungle.studybbitback.domain.member.service.MemberService;
 import com.jungle.studybbitback.jwt.JWTUtil;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -24,6 +25,17 @@ public class MemberController {
         memberService.signup(signupRequestDto);
         response.setStatus(HttpServletResponse.SC_CREATED);
         return "success";
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<String> logout(HttpServletResponse response) {
+        Cookie cookie = new Cookie("token", null);
+        cookie.setHttpOnly(true);
+        cookie.setSecure(true);
+        cookie.setPath("/");
+        cookie.setMaxAge(0); // 쿠키 즉시 만료
+        response.addCookie(cookie);
+        return ResponseEntity.ok("로그아웃 되었습니다.");
     }
     
     // 회원정보 조회
