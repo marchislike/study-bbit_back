@@ -6,6 +6,7 @@ import com.jungle.studybbitback.jwt.dto.CustomUserDetails;
 import com.jungle.studybbitback.jwt.dto.LoginResponseDto;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -70,16 +71,14 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         Long memberId = customUserDetails.getMemberId();
         String email = customUserDetails.getEmail();
         String nickname = customUserDetails.getNickName();
-
-        Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
-        Iterator<? extends GrantedAuthority> iterator = authorities.iterator();
-        GrantedAuthority auth = iterator.next();
-
-        String role = auth.getAuthority();
-
+//        Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
+//        Iterator<? extends GrantedAuthority> iterator = authorities.iterator();
+//        GrantedAuthority auth = iterator.next();
+//        String role = auth.getAuthority();
+        String role = authentication.getAuthorities().iterator().next().getAuthority();
         String token = jwtUtil.createJwt(memberId, email, role, nickname, 365 * 24 * 60 * 60 * 1000L);
 
-        // HTTP 인증방식은 RFC 7235 정의에 따라 아래 인증헤더 형태를 가져야 한다.
+/*        // HTTP 인증방식은 RFC 7235 정의에 따라 아래 인증헤더 형태를 가져야 한다.
         response.addHeader("Authorization", "Bearer " + token);
         response.setContentType("application/json; charset=UTF-8");
         response.setCharacterEncoding("UTF-8");
@@ -89,7 +88,20 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         String jsonResponse = objectMapper.writeValueAsString(loginResponse);
 
         // JSON 응답 전송
-        response.getWriter().write(jsonResponse);
+        response.getWriter().write(jsonResponse);*/
+
+        // HttpOnly Cookie 설정
+        Cookie cookie = new Cookie("token", token);
+        cookie.setHttpOnly(true); // XSS 방지
+        cookie.setSecure(true); // HTTPS 환경에서만 사용
+        cookie.setPath("/"); // 모든 경로에 대해 유효
+        cookie.setMaxAge(365 * 24 * 60 * 60); // 1년 동안 유효
+        response.addCookie(cookie);
+
+        // JSON 응답 (선택적으로 클라이언트에 사용자 정보 제공)
+        LoginResponseDto loginResponse = new LoginResponseDto(memberId, email, role, nickname);
+        response.setContentType("application/json; charset=UTF-8");
+        response.getWriter().write(new ObjectMapper().writeValueAsString(loginResponse));
     }
 
     // 검증에서 실패한 경우
