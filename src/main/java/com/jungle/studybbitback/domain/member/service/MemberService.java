@@ -1,6 +1,8 @@
 package com.jungle.studybbitback.domain.member.service;
 
 import com.jungle.studybbitback.common.file.service.FileService;
+import com.jungle.studybbitback.domain.dailystudy.entity.DailyStudy;
+import com.jungle.studybbitback.domain.dailystudy.repositody.DailyStudyRepository;
 import com.jungle.studybbitback.domain.member.dto.*;
 import com.jungle.studybbitback.domain.member.entity.Member;
 import com.jungle.studybbitback.domain.member.entity.MemberRoleEnum;
@@ -21,6 +23,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
+import java.time.LocalDate;
+
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -33,6 +37,7 @@ public class MemberService {
     private final RoomMemberRepository roomMemberRepository;
     private final FileService fileService;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
+    private final DailyStudyRepository dailyStudyRepository;
     private static final String ADMIN_TOKEN = "AAABnvxRVklrnYxKZ0aHgTBcXukeZygoC";
 
     @Transactional
@@ -114,7 +119,10 @@ public class MemberService {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(()-> new IllegalArgumentException("사용자가 존재하지 않습니다."));
 
-        return new FindMemberResponseDto(member);
+        DailyStudy dailyStudy = dailyStudyRepository.findByMemberIdAndStudyDate(memberId, LocalDate.now())
+                .orElse(null);
+
+        return new FindMemberResponseDto(member, dailyStudy);
     }
 
     @Transactional
