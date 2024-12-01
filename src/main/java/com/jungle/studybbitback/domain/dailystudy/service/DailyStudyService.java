@@ -19,7 +19,9 @@ import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -87,5 +89,14 @@ public class DailyStudyService {
 		} else {
 			return new GetDailyStudyResponseDto(studyDate);
 		}
+	}
+
+	public List<GetDailyStudyResponseDto> getStudyByYear(Integer year) {
+		CustomUserDetails userDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+		List<DailyStudy> dailyStudies = dailyStudyRepository.findAllByMemberIdAndStudyYearNative(userDetails.getMemberId(), year);
+
+		return dailyStudies.stream().map(GetDailyStudyResponseDto::new)
+				.collect(Collectors.toList());
 	}
 }
