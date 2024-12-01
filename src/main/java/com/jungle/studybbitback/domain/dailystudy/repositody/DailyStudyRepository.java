@@ -9,6 +9,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 
 public interface DailyStudyRepository extends JpaRepository<DailyStudy, Long> {
@@ -19,4 +20,6 @@ public interface DailyStudyRepository extends JpaRepository<DailyStudy, Long> {
 	Page<DailyStudy> findByMemberId(Long memberId, Pageable pageable);
 
 	Optional<DailyStudy> findByMemberIdAndStudyDate(Long memberId, LocalDate studyDate);
+
+	List<DailyStudy> findByStudyDate(LocalDate now);
 }

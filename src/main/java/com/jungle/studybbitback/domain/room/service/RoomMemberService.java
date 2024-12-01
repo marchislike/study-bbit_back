@@ -1,5 +1,8 @@
 package com.jungle.studybbitback.domain.room.service;
 
+import com.jungle.studybbitback.domain.dailystudy.entity.DailyStudy;
+import com.jungle.studybbitback.domain.dailystudy.repositody.DailyStudyRepository;
+import com.jungle.studybbitback.domain.dailystudy.service.DailyStudyService;
 import com.jungle.studybbitback.domain.dm.dto.GetDmResponseDto;
 import com.jungle.studybbitback.domain.member.entity.Member;
 import com.jungle.studybbitback.domain.member.repository.MemberRepository;
@@ -28,7 +31,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.nio.file.AccessDeniedException;
+import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -41,6 +46,7 @@ public class RoomMemberService {
     private final RoomRepository roomRepository;
     private final MemberRepository memberRepository;
     private final RoomBlacklistRepository roomBlacklistRepository;
+    private final DailyStudyRepository dailyStudyRepository;
 
     //스터디룸 전체 멤버 조회
     public List<GetRoomMemberResponseDto> getRoomMembers(Long roomId) {
@@ -64,9 +70,17 @@ public class RoomMemberService {
             throw new IllegalArgumentException("해당 방에 멤버가 없습니다.");
         }
 
-        // DTO로 변환하여 반환 (leaderId 포함)
+        // DailyStudy를 Map으로 변환
+        List<DailyStudy> dailyStudies = dailyStudyRepository.findByStudyDate(LocalDate.now());
+        Map<Member, DailyStudy> dailyStudyMap = dailyStudies.stream()
+                .collect(Collectors.toMap(DailyStudy::getMember, dailyStudy -> dailyStudy));
+
+        // 매칭된 데이터로 결과 생성
         return roomMembers.stream()
-                .map(roomMember -> new GetRoomMemberResponseDto(roomMember, leaderId))
+                .map(roomMember -> {
+                    DailyStudy dailyStudy = dailyStudyMap.getOrDefault(roomMember.getMember(), null);
+                    return new GetRoomMemberResponseDto(roomMember, dailyStudy, room.getLeaderId());
+                })
                 .collect(Collectors.toList());
     }
 
