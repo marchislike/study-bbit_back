@@ -15,7 +15,8 @@ public class GetRoomBoardResponseDto {
     private Long roomBoardId;
     private String title;
     private String content;
-    private String createdBy;
+    private Long memberId;
+    private String createdByNickname;
     private String createdByProfileUrl;
     private LocalDateTime createdAt;
     private boolean isNotice;
@@ -27,6 +28,7 @@ public class GetRoomBoardResponseDto {
                 roomBoard.getId(),
                 roomBoard.getTitle(),
                 roomBoard.getContent(),
+                roomBoard.getCreatedBy(), //memberId
                 member.getNickname(), // 닉네임을 외부에서 전달
                 member.getProfileImageUrl(),
                 roomBoard.getCreatedAt(),

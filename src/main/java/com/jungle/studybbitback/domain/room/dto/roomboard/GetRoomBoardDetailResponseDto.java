@@ -22,7 +22,8 @@ public class GetRoomBoardDetailResponseDto {
     private Long roomBoardId;
     private String title;
     private String content;
-    private String createdBy; // 게시글 작성자 닉네임
+    private Long memberId;
+    private String createdByNickname; // 게시글 작성자 닉네임
     private String createdByProfileUrl; // 게시글 작성자 프로필 이미지 URL
     private boolean isNotice;
     private Long roomId;
@@ -40,6 +41,7 @@ public class GetRoomBoardDetailResponseDto {
             return new GetRoomBoardCommentResponseDto(
                     comment.getId(),
                     comment.getContent(),
+                    commentCreator.getId(),
                     commentCreator.getNickname(),
                     commentCreator.getProfileImageUrl(), // 프로필 이미지 URL을 포함
                     comment.getCreatedAt(),
@@ -51,6 +53,7 @@ public class GetRoomBoardDetailResponseDto {
                 roomBoard.getId(),
                 roomBoard.getTitle(),
                 roomBoard.getContent(),
+                roomBoardCreator.getId(),
                 roomBoardCreator.getNickname(), // 게시글 작성자 닉네임
                 roomBoardCreator.getProfileImageUrl(), // 게시글 작성자 프로필 이미지 URL
                 roomBoard.isNotice(),
