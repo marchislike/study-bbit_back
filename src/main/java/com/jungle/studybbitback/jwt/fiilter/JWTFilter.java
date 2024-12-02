@@ -6,6 +6,7 @@ import com.jungle.studybbitback.domain.member.entity.Member;
 import com.jungle.studybbitback.domain.member.entity.MemberRoleEnum;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -28,26 +29,20 @@ public class JWTFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         try {
-            // request에서 Authorization 헤더를 찾음
-            String authorization = request.getHeader("Authorization");
-
-            // Authoriziation 헤더 검증
-            if (authorization == null || !authorization.startsWith("Bearer ")) {
-                log.info("token null");
-                throw new AuthenticationException("로그인이 필요합니다.") {
-                };
+            // Cookie에서 JWT 토큰 가져오기
+            String token = null;
+            if (request.getCookies() != null) {
+                for (Cookie cookie : request.getCookies()) {
+                    if ("token".equals(cookie.getName())) {
+                        token = cookie.getValue();
+                    }
+                }
             }
 
-            log.info("authorization now");
-            //Bearer 부분 제거 후 순수 토큰만 획득
-            String token = authorization.split(" ")[1];
-
-            // 토큰 소멸시간 검증
-            if (jwtUtil.isExpired(token)) {
-
-                log.info("token expired");
-                throw new AuthenticationException("토큰이 만료되었습니다.") {
-                };
+            if (token == null) {
+                throw new AuthenticationException("로그인이 필요합니다.") {};
+            } else if (jwtUtil.isExpired(token)){
+                throw new AuthenticationException("토큰이 만료되었습니다.") {};
             }
 
             // 토큰에서 username과 role 획득
