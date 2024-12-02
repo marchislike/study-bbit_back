@@ -47,9 +47,6 @@ dependencies {
 
 	implementation group: 'org.json', name: 'json', version: '20240303'
 
-	// Thymeleaf dependency in build.gradle
-	// implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
-
 	// spring-security
 	implementation 'org.springframework.boot:spring-boot-starter-security'
 	testImplementation 'org.springframework.security:spring-security-test'
@@ -64,12 +61,6 @@ dependencies {
 
 	//valid
 	implementation group: 'org.springframework.boot', name: 'spring-boot-starter-validation'
-
-	// web socket
-	implementation 'org.springframework.boot:spring-boot-starter-websocket'
-	implementation 'org.webjars:webjars-locator-core'
-	implementation 'org.webjars:sockjs-client:1.5.1'
-	implementation 'org.webjars:stomp-websocket:2.3.3'
 
 	//.env
 	implementation 'io.github.cdimascio:java-dotenv:5.2.2'
