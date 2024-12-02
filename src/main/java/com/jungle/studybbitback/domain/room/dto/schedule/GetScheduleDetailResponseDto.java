@@ -21,7 +21,8 @@ public class GetScheduleDetailResponseDto {
     private LocalTime endTime;    // 종료 시간
     private String detail;
     private Long roomId;
-    private String creatorName;
+    private Long memberId;
+    private String createdByNickname;
     private boolean repeatFlag; // 반복 여부
     private String repeatPattern; // 반복 패턴
     private String daysOfWeek; // 반복 요일
@@ -41,7 +42,8 @@ public class GetScheduleDetailResponseDto {
                 .endTime(schedule.getEndDateTime().toLocalTime())
                 .detail(schedule.getDetail())
                 .roomId(schedule.getRoom().getId())
-                .creatorName(schedule.getCreatedBy().getNickname())
+                .memberId(schedule.getCreatedBy().getId())
+                .createdByNickname(schedule.getCreatedBy().getNickname())
                 .repeatFlag(schedule.isRepeatFlag())
                 .repeatPattern(schedule.getRepeatPattern())
                 .daysOfWeek(schedule.getDaysOfWeek())

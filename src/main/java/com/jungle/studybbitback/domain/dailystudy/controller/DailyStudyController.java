@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/daily-study")
@@ -41,6 +42,13 @@ public class DailyStudyController {
 	@GetMapping("/{studyDate}")
 	public ResponseEntity<GetDailyStudyResponseDto> getStudyByDate(@PathVariable("studyDate") LocalDate studyDate) {
 		GetDailyStudyResponseDto response = dailyStudyService.getStudyByDate(studyDate);
+		return ResponseEntity.ok(response);
+	}
+
+	@GetMapping("/year/{studyYear}")
+	public ResponseEntity<List<GetDailyStudyResponseDto>> getStudyByYear(
+			@PathVariable("studyYear") Integer year) {
+		List<GetDailyStudyResponseDto> response = dailyStudyService.getStudyByYear(year);
 		return ResponseEntity.ok(response);
 	}
 }
