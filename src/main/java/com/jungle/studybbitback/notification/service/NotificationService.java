@@ -71,7 +71,7 @@ public class NotificationService {
 	public void notifyDm(Long receiverId, Member sender, Member receiver) {
 
 		String content = sender.getNickname() + "(으)로부터 쪽지가 왔습니다.";
-		String url = "/test-url";
+		String url = "/dm";
 
 		// DB 저장
 		Notification notification;
@@ -93,7 +93,7 @@ public class NotificationService {
 		// SSE 이벤트 전송
 		synchronized (sseEmitter) {
 			try {
-				notificationDto dto = new notificationDto(content, url, notification.getCreatedAt());
+				notificationDto dto = new notificationDto(content, url, notification);
 				sseEmitter.send(SseEmitter.event().name("sendDm").data(dto));
 				log.info("dm 알림 전송 완료 - receiverId: {}", receiverId);
 			} catch (IOException e) {
@@ -131,7 +131,8 @@ public class NotificationService {
 		Set<RoomMember> roomMembers = room.getRoomMembers();
 
 		String content = "회의록이 생성되었습니다.";
-		String url = requestDto.getFileUrl();
+		String url = "/study/" + requestDto.getRoomId().toString() + "/meeting";
+		//String url = requestDto.getFileUrl();
 
 		List<Long> failedReceivers = new ArrayList<>();
 
@@ -173,7 +174,7 @@ public class NotificationService {
 		}
 		synchronized (sseEmitter) {
 			try {
-				notificationDto dto = new notificationDto(content, url, notification.getCreatedAt());
+				notificationDto dto = new notificationDto(content, url, notification);
 				sseEmitter.send(SseEmitter.event().name("sendMm").data(dto));
 				log.info("회의록 알림 전송 완료 - receiverId: {}", receiverId);
 			} catch (IOException e) {
