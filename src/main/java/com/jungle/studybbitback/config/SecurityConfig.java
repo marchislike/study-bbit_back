@@ -97,6 +97,7 @@ public class SecurityConfig {
                         .requestMatchers( "/api/member/isExist/{nickname}").permitAll() // 닉네임 중복 체크
                         .requestMatchers(HttpMethod.GET, "/api/room/**").permitAll() // 방 조회 등등등
                         .requestMatchers(HttpMethod.GET,"/api/noti/subscribe").permitAll() // 회원정보 조회
+                        .requestMatchers(HttpMethod.POST,"/api/noti/mm").permitAll() // 회원정보 조회
                         .anyRequest().authenticated()
                 )
                 .exceptionHandling(ex -> ex
