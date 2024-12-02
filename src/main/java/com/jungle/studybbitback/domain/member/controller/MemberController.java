@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,7 +23,6 @@ import org.springframework.web.bind.annotation.*;
 public class MemberController {
 
     private final MemberService memberService;
-    private final JWTUtil jwtUtil;
     
     // 회원가입
     @PostMapping("/signup")
@@ -48,11 +48,21 @@ public class MemberController {
         response.addCookie(cookie);
         return ResponseEntity.ok("로그아웃 되었습니다.");
     }
-    
-    // 회원정보 조회
-    @GetMapping("/{memberId}")
-    public ResponseEntity<FindMemberResponseDto> findMember(@PathVariable("memberId") Long memberId) {
-        FindMemberResponseDto responseDto =  memberService.findMember(memberId);
+
+    @GetMapping({"", "/{memberId}"})
+    public ResponseEntity<FindMemberResponseDto> findMember(
+            @PathVariable(value = "memberId", required = false) Long memberId) {
+
+        // memberId가 없으면 현재 사용자의 정보 조회
+        if (memberId == null) {
+            CustomUserDetails userDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            if (userDetails == null) {
+                throw new AuthenticationException("로그인이 필요합니다.") {};
+            }
+            memberId = userDetails.getMemberId();
+        }
+
+        FindMemberResponseDto responseDto = memberService.findMember(memberId);
         return ResponseEntity.ok(responseDto);
     }
 
