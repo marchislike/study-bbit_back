@@ -15,6 +15,9 @@ public class GetDmResponseDto {
 	private String senderNickname;
 	private String receiverNickname;
 
+	private String senderProfileUrl;
+	private String receiverProfileUrl;
+
 	private String content;
 
 	private LocalDateTime createdAt;
@@ -27,6 +30,9 @@ public class GetDmResponseDto {
 
 		this.senderNickname = dm.getSender().getNickname();
 		this.receiverNickname = dm.getReceiver().getNickname();
+
+		this.senderProfileUrl = dm.getSender().getProfileImageUrl();
+		this.receiverProfileUrl = dm.getReceiver().getProfileImageUrl();
 
 		this.content = dm.getContent();
 		this.createdAt = dm.getCreatedAt();
