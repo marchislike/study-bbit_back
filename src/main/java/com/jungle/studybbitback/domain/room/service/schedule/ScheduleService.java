@@ -26,7 +26,10 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.time.YearMonth;
+import java.time.format.DateTimeParseException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
@@ -51,7 +54,6 @@ public class ScheduleService {
     private Long generateNewScheduleCycleId() {
         return scheduleRepository.findMaxScheduleCycleId().orElse(0L) + 1;
     }
-
 
 
     // 일정 생성
@@ -234,16 +236,31 @@ public class ScheduleService {
     }
 
     // 일정 전체 조회
-    @Transactional
-    public Page<GetScheduleResponseDto> getAllSchedules(Long roomId, Pageable pageable) {
+    @Transactional(readOnly = true)
+    public List<GetScheduleResponseDto> getAllSchedules(Long roomId, String month) {
         CustomUserDetails userDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         Long memberId = userDetails.getMemberId();
         validateRoomMembership(roomId, memberId);
 
+        // month 파라미터 파싱
+        YearMonth yearMonth;
+        try {
+            yearMonth = YearMonth.parse(month);
+        } catch (DateTimeParseException e) {
+            throw new IllegalArgumentException("날짜 형식이 올바르지 않습니다. 'yyyy-MM' 형식이어야 합니다.");
+        }
 
-        Page<Schedule> schedules = scheduleRepository.findByRoomId(roomId, pageable);
+        // 연도와 월 추출
+        int year = yearMonth.getYear();
+        int monthValue = yearMonth.getMonthValue();
 
-        return schedules.map(GetScheduleResponseDto::from);
+        // 해당 월의 일정 조회
+        List<Schedule> schedules = scheduleRepository.findSchedulesByRoomIdAndYearAndMonth(roomId, year, monthValue);
+
+        // Schedule 엔티티를 DTO로 변환
+        return schedules.stream()
+                .map(GetScheduleResponseDto::from)
+                .collect(Collectors.toList());
     }
 
     //일정 상세 조회
@@ -316,7 +333,7 @@ public class ScheduleService {
 
     // 전체 일정 수정
     @Transactional
-    public List<UpdateAllScheduleResponseDto> updateAllSchedule(Long scheduleCycleId, UpdateAllScheduleRequestDto requestDto, Pageable pageable) {
+    public List<UpdateAllScheduleResponseDto> updateAllSchedule(Long scheduleCycleId, UpdateAllScheduleRequestDto requestDto) {
         CustomUserDetails userDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         Long memberId = userDetails.getMemberId();
 
@@ -329,30 +346,28 @@ public class ScheduleService {
         }
 
         // 해당 스케줄 사이클에 속한 일정들 조회
-        PageRequest pageRequest = PageRequest.of(0, Integer.MAX_VALUE, pageable.getSort());
-        Page<Schedule> allSchedules = scheduleRepository.findByScheduleCycleId(scheduleCycleId, pageRequest);
+        List<Schedule> allSchedules = scheduleRepository.findByScheduleCycleId(scheduleCycleId);
 
         if (allSchedules.isEmpty()) {
             throw new IllegalArgumentException("해당 반복 일정이 존재하지 않습니다.");
         }
 
-        LocalDate originalStartDate = allSchedules.getContent().stream()
+        LocalDate originalStartDate = allSchedules.stream()
                 .map(existingSchedule -> existingSchedule.getStartDateTime().toLocalDate())
                 .min(LocalDate::compareTo)
                 .orElseThrow();
 
         // 스터디룸 멤버 여부 확인
-        Long roomId = allSchedules.getContent().get(0).getRoom().getId();
+        Long roomId = allSchedules.get(0).getRoom().getId();
         validateRoomMembership(roomId, memberId);
 
         // 해당 cycleid를 가진 모든 일정 삭제
         scheduleRepository.deleteByScheduleCycleId(scheduleCycleId);
-
-        // 기존 일정 삭제
-        allSchedules.forEach(existingSchedule -> {
-            log.info("삭제할 scheduleId {}", schedule.getId());
-            scheduleRepository.delete(schedule);
-        });
+//        // 기존 일정 삭제
+//        allSchedules.forEach(existingSchedule -> {
+//            log.info("삭제할 scheduleId {}", schedule.getId());
+//            scheduleRepository.delete(schedule);
+//        });
 
         // 새로운 요일과 날짜에 따른 일정 생성
         List<DayOfWeek> newDaysOfWeek = DateUtils.parseDaysOfWeek(requestDto.getDaysOfWeek());
@@ -409,14 +424,14 @@ public class ScheduleService {
         Long memberId = userDetails.getMemberId();
 
         // 스터디룸 멤버 검증을 위한 기존 일정 조회
-        Page<Schedule> existingSchedules = scheduleRepository.findByScheduleCycleId(scheduleCycleId, Pageable.unpaged());
+        List<Schedule> existingSchedules = scheduleRepository.findByScheduleCycleId(scheduleCycleId);
         if (existingSchedules.isEmpty()) {
             log.info("해당 반복 일정은 존재하지 않습니다. scheduleCycleId: {}", scheduleCycleId);
             throw new IllegalArgumentException("해당 반복 일정이 존재하지 않습니다.");
         }
 
         // 첫 번째 일정에서 필요한 정보 추출
-        Schedule firstSchedule = existingSchedules.getContent().get(0);
+        Schedule firstSchedule = existingSchedules.get(0);
         Room room = firstSchedule.getRoom();
         Member member = firstSchedule.getCreatedBy();
 
@@ -501,9 +516,9 @@ public class ScheduleService {
 
     // 단일 일정 삭제
     @Transactional
-    public void deleteSingleSchedule(Long scheduleId){
+    public void deleteSingleSchedule(Long scheduleId) {
         Schedule schedule = scheduleRepository.findById(scheduleId)
-                .orElseThrow(()-> new IllegalArgumentException("해당 일정은 존재하지 않습니다."));
+                .orElseThrow(() -> new IllegalArgumentException("해당 일정은 존재하지 않습니다."));
 
         // 단일 일정 삭제
         scheduleRepository.delete(schedule);
@@ -511,14 +526,14 @@ public class ScheduleService {
 
     // 반복 일정 일괄 삭제 (단일로 된 일정을 일괄로 삭제하는 게 아님!)
     @Transactional
-    public  void deleteAllSchedule(Long scheduleCycleId){
+    public void deleteAllSchedule(Long scheduleCycleId) {
         scheduleRepository.deleteByScheduleCycleId(scheduleCycleId);
     }
 
     // 반복 일정 중 특정 일자 기준으로 이후 일정 전체 삭제
     @Transactional
-    public void deleteUpcomingSchedules(Long scheduleCycleId, UpdateUpcomingScheduleRequestDto requestDto) {    // 반복 일정 조회 (Page 형태로 받아옴)
-        Page<Schedule> existingSchedules = scheduleRepository.findByScheduleCycleId(scheduleCycleId, Pageable.unpaged());
+    public void deleteUpcomingSchedules(Long scheduleCycleId, UpdateUpcomingScheduleRequestDto requestDto) {
+        List<Schedule> existingSchedules = scheduleRepository.findByScheduleCycleId(scheduleCycleId);
         if (existingSchedules.isEmpty()) {
             log.info("해당 반복 일정은 존재하지 않습니다. scheduleCycleId: {}", scheduleCycleId);
             throw new IllegalArgumentException("해당 반복 일정이 존재하지 않습니다.");
@@ -528,7 +543,7 @@ public class ScheduleService {
         LocalDateTime modificationStartDateTime = requestDto.getStartDate().atStartOfDay();
 
         // 기준 날짜 이후 일정들만 필터링하여 삭제
-        List<Schedule> schedulesToDelete = existingSchedules.getContent().stream()  // Page에서 List로 변환
+        List<Schedule> schedulesToDelete = existingSchedules.stream()
                 .filter(schedule -> !schedule.getStartDateTime().isBefore(modificationStartDateTime))  // 날짜 비교
                 .collect(Collectors.toList());
 
