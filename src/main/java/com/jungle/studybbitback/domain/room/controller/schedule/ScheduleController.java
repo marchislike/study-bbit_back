@@ -11,7 +11,6 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -31,10 +30,10 @@ public class ScheduleController {
 
     // 전체 일정 조회
     @GetMapping("/{roomId}")
-    public ResponseEntity<Page<GetScheduleResponseDto>> getAllSchedules(
+    public ResponseEntity<List<GetScheduleResponseDto>> getAllSchedules(
             @PathVariable Long roomId,
-            Pageable pageable) {
-        Page<GetScheduleResponseDto> schedules = scheduleService.getAllSchedules(roomId, pageable);
+            @RequestParam("month") String month) {
+        List<GetScheduleResponseDto> schedules = scheduleService.getAllSchedules(roomId, month);
         return ResponseEntity.ok(schedules);
     }
 
@@ -62,9 +61,9 @@ public class ScheduleController {
     @PostMapping("/all/{scheduleCycleId}")
     public ResponseEntity<List<UpdateAllScheduleResponseDto>> updateAllSchedule(
             @PathVariable Long scheduleCycleId,
-            @RequestBody UpdateAllScheduleRequestDto updateAllRequestDto,
-            Pageable pageable) {
-        List<UpdateAllScheduleResponseDto> responseDto = scheduleService.updateAllSchedule(scheduleCycleId, updateAllRequestDto, pageable);
+            @RequestBody UpdateAllScheduleRequestDto updateAllRequestDto
+    ) {
+        List<UpdateAllScheduleResponseDto> responseDto = scheduleService.updateAllSchedule(scheduleCycleId, updateAllRequestDto);
         return ResponseEntity.ok(responseDto);
     }
 
