@@ -16,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -109,17 +110,65 @@ public class NotificationService {
 
 		return notificationRepository.findByReceiverId(userDetails.getMemberId(), pageable).map(GetNotificationResponseDto::new);
 	}
+	
+	// 알림 한 건 읽음처리
+	@Transactional
+	public String readNotification(Long notiId) {
+
+		Notification notification = notificationRepository.findById(notiId).orElseThrow(
+				() -> new EntityNotFoundException("알림을 찾을 수 없습니다.")
+		);
+
+		CustomUserDetails userDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		Long memberId = userDetails.getMemberId();
+
+		if (notification.getReceiver().getId() != memberId) {
+			throw new AccessDeniedException("수신자만이 변경 가능합니다.");
+		}
+
+		notification.updateIsRead();
+
+		return notiId + "번 알림이 읽음처리되었습니다.";
+	}
+
+	// 알림 전체 읽음처리
+	@Transactional
+	public String readAllNotification() {
+		CustomUserDetails userDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		Long memberId = userDetails.getMemberId();
+
+		notificationRepository.markAllAsRead(memberId);
+		
+		return "모든 알림이 읽음처리되었습니다.";
+	}
 
 	// 알림 삭제
 	@Transactional
 	public String deleteNotification(Long id) {
 		Notification notification = notificationRepository.findById(id).orElseThrow(
-				() -> new IllegalArgumentException("알림을 찾을 수 없습니다.")
+				() -> new EntityNotFoundException("알림을 찾을 수 없습니다.")
 		);
+
+		CustomUserDetails userDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		Long memberId = userDetails.getMemberId();
+
+		if (notification.getReceiver().getId() != memberId) {
+			throw new AccessDeniedException("수신자만이 삭제 가능합니다.");
+		}
 
 		notificationRepository.delete(notification);
 
 		return id + "번 알림이 삭제되었습니다.";
+	}
+
+	@Transactional
+	public String deleteAllNotification() {
+		CustomUserDetails userDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		Long memberId = userDetails.getMemberId();
+
+		notificationRepository.deleteByReceiverId(memberId);
+
+		return "모든 알림이 삭제되었습니다.";
 	}
 
 	public String sendMmNotification(SendMmNotiRequestDto requestDto) {

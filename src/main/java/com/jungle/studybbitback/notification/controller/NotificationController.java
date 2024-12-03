@@ -49,11 +49,35 @@ public class NotificationController {
 		return ResponseEntity.ok(response);
 	}
 
+	// 해당 알림 읽음처리
+	@PostMapping("/{notiId}")
+	public ResponseEntity<String> readNotification(@PathVariable Long notiId) {
+
+		String response = notificationService.readNotification(notiId);
+		return ResponseEntity.ok(response);
+	}
+
+	// 전체 알림 읽음처리
+	@PostMapping()
+	public ResponseEntity<String> readAllNotification() {
+
+		String response = notificationService.readAllNotification();
+		return ResponseEntity.ok(response);
+	}
+
 	// 알림 삭제
 	@DeleteMapping("/{notiId}")
 	public ResponseEntity<String> deleteNotification(@PathVariable Long notiId) {
 
 		String response = notificationService.deleteNotification(notiId);
+		return ResponseEntity.ok(response);
+	}
+	
+	// 알림 전체 삭제
+	@DeleteMapping()
+	public ResponseEntity<String> deleteAllNotification() {
+
+		String response = notificationService.deleteAllNotification();
 		return ResponseEntity.ok(response);
 	}
 }
