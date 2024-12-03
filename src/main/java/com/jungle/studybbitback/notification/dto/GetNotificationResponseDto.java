@@ -15,6 +15,8 @@ public class GetNotificationResponseDto {
 	private String url;
 	private LocalDateTime createdAt;
 
+	private boolean isRead;
+
 	public GetNotificationResponseDto(Notification noti) {
 		this.id = noti.getId();
 		this.receiverId = noti.getReceiver().getId();
@@ -22,5 +24,6 @@ public class GetNotificationResponseDto {
 		this.content = noti.getContent();
 		this.url = noti.getUrl();
 		this.createdAt = noti.getCreatedAt();
+		this.isRead = noti.getIsRead();
 	}
 }
