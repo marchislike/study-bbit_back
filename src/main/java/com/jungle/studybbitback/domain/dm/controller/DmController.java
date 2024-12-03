@@ -9,6 +9,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -44,4 +45,19 @@ public class DmController {
 		return ResponseEntity.ok(response);
 	}
 
+	// 디엠 1건 삭제
+	@DeleteMapping("/{dmId}")
+	public ResponseEntity<String> deleteDm(@PathVariable("dmId") Long dmId) {
+
+		String response = dmService.deleteDm(dmId);
+		return ResponseEntity.status(HttpStatus.OK).body(response);
+	}
+
+	// 디엠 전체 삭제
+	@DeleteMapping()
+	public ResponseEntity<String> deleteAllDm() {
+
+		String response = dmService.deleteAllDm();
+		return ResponseEntity.status(HttpStatus.OK).body(response);
+	}
 }
