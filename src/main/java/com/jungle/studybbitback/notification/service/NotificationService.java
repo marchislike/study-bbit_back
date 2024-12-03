@@ -160,7 +160,8 @@ public class NotificationService {
 
 		return id + "번 알림이 삭제되었습니다.";
 	}
-
+	
+	// 알림 전체삭제
 	@Transactional
 	public String deleteAllNotification() {
 		CustomUserDetails userDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();

@@ -14,6 +14,7 @@ import lombok.NoArgsConstructor;
 public class Dm extends CreatedTimeEntity {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "dm_id")
 	private Long id;
 
 	@ManyToOne(fetch = FetchType.LAZY)
