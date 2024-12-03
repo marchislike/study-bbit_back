@@ -24,9 +24,17 @@ public class Notification extends CreatedTimeEntity {
 
 	private String url;
 
+	@Column(nullable = false)
+	private Boolean isRead;
+
 	public Notification(Member receiver, String content, String url) {
 		this.receiver = receiver;
 		this.content = content;
 		this.url = url;
+		this.isRead = false;
+	}
+
+	public void updateIsRead() {
+		this.isRead = true;
 	}
 }
