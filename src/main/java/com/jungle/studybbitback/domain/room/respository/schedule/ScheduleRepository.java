@@ -27,6 +27,19 @@ public interface ScheduleRepository extends JpaRepository<Schedule, Long> {
     @Query("SELECT COALESCE(MAX(s.scheduleCycleId), 0) FROM Schedule s")
     Optional<Long> findMaxScheduleCycleId();
 
+//    // 해당 날짜에 대한 일정들을 모두 조회하는 메서드
+//    @Query("FROM Schedule s WHERE s.room.id = :roomId AND s.startDate = :date")
+//    List<Schedule> findSchedulesByRoomIdAndDate(@Param("roomId") Long roomId, @Param("date") LocalDate date);
+
+    // 주어진 연도, 월, 일에 해당하는 일정을 조회하는 메서드
+    @Query("FROM Schedule s WHERE s.room.id = :roomId AND YEAR(s.startDate) = :year AND MONTH(s.startDate) = :month AND DAY(s.startDate) = :day")
+    List<Schedule> findSchedulesByRoomIdAndYearAndMonthAndDay(
+            @Param("roomId") Long roomId,
+            @Param("year") int year,
+            @Param("month") int month,
+            @Param("day") int day
+    );
+
     // 주어진 연도에 해당 방에서 일정이 있는 월들을 조회하는 메서드
     @Query("SELECT DISTINCT MONTH(s.startDate) FROM Schedule s WHERE s.room.id = :roomId AND YEAR(s.startDate) = :year")
     List<Integer> findMonthsWithSchedulesByRoomIdAndYear(@Param("roomId") Long roomId, @Param("year") int year);

@@ -28,6 +28,26 @@ public class ScheduleController {
         return ResponseEntity.status(201).body(response);
     }
 
+    // 일별(하루) 일정 조회
+    @GetMapping("/{roomId}/daily")
+    public ResponseEntity<List<GetScheduleResponseDto>> getDailySchedules(
+            @PathVariable Long roomId,
+            @RequestParam(name = "date") String date) {
+        log.info("일별 일정 조회 요청 - roomId: {}, date: {}", roomId, date);
+
+        try {
+            List<GetScheduleResponseDto> schedules = scheduleService.getDailySchedules(roomId, date);
+            log.info("조회된 일정 수: {}", schedules.size());
+            return ResponseEntity.ok(schedules);
+        } catch (IllegalArgumentException e) {
+            log.error("일정 조회 중 오류 발생: {}", e.getMessage());
+            throw e;
+        } catch (Exception e) {
+            log.error("예상치 못한 오류 발생: {}", e.getMessage());
+            throw e;
+        }
+    }
+
     // 전체 일정 조회
     @GetMapping("/{roomId}")
     public ResponseEntity<List<GetScheduleResponseDto>> getAllSchedules(
