@@ -6,6 +6,8 @@ import com.jungle.studybbitback.domain.room.entity.Room;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 @Getter
 @NoArgsConstructor
@@ -31,6 +33,7 @@ public class UserFile extends CreatedEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "room_id")
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private Room room;
 
     public UserFile(String uploadName, String fileType, Long fileSize, String fileUploadPath, Room room) {
