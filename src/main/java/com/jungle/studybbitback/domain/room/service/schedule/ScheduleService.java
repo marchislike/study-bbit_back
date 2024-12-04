@@ -235,6 +235,37 @@ public class ScheduleService {
         return schedule;
     }
 
+    // 일별(하루) 일정 조회
+    @Transactional(readOnly = true)
+    public List<GetScheduleResponseDto> getDailySchedules(Long roomId, String date) {
+        CustomUserDetails userDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Long memberId = userDetails.getMemberId();
+        validateRoomMembership(roomId, memberId);
+
+        // date 파라미터 파싱 (yyyy-MM-dd 형식)
+        LocalDate localDate;
+        try {
+            localDate = LocalDate.parse(date);
+        } catch (DateTimeParseException e) {
+            throw new IllegalArgumentException("날짜 형식이 올바르지 않습니다. 'yyyy-MM-dd' 형식이어야 합니다.");
+        }
+
+        // 연도, 월, 일 추출
+        int year = localDate.getYear();
+        int month = localDate.getMonthValue();
+        int day = localDate.getDayOfMonth();
+
+        // 해당 날짜의 일정 조회
+        List<Schedule> schedules = scheduleRepository.findSchedulesByRoomIdAndYearAndMonthAndDay(
+                roomId, year, month, day
+        );
+
+        // Schedule 엔티티를 DTO로 변환하여 반환
+        return schedules.stream()
+                .map(GetScheduleResponseDto::from)
+                .collect(Collectors.toList());
+    }
+
     // 일정 전체 조회
     @Transactional(readOnly = true)
     public List<GetScheduleResponseDto> getAllSchedules(Long roomId, String month) {
