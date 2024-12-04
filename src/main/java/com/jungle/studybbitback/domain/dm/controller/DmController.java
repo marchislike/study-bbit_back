@@ -45,19 +45,35 @@ public class DmController {
 		return ResponseEntity.ok(response);
 	}
 
-	// 디엠 1건 삭제
-	@DeleteMapping("/{dmId}")
-	public ResponseEntity<String> deleteDm(@PathVariable("dmId") Long dmId) {
+	// 보낸 디엠 1건 삭제
+	@DeleteMapping("/sent/{sentDmId}")
+	public ResponseEntity<String> deleteSentDm(@PathVariable("sentDmId") Long sentDmId) {
 
-		String response = dmService.deleteDm(dmId);
+		String response = dmService.deleteSentDm(sentDmId);
 		return ResponseEntity.status(HttpStatus.OK).body(response);
 	}
 
-	// 디엠 전체 삭제
-	@DeleteMapping()
-	public ResponseEntity<String> deleteAllDm() {
+	// 보낸 디엠 전체 삭제
+	@DeleteMapping("/sent")
+	public ResponseEntity<String> deleteAllSentDm() {
 
-		String response = dmService.deleteAllDm();
+		String response = dmService.deleteAllSentDm();
+		return ResponseEntity.status(HttpStatus.OK).body(response);
+	}
+
+	// 받은 디엠 1건 삭제
+	@DeleteMapping("/received/{receivedDmId}")
+	public ResponseEntity<String> deleteReceivedDm(@PathVariable("receivedDmId") Long receivedDmId) {
+
+		String response = dmService.deleteReceivedDm(receivedDmId);
+		return ResponseEntity.status(HttpStatus.OK).body(response);
+	}
+
+	// 받은 디엠 전체 삭제
+	@DeleteMapping("/received")
+	public ResponseEntity<String> deleteAllReceivedDm() {
+
+		String response = dmService.deleteAllReceivedDm();
 		return ResponseEntity.status(HttpStatus.OK).body(response);
 	}
 }
