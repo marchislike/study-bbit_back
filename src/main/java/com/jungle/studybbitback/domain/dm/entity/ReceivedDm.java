@@ -11,10 +11,10 @@ import lombok.NoArgsConstructor;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Dm extends CreatedTimeEntity {
+public class ReceivedDm extends CreatedTimeEntity {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "dm_id")
+	@Column(name = "received_dm_id")
 	private Long id;
 
 	@ManyToOne(fetch = FetchType.LAZY)
@@ -29,7 +29,7 @@ public class Dm extends CreatedTimeEntity {
 
 	private String content;
 
-	public Dm(SendDmRequestDto request, Member sender, Member receiver) {
+	public ReceivedDm(SendDmRequestDto request, Member sender, Member receiver) {
 		this.sender = sender;
 		this.receiver = receiver;
 		this.content = request.getContent();

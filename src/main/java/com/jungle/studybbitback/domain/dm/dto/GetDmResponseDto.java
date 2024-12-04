@@ -1,6 +1,7 @@
 package com.jungle.studybbitback.domain.dm.dto;
 
-import com.jungle.studybbitback.domain.dm.entity.Dm;
+import com.jungle.studybbitback.domain.dm.entity.ReceivedDm;
+import com.jungle.studybbitback.domain.dm.entity.SentDm;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
@@ -22,19 +23,35 @@ public class GetDmResponseDto {
 
 	private LocalDateTime createdAt;
 
-	public GetDmResponseDto(Dm dm) {
-		this.id = dm.getId();
+	public GetDmResponseDto(SentDm sentDm) {
+		this.id = sentDm.getId();
 
-		this.senderId = dm.getSender().getId();
-		this.receiverId = dm.getReceiver().getId();
+		this.senderId = sentDm.getSender().getId();
+		this.receiverId = sentDm.getReceiver().getId();
 
-		this.senderNickname = dm.getSender().getNickname();
-		this.receiverNickname = dm.getReceiver().getNickname();
+		this.senderNickname = sentDm.getSender().getNickname();
+		this.receiverNickname = sentDm.getReceiver().getNickname();
 
-		this.senderProfileUrl = dm.getSender().getProfileImageUrl();
-		this.receiverProfileUrl = dm.getReceiver().getProfileImageUrl();
+		this.senderProfileUrl = sentDm.getSender().getProfileImageUrl();
+		this.receiverProfileUrl = sentDm.getReceiver().getProfileImageUrl();
 
-		this.content = dm.getContent();
-		this.createdAt = dm.getCreatedAt();
+		this.content = sentDm.getContent();
+		this.createdAt = sentDm.getCreatedAt();
+	}
+
+	public GetDmResponseDto(ReceivedDm receivedDm) {
+		this.id = receivedDm.getId();
+
+		this.senderId = receivedDm.getSender().getId();
+		this.receiverId = receivedDm.getReceiver().getId();
+
+		this.senderNickname = receivedDm.getSender().getNickname();
+		this.receiverNickname = receivedDm.getReceiver().getNickname();
+
+		this.senderProfileUrl = receivedDm.getSender().getProfileImageUrl();
+		this.receiverProfileUrl = receivedDm.getReceiver().getProfileImageUrl();
+
+		this.content = receivedDm.getContent();
+		this.createdAt = receivedDm.getCreatedAt();
 	}
 }

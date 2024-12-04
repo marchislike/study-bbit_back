@@ -1,6 +1,6 @@
 package com.jungle.studybbitback.domain.dm.dto;
 
-import com.jungle.studybbitback.domain.dm.entity.Dm;
+import com.jungle.studybbitback.domain.dm.entity.SentDm;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
@@ -16,14 +16,14 @@ public class SendDmResponseDto {
 	private String content;
 	private LocalDateTime createdAt;
 
-	public SendDmResponseDto(Dm savedDm) {
-		this.senderId = savedDm.getSender().getId();
-		this.receiverId = savedDm.getReceiver().getId();
+	public SendDmResponseDto(SentDm savedSentDm) {
+		this.senderId = savedSentDm.getSender().getId();
+		this.receiverId = savedSentDm.getReceiver().getId();
 
-		this.senderNickname = savedDm.getSender().getNickname();
-		this.receiverNickname = savedDm.getReceiver().getNickname();
+		this.senderNickname = savedSentDm.getSender().getNickname();
+		this.receiverNickname = savedSentDm.getReceiver().getNickname();
 
-		this.content = savedDm.getContent();
-		this.createdAt = savedDm.getCreatedAt();
+		this.content = savedSentDm.getContent();
+		this.createdAt = savedSentDm.getCreatedAt();
 	}
 }
