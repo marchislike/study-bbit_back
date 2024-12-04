@@ -165,15 +165,15 @@ public class RoomService {
         CustomUserDetails userDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         Long memberId = userDetails.getMemberId();
 
-        if (room.getLeaderId() != memberId){
+        if (room.getLeaderId() != memberId) {
             throw new IllegalArgumentException("스터디장만 수정할 수 있습니다.");
         }
 
         String roomImageUrl = room.getProfileImageUrl();
-        if(requestDto.isRoomImageChanged() &&
+        if (requestDto.isRoomImageChanged() &&
                 requestDto.getRoomImage() != null
                 && !requestDto.getRoomImage().isEmpty()) {
-            if(StringUtils.hasText(roomImageUrl)){
+            if (StringUtils.hasText(roomImageUrl)) {
                 //기존 이미지가 있으면 삭제
                 fileService.deleteFile(roomImageUrl);
             }
