@@ -12,6 +12,7 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.ColumnTransformer;
 import org.springframework.util.StringUtils;
 
+import java.math.BigDecimal;
 import java.time.Duration;
 import java.util.HashSet;
 import java.util.Set;
@@ -51,14 +52,15 @@ public class Member extends ModifiedTimeEntity {
     @ColumnTransformer(write = "CAST(? AS INTERVAL)") // 삽입 시 CAST 적용
     private Duration dailyGoal;
 
-    private Double flowTemperature;
+    @Column(precision = 3, scale = 1) // DB의 NUMERIC(3, 1)에 매핑
+    private BigDecimal flowTemperature;
 
     public Member(String email, String password, String nickname, MemberRoleEnum role) {
         this.email = email;
         this.password = password;
         this.nickname = nickname;
         this.role = role;
-        this.flowTemperature = 36.5;
+        this.flowTemperature = BigDecimal.valueOf(36.5);
     }
 
     public Member(Long memberId, String email, String password, String nickname, MemberRoleEnum role) {
@@ -87,23 +89,23 @@ public class Member extends ModifiedTimeEntity {
 
     public void revertFlowTemperature(ParticipateStatusEnum statusEnum) {
         if (statusEnum == ParticipateStatusEnum.ON_TIME) {
-            this.flowTemperature -= 0.1;
-        } else if (this.flowTemperature < 100) {
+            this.flowTemperature = this.flowTemperature.subtract(BigDecimal.valueOf(0.1)); // 뺄셈
+        } else if (this.flowTemperature.compareTo(BigDecimal.valueOf(100)) < 0) { // < 연산
             if (statusEnum == ParticipateStatusEnum.LATE) {
-                this.flowTemperature += 0.5;
+                this.flowTemperature = this.flowTemperature.add(BigDecimal.valueOf(0.5)); // 덧셈
             } else if (statusEnum == ParticipateStatusEnum.ABSENCE) {
-                this.flowTemperature += 2.5;
+                this.flowTemperature = this.flowTemperature.add(BigDecimal.valueOf(2.5)); // 덧셈
             }
         }
     }
 
     public void updateFlowTemperature(ParticipateStatusEnum statusEnum) {
-        if (statusEnum == ParticipateStatusEnum.ON_TIME && this.flowTemperature < 100) {
-            this.flowTemperature += 0.1;
+        if (statusEnum == ParticipateStatusEnum.ON_TIME && this.flowTemperature.compareTo(BigDecimal.valueOf(100)) < 0) {
+            this.flowTemperature = this.flowTemperature.add(BigDecimal.valueOf(0.1)); // 덧셈
         } else if (statusEnum == ParticipateStatusEnum.LATE) {
-            this.flowTemperature -= 0.5;
+            this.flowTemperature = this.flowTemperature.subtract(BigDecimal.valueOf(0.5)); // 뺄셈
         } else if (statusEnum == ParticipateStatusEnum.ABSENCE) {
-            this.flowTemperature -= 2.5;
+            this.flowTemperature = this.flowTemperature.subtract(BigDecimal.valueOf(2.5)); // 뺄셈
         }
     }
 }
