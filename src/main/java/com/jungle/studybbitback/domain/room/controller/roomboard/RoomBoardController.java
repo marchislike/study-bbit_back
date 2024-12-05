@@ -4,7 +4,6 @@ import com.jungle.studybbitback.domain.room.dto.roomboard.*;
 import com.jungle.studybbitback.domain.room.service.roomboard.RoomBoardService;
 import com.jungle.studybbitback.jwt.dto.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
-import org.apache.coyote.Response;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
