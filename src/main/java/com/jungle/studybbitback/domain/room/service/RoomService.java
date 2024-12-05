@@ -4,11 +4,13 @@ import com.jungle.studybbitback.common.file.service.FileService;
 import com.jungle.studybbitback.domain.member.entity.Member;
 import com.jungle.studybbitback.domain.member.repository.MemberRepository;
 import com.jungle.studybbitback.domain.room.dto.room.*;
+import com.jungle.studybbitback.domain.room.dto.roomboard.GetRoomBoardDetailResponseDto;
 import com.jungle.studybbitback.domain.room.entity.Room;
 import com.jungle.studybbitback.domain.room.entity.RoomMember;
 import com.jungle.studybbitback.domain.room.respository.RoomMemberRepository;
 import com.jungle.studybbitback.domain.room.respository.RoomRepository;
 import com.jungle.studybbitback.domain.room.respository.roomboard.RoomBoardRepository;
+import com.jungle.studybbitback.domain.room.service.roomboard.RoomBoardService;
 import com.jungle.studybbitback.jwt.dto.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -41,6 +43,7 @@ public class RoomService {
     private final MemberRepository memberRepository;
     private final FileService fileService;
     private final RoomBoardRepository roomBoardRepository;
+    private final RoomBoardService roomBoardService;
 
     @Transactional
     public CreateRoomResponseDto createRoom(CreateRoomRequestDto requestDto, MultipartFile roomImage) {
@@ -147,13 +150,11 @@ public class RoomService {
             throw new AccessDeniedException("해당 스터디룸에 가입된 사용자만 접근할 수 있습니다.");
         }
 
-        String noticeContent = roomBoardRepository.findFirstByRoomIdAndIsNoticeTrue(roomId)
-                .map(notice -> notice.getContent().length() > 50 ?
-                        notice.getContent().substring(0, 47) + "..." :
-                        notice.getContent())
+        GetRoomBoardDetailResponseDto notice = roomBoardRepository.findFirstByRoomIdAndIsNoticeTrue(roomId)
+                .map(noticeBoard -> roomBoardService.getRoomBoardDetail(noticeBoard.getId(), 0, 5))
                 .orElse(null);
 
-        return new GetRoomDashboardResponseDto(room, noticeContent);
+        return new GetRoomDashboardResponseDto(room, notice);
     }
 
     @Transactional
