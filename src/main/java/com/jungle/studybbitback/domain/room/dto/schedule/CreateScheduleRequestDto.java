@@ -32,8 +32,8 @@ public class CreateScheduleRequestDto {
         this.title = title;
         this.startDate = startDate;
         this.day = day;
-        this.startTime = (startTime != null) ? startTime : LocalTime.of(0,0);
-        this.endTime = (endTime != null) ? endTime : LocalTime.of(23,59);
+        this.startTime = startTime;
+        this.endTime = endTime;
         this.detail = detail;
         this.repeatFlag = repeatFlag;
         this.repeatPattern = repeatPattern;

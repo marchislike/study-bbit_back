@@ -81,9 +81,12 @@ public class ScheduleService {
         Room room = roomRepository.findById(requestDto.getRoomId())
                 .orElseThrow(() -> new IllegalArgumentException("스터디룸이 존재하지 않습니다."));
 
-        // 입력값 검증
-        if (requestDto.getStartTime() == null || requestDto.getEndTime() == null) {
-            throw new IllegalArgumentException("시작 시간과 종료 시간은 필수 입력값입니다.");
+        // 시간 검증: 시간을 반드시 선택해야 함
+        if (requestDto.getStartTime() == null) {
+            throw new IllegalArgumentException("시작 시간을 선택해주세요.");
+        }
+        if (requestDto.getEndTime() == null) {
+            throw new IllegalArgumentException("종료 시간을 선택해주세요.");
         }
 
         // 시작날짜에 대한 시작 및 종료 시간 병합
