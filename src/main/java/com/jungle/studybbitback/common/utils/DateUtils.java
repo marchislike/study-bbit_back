@@ -85,6 +85,36 @@ public class DateUtils {
         }
     }
 
+// 일정 시간 설정 관련 메서드
+
+    /**
+     * 날짜(LocalDate)와 시간(LocalTime)을 병합하여 LocalDateTime 생성. 분은 0으로 설정.
+     *
+     * @param date LocalDate - 기준 날짜
+     * @param time LocalTime - 기준 시간
+     * @return LocalDateTime - 병합된 날짜와 시간 (분은 0으로 설정)
+     */
+    public static LocalDateTime mergeDateAndTimeWithZeroMinutes(LocalDate date, LocalTime time) {
+        if (date == null || time == null) {
+            throw new IllegalArgumentException("날짜와 시간을 모두 입력해 주세요.");
+        }
+        return date.atTime(time.getHour(), 0); // 분을 0으로 설정
+    }
+
+    /**
+     * LocalTime의 분을 0으로 설정
+     *
+     * @param time LocalTime - 원본 시간
+     * @return LocalTime - 분이 0으로 설정된 시간
+     */
+    public static LocalTime setZeroMinutes(LocalTime time) {
+        if (time == null) {
+            throw new IllegalArgumentException("시간을 입력해 주세요.");
+        }
+        return time.withMinute(0);
+    }
+
+
     /**
      * 지정된 날짜로부터 다음 특정 요일로 이동.
      *
