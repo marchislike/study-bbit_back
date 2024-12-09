@@ -53,5 +53,5 @@ jobs:
           sudo docker pull gyqjajang/study-bbit_back
           sudo docker stop study-bbit_back || true
           sudo docker rm study-bbit_back || true
-          sudo docker run --env-file /home/ubuntu/envdir/back/.env -d -p 8080:8080 --name study-bbit_back --restart always gyqjajang/study-bbit_back
+          sudo docker run --env-file /home/ubuntu/envdir/back/.env -d -p 8080:8080 -e TZ=Asia/Seoul --name study-bbit_back --restart always gyqjajang/study-bbit_back
           sudo docker system prune -f --volumes
