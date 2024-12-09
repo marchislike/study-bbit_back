@@ -87,8 +87,8 @@ public class ScheduleService {
         }
 
         // 시작날짜에 대한 시작 및 종료 시간 병합
-        LocalDateTime startDateTime = DateUtils.mergeDateAndTimeWithZeroMinutes(requestDto.getStartDate(), requestDto.getStartTime());
-        LocalDateTime endDateTime = DateUtils.mergeDateAndTimeWithZeroMinutes(requestDto.getStartDate(), requestDto.getEndTime());
+        LocalDateTime startDateTime = DateUtils.mergeDateAndTime(requestDto.getStartDate(), requestDto.getStartTime());
+        LocalDateTime endDateTime = DateUtils.mergeDateAndTime(requestDto.getStartDate(), requestDto.getEndTime());
         log.info("시작시간: {}, 종료시간: {}", startDateTime, endDateTime);
 
         // 종료 시간이 시작 시간보다 앞서지 않도록 검증
