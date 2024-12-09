@@ -16,7 +16,6 @@ import com.jungle.studybbitback.jwt.dto.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -44,6 +43,16 @@ public class ScheduleService {
     private final ScheduleCycleIdGenerator scheduleCycleIdGenerator;
     private final ScheduleCommentRepository scheduleCommentRepository;
 
+    // 방장 권한 검증 메서드
+    private void validateRoomOwnership(Long roomId, Long memberId) {
+        Room room = roomRepository.findById(roomId)
+                .orElseThrow(() -> new IllegalArgumentException("스터디룸이 존재하지 않습니다."));
+
+        if (room.getLeaderId() != memberId) {
+            throw new IllegalArgumentException("해당 기능은 스터디장만 가능합니다.");
+        }
+    }
+
     private void validateRoomMembership(Long roomId, Long memberId) {
         if (roomMemberRepository.findByRoomIdAndMemberId(roomId, memberId).isEmpty()) {
             throw new AccessDeniedException("해당 스터디룸에 가입된 사용자만 접근할 수 있습니다.");
@@ -63,14 +72,14 @@ public class ScheduleService {
         CustomUserDetails userDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         Long memberId = userDetails.getMemberId();
 
+        // 방장 권한 검증 추가
+        validateRoomOwnership(requestDto.getRoomId(), memberId);
+
         // 사용자 및 스터디룸 조회
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
         Room room = roomRepository.findById(requestDto.getRoomId())
                 .orElseThrow(() -> new IllegalArgumentException("스터디룸이 존재하지 않습니다."));
-
-        // 스터디룸 멤버 여부 확인
-        validateRoomMembership(requestDto.getRoomId(), memberId);
 
         // 입력값 검증
         if (requestDto.getStartTime() == null || requestDto.getEndTime() == null) {
@@ -329,9 +338,8 @@ public class ScheduleService {
         Schedule schedule = scheduleRepository.findById(scheduleId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 일정이 존재하지 않습니다."));
 
-        // 방 멤버 여부 검증
-        Long roomId = schedule.getRoom().getId();
-        validateRoomMembership(roomId, memberId);
+        // 방장 권한 검증 추가
+        validateRoomOwnership(schedule.getRoom().getId(), memberId);
 
         // 단일 일정 여부 체크
         if (schedule.getScheduleCycleId() != null) {
@@ -372,9 +380,8 @@ public class ScheduleService {
         Schedule schedule = scheduleRepository.findFirstByScheduleCycleId(scheduleCycleId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 반복 일정이 존재하지 않습니다."));
 
-        if (!schedule.getCreatedBy().getId().equals(memberId)) {
-            throw new AccessDeniedException("해당 일정의 생성자만 수정할 수 있습니다.");
-        }
+        // 방장 권한 검증으로 변경
+        validateRoomOwnership(schedule.getRoom().getId(), memberId);
 
         // 해당 스케줄 사이클에 속한 일정들 조회
         List<Schedule> allSchedules = scheduleRepository.findByScheduleCycleId(scheduleCycleId);
@@ -390,7 +397,6 @@ public class ScheduleService {
 
         // 스터디룸 멤버 여부 확인
         Long roomId = allSchedules.get(0).getRoom().getId();
-        validateRoomMembership(roomId, memberId);
 
         // 해당 cycleid를 가진 모든 일정 삭제
         scheduleRepository.deleteByScheduleCycleId(scheduleCycleId);
@@ -463,11 +469,12 @@ public class ScheduleService {
 
         // 첫 번째 일정에서 필요한 정보 추출
         Schedule firstSchedule = existingSchedules.get(0);
+
+        // 방장 권한 검증 추가
+        validateRoomOwnership(firstSchedule.getRoom().getId(), memberId);
+
         Room room = firstSchedule.getRoom();
         Member member = firstSchedule.getCreatedBy();
-
-        // 스터디룸 멤버 검증
-        validateRoomMembership(room.getId(), memberId);
 
         // 수정 시작 시점 설정
         LocalDateTime modificationStartDateTime = requestDto.getStartDate().atTime(requestDto.getStartTime());
@@ -548,8 +555,15 @@ public class ScheduleService {
     // 단일 일정 삭제
     @Transactional
     public void deleteSingleSchedule(Long scheduleId) {
+
+        CustomUserDetails userDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Long memberId = userDetails.getMemberId();
+
         Schedule schedule = scheduleRepository.findById(scheduleId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 일정은 존재하지 않습니다."));
+
+        // 방장 권한 검증 추가
+        validateRoomOwnership(schedule.getRoom().getId(), memberId);
 
         // 단일 일정 삭제
         scheduleRepository.delete(schedule);
@@ -558,17 +572,34 @@ public class ScheduleService {
     // 반복 일정 일괄 삭제 (단일로 된 일정을 일괄로 삭제하는 게 아님!)
     @Transactional
     public void deleteAllSchedule(Long scheduleCycleId) {
+        CustomUserDetails userDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Long memberId = userDetails.getMemberId();
+
+        Schedule schedule = scheduleRepository.findFirstByScheduleCycleId(scheduleCycleId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 반복 일정이 존재하지 않습니다."));
+
+        // 방장 권한 검증 추가
+        validateRoomOwnership(schedule.getRoom().getId(), memberId);
+
         scheduleRepository.deleteByScheduleCycleId(scheduleCycleId);
     }
 
     // 반복 일정 중 특정 일자 기준으로 이후 일정 전체 삭제
     @Transactional
     public void deleteUpcomingSchedules(Long scheduleCycleId, UpdateUpcomingScheduleRequestDto requestDto) {
+
+        CustomUserDetails userDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Long memberId = userDetails.getMemberId();
+
         List<Schedule> existingSchedules = scheduleRepository.findByScheduleCycleId(scheduleCycleId);
         if (existingSchedules.isEmpty()) {
-            log.info("해당 반복 일정은 존재하지 않습니다. scheduleCycleId: {}", scheduleCycleId);
             throw new IllegalArgumentException("해당 반복 일정이 존재하지 않습니다.");
         }
+
+        Schedule firstSchedule = existingSchedules.get(0);
+
+        // 방장 권한 검증 추가
+        validateRoomOwnership(firstSchedule.getRoom().getId(), memberId);
 
         // 요청 받은 시작일을 LocalDateTime으로 변환 (기본 시작 시간 00:00으로 설정)
         LocalDateTime modificationStartDateTime = requestDto.getStartDate().atStartOfDay();
