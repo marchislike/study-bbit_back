@@ -12,7 +12,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
-public interface DailyStudyRepository extends JpaRepository<DailyStudy, Long> {
+public interface DailyStudyRepository extends JpaRepository<DailyStudy, Long>, DailyStudyRepositoryCustom {
 
 
 	Optional<DailyStudy> findByMemberAndStudyDate(Member member, LocalDate currentDate);
