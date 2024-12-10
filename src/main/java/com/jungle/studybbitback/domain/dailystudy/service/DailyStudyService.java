@@ -1,5 +1,6 @@
 package com.jungle.studybbitback.domain.dailystudy.service;
 
+import com.jungle.studybbitback.domain.dailystudy.dto.GetDailyStudyByPeriodResponseDto;
 import com.jungle.studybbitback.domain.dailystudy.dto.GetDailyStudyResponseDto;
 import com.jungle.studybbitback.domain.dailystudy.dto.WriteStudyRequestDto;
 import com.jungle.studybbitback.domain.dailystudy.dto.WriteStudyResponseDto;
@@ -9,6 +10,7 @@ import com.jungle.studybbitback.domain.member.entity.Member;
 import com.jungle.studybbitback.domain.member.repository.MemberRepository;
 import com.jungle.studybbitback.jwt.dto.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -26,6 +28,7 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
+@Slf4j
 public class DailyStudyService {
 
 	private final MemberRepository memberRepository;
@@ -98,5 +101,32 @@ public class DailyStudyService {
 
 		return dailyStudies.stream().map(GetDailyStudyResponseDto::new)
 				.collect(Collectors.toList());
+	}
+
+	public GetDailyStudyByPeriodResponseDto getStudyByPeriod(Long memberId, LocalDate startDate, LocalDate endDate) {
+		//log.info("startDate : {}, endDate : {}", startDate, endDate);
+
+		Duration studyByPeriod = Duration.ZERO;
+
+		String studyByPeriodAsText = dailyStudyRepository.findStudyByPeriod(memberId, startDate, endDate);
+
+		//log.info("avgIntervalAsText : {}", avgIntervalAsText);
+
+		if (studyByPeriodAsText != null) {
+			studyByPeriod = parsePostgresInterval(studyByPeriodAsText);
+		}
+
+		//log.info("studyByPeriod : {}", studyByPeriod);
+
+		return new GetDailyStudyByPeriodResponseDto(studyByPeriod);
+	}
+
+	private Duration parsePostgresInterval(String interval) {
+		String[] parts = interval.split(":");
+		long hours = Long.parseLong(parts[0]);
+		long minutes = Long.parseLong(parts[1]);
+		long seconds = Long.parseLong(parts[2].split("\\.")[0]);
+
+		return Duration.ofHours(hours).plusMinutes(minutes).plusSeconds(seconds);
 	}
 }

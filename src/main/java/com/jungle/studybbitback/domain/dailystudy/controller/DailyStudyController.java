@@ -1,5 +1,6 @@
 package com.jungle.studybbitback.domain.dailystudy.controller;
 
+import com.jungle.studybbitback.domain.dailystudy.dto.GetDailyStudyByPeriodResponseDto;
 import com.jungle.studybbitback.domain.dailystudy.dto.GetDailyStudyResponseDto;
 import com.jungle.studybbitback.domain.dailystudy.dto.WriteStudyRequestDto;
 import com.jungle.studybbitback.domain.dailystudy.dto.WriteStudyResponseDto;
@@ -50,5 +51,14 @@ public class DailyStudyController {
 			@PathVariable("studyYear") Integer year) {
 		List<GetDailyStudyResponseDto> response = dailyStudyService.getStudyByYear(year);
 		return ResponseEntity.ok(response);
+	}
+
+	@GetMapping("/period/{memberId}/{startDate}/{endDate}")
+	public ResponseEntity<GetDailyStudyByPeriodResponseDto> getStudyByPeriod(
+			@PathVariable("memberId") Long memberId,
+			@PathVariable("startDate") LocalDate startDate,
+			@PathVariable("endDate") LocalDate endDate) {
+		GetDailyStudyByPeriodResponseDto responseDto = dailyStudyService.getStudyByPeriod(memberId, startDate, endDate);
+		return ResponseEntity.ok(responseDto);
 	}
 }
